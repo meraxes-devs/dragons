@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to SSimPL Tools's documentation!
-======================================
+========================================
 
 Contents:
 
@@ -17,6 +17,15 @@ Contents:
    contributing
    authors
    history
+
+Modules
+-------
+
+.. toctree::
+   :maxdepth: 2
+
+   meraxes
+   munge
 
 Indices and tables
 ==================

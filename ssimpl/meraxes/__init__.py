@@ -2,3 +2,5 @@
 # -*- coding: utf-8 -*-
 
 __all__ = ['io',]
+
+import io

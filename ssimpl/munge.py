@@ -14,28 +14,34 @@ __version__ = '0.1.0'
 
 def mass_function(mass, volume, bins, range=None, return_edges=False, **kwargs):
     """Generate a mass function.
-   
-    Args:
+
+    *Args*:
         mass (array):  an array of 'masses'
-        volume (float):  volume of simulation cube / subset
+
+        volume (float):  volume of simulation cube/subset
+
         bins (int or list or str):
             If bins is a string, then it must be one of:
-                'blocks'   : use bayesian blocks for dynamic bin widths
-                'knuth'    : use Knuth's rule to determine bins
-                'scott'    : use Scott's rule to determine bins
-                'freedman' : use the Freedman-diaconis rule to determine bins
+                | 'blocks'   : use bayesian blocks for dynamic bin widths
+                | 'knuth'    : use Knuth's rule to determine bins
+                | 'scott'    : use Scott's rule to determine bins
+                | 'freedman' : use the Freedman-diaconis rule to determine bins
 
-    Kwargs:
+    *Kwargs*:
         range (len=2 list or array): range of data to be used for mass function
-        return_edges (bool): return the bin_edges (default: False)
-        **kwargs: passed to np.histogram call
 
-    Returns:
+        return_edges (bool): return the bin_edges (default: False)
+
+        \*\*kwargs: passed to np.histogram call
+
+    *Returns*:
         array of [bin centers, mass function vals]
+
         If return_edges=True then the bin edges are also returned.
 
-    Notes:
+    *Notes*:
         The code to generate the bin_widths is taken from astroML.hist
+
     """
 
     if "normed" in kwargs:
