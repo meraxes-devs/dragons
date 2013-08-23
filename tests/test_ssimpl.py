@@ -9,20 +9,28 @@ Tests for `ssimpl` module.
 """
 
 import unittest
+import numpy as np
 
-from ssimpl import ssimpl
+import ssimpl
 
-
-class TestSsimpl(unittest.TestCase):
+class TestMunge(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.masses = np.array([1.1,2.2,3.3,3.4,3.5,4.6,5.7,6.8,7.9,8.0])
+        self.volume = (100./0.705)**3.  # Mpc^3
 
-    def test_something(self):
-        pass
+    def test_mass_function(self):
+        mf, edges = ssimpl.munge.mass_function(self.masses, self.volume,
+                                               bins='knuth',
+                                               return_edges=True)  
+        self.assertAlmostEqual(mf.max(), 6.85)
+        self.assertEqual(mf.size, 6)
+        self.assertEqual(edges.size, 4)
 
     def tearDown(self):
         pass
 
+
 if __name__ == '__main__':
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestMunge)
     unittest.main()
