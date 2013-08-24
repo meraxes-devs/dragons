@@ -15,9 +15,11 @@ SSimPL Tools
 Python tools for dealing with simulations, semi-analytic models and associated post-processing.
 
 * Free software: BSD license
+
 .. * Documentation: http://ssimpl.rtfd.org.
 
 Features
 --------
 
-* TODO
+* Common processing tasks for analysing simulation/model data (:ref:`munge`).
+* Functions for reading and parsing Meraxes output (:ref:`meraxes`)

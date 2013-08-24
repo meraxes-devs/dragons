@@ -6,13 +6,15 @@
 import numpy as np
 from astropy import log
 from astroML.density_estimation import scotts_bin_width, freedman_bin_width,\
-        knuth_bin_width, bayesian_blocks
+    knuth_bin_width, bayesian_blocks
 
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.0'
 
-def mass_function(mass, volume, bins, range=None, return_edges=False, **kwargs):
+
+def mass_function(mass, volume, bins,
+                  range=None, return_edges=False, **kwargs):
     """Generate a mass function.
 
     *Args*:
@@ -80,4 +82,3 @@ def mass_function(mass, volume, bins, range=None, return_edges=False, **kwargs):
         return mf
     else:
         return mf, edges
-
