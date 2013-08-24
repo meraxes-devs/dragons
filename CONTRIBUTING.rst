@@ -58,7 +58,7 @@ Get Started!
 
 Ready to contribute? Here's how to set up `ssimpl` for local development.
 
-1. Fork the `ssimpl` repo on GitHub.
+1. Fork the `ssimpl` repo on BitBucket.
 2. Clone your fork locally::
 
     $ git clone git@bitbucket.org:your_name_here/ssimpl.git
