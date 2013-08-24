@@ -13,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/smutch/ssimpl/issues.
+Report bugs at https://bitbucket.org/smutch/ssimpl/issues.
 
 If you are reporting a bug, please include:
 
@@ -24,26 +24,27 @@ If you are reporting a bug, please include:
 Fix Bugs
 ~~~~~~~~
 
-Look through the GitHub issues for bugs. Anything tagged with "bug"
+Look through the BitBucket issues for bugs. Anything tagged with "bug"
 is open to whoever wants to implement it.
 
 Implement Features
 ~~~~~~~~~~~~~~~~~~
 
-Look through the GitHub issues for features. Anything tagged with "feature"
+Look through the BitBucket issues for features. Anything tagged with "feature"
 is open to whoever wants to implement it.
 
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
 SSimPL Tools could always use more documentation, whether as part of the 
-official SSimPL Tools docs, in docstrings, or even on the web in blog posts,
-articles, and such.
+official SSimPL Tools docs or in docstrings.
+
+.. or even on the web in blog posts, articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/smutch/ssimpl/issues.
+The best way to send feedback is to file an issue at https://bitbucket.org/smutch/ssimpl/issues.
 
 If you are proposing a feature:
 
@@ -60,7 +61,7 @@ Ready to contribute? Here's how to set up `ssimpl` for local development.
 1. Fork the `ssimpl` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/ssimpl.git
+    $ git clone git@bitbucket.org:your_name_here/ssimpl.git
 
 3. Install your local copy into a virtualenv. Assuming you have
    virtualenvwrapper installed, this is how you set up your fork for local
@@ -84,13 +85,13 @@ tests::
   
 To get flake8, just pip install them into your virtualenv. 
 
-6. Commit your changes and push your branch to GitHub::
+6. Commit your changes and push your branch to BitBucket::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website.
+7. Submit a pull request through the BitBucket website.
 
 Pull Request Guidelines
 -----------------------

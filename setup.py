@@ -24,7 +24,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author='Simon Mutch',
     author_email='smutch.astro@gmail.com',
-    url='https://github.com/smutch/ssimpl',
+    url='https://bitbucket.org/smutch/ssimpl',
     packages=[
         'ssimpl',
     ],
