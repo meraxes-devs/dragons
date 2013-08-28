@@ -239,10 +239,36 @@ def read_nextprogenitor_indices(fname, snapshot):
                          read from.
 
     *Returns*:
-        np_ind  -  NextProgenitor indices
+        np_ind: NextProgenitor indices
     """
 
     with h5.File(fname, 'r') as fin:
         np_ind = fin["Snap{:03d}/NextProgenitorIndices".format(snapshot)][:]
 
     return np_ind
+
+
+def read_xH_grid(fname, snapshot):
+
+    """ Read the neutral hydrogren fraction (xH) grids from the Meraxes HDF5
+    file.
+
+    *Args*:
+        fname (str):  Full path to input hdf5 master file
+
+        snapshot (int):  Snapshot from which the xH grid dataset is to be
+                         read from.
+
+    *Returns*:
+        xH_grid (array):   xH grid
+        props (dict):   associated attributes 
+    """
+
+    with h5.File(fname, 'r') as fin:
+        ds_name = "Snap{:03d}/xH_grid".format(snapshot)
+        xH_grid = fin[ds_name][:]
+        props = dict(fin[ds_name].attrs.iteritems())
+
+    xH_grid.shape = [props["HII_dim"][0],]*3
+
+    return xH_grid, props
