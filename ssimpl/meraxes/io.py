@@ -207,6 +207,25 @@ def read_snaplist(fname):
     return np.array(snaplist, dtype=float), np.array(zlist, dtype=float),\
         np.array(lt_times, dtype=float)
 
+def grab_redshift(fname, snapshot):
+
+    """ Quickly grab the redshift value of a single snapshot from a Meraxes
+    HDF5 file.
+
+    *Args*:
+        fname (str):  Full path to input hdf5 master file
+
+        snapshot (int):  Snapshot for which the redshift is to gotten
+
+    *Returns*:
+        redshift (float):   Corresponding redshift value
+    """
+
+    with h5.File(fname, 'r') as fin:
+        redshift = fin["Snap{:03d}".format(snapshot)].attrs["Redshift"][0]
+
+    return redshift
+
 
 def read_firstprogenitor_indices(fname, snapshot):
 
