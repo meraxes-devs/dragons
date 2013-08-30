@@ -4,12 +4,12 @@
 """Routines for reading nbody (gbpHalos, gbpTrees etc.) output files."""
 
 import numpy as np
-import h5py as h5
 from astropy import log
 
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.0'
+
 
 def read_density_grid(fname):
 
@@ -22,12 +22,14 @@ def read_density_grid(fname):
         grid (array): The density grid.
     """
 
+    log.info("Reading density grid from %s" % fname)
+
     with open(fname, "rb") as fin:
         # read the header info
         n_cell = np.fromfile(fin, 'i4', 3)
-        box_size_grid = np.fromfile(fin, 'f8', 3)
+        np.fromfile(fin, 'f8', 3)  # box_size_grid
         n_grids = np.fromfile(fin, 'i4', 1)[0]
-        ma_scheme = np.fromfile(fin, 'i4', 1)[0]
+        np.fromfile(fin, 'i4', 1)[0]  # ma_scheme
 
         # read in the identifier
         ident = np.fromfile(fin, 'S32', 1)[0]
@@ -37,7 +39,7 @@ def read_density_grid(fname):
 
         # keep reading grids until we get the density one
         i_grid = 1
-        while((ident != 'rho_r_dark') and (i_grid<n_grids)):
+        while((ident != 'rho_r_dark') and (i_grid < n_grids)):
             ident = np.fromfile(fin, 'S32', 1)[0]
             grid = np.fromfile(fin, '<f4', n_cell.cumprod()[-1])
 

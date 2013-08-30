@@ -207,6 +207,7 @@ def read_snaplist(fname):
     return np.array(snaplist, dtype=float), np.array(zlist, dtype=float),\
         np.array(lt_times, dtype=float)
 
+
 def grab_redshift(fname, snapshot):
 
     """ Quickly grab the redshift value of a single snapshot from a Meraxes
@@ -280,7 +281,7 @@ def read_xH_grid(fname, snapshot):
 
     *Returns*:
         xH_grid (array):   xH grid
-        props (dict):   associated attributes 
+        props (dict):   associated attributes
     """
 
     with h5.File(fname, 'r') as fin:
@@ -288,6 +289,6 @@ def read_xH_grid(fname, snapshot):
         xH_grid = fin[ds_name][:]
         props = dict(fin[ds_name].attrs.iteritems())
 
-    xH_grid.shape = [props["HII_dim"][0],]*3
+    xH_grid.shape = [props["HII_dim"][0], ]*3
 
     return xH_grid, props

@@ -26,6 +26,7 @@ Modules
 
    meraxes
    munge
+   nbody
 
 Indices and tables
 ==================

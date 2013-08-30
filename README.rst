@@ -21,5 +21,6 @@ Python tools for dealing with simulations, semi-analytic models and associated p
 Features
 --------
 
-* Common processing tasks for analysing simulation/model data (:ref:`munge`).
+* Common processing tasks for analysing simulation/model data (:ref:`munge`)
 * Functions for reading and parsing Meraxes output (:ref:`meraxes`)
+* Functions for reading and parsing nbody (gbpCode) output (:ref:`nbody`)
