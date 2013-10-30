@@ -138,11 +138,9 @@ def read_input_params(fname, props=None):
         props = group.attrs.keys()
 
         # Add some extra properties
-        props_dict['SimHubble_h'] = group.attrs['SimHubble_h'][0]
-        props_dict['ObsHubble_h'] = group.attrs['ObsHubble_h'][0]
+        props_dict['Hubble_h'] = group.attrs['Hubble_h'][0]
         props_dict['BoxSize'] = group.attrs['BoxSize'][0] /\
-            props_dict['ObsHubble_h']
-        props_dict['MaxTreeFiles'] = group.attrs['FilesPerSnapshot'][0]
+            props_dict['Hubble_h']
         props_dict['VolumeFactor'] = group.attrs['VolumeFactor'][0]
         props_dict['Volume'] = props_dict['BoxSize']**3.0 *\
             props_dict['VolumeFactor']
@@ -169,9 +167,8 @@ def read_gitref(fname):
         (str) git ref of the model
     """
 
-    fin = h5.File(fname, 'r')
-    gitref = fin.attrs['GitRef'].copy()[0]
-    fin.close()
+    with h5.File(fname, 'r') as fin:
+        gitref = fin.attrs['GitRef'].copy()[0]
 
     return gitref
 
@@ -191,18 +188,18 @@ def read_snaplist(fname):
         lt_times:   array of light travel times (Gyr)
     """
 
-    fin = h5.File(fname, 'r')
-
     zlist = []
     snaplist = []
     lt_times = []
-    for snap in fin.keys():
-        try:
-            zlist.append(fin[snap].attrs['Redshift'][0])
-            snaplist.append(int(snap[-3:]))
-            lt_times.append(fin[snap].attrs['LTTime'][0])
-        except KeyError:
-            pass
+
+    with h5.File(fname, 'r') as fin:
+        for snap in fin.keys():
+            try:
+                zlist.append(fin[snap].attrs['Redshift'][0])
+                snaplist.append(int(snap[-3:]))
+                lt_times.append(fin[snap].attrs['LTTime'][0])
+            except KeyError:
+                pass
 
     return np.array(snaplist, dtype=float), np.array(zlist, dtype=float),\
         np.array(lt_times, dtype=float)
@@ -216,7 +213,7 @@ def grab_redshift(fname, snapshot):
     *Args*:
         fname (str):  Full path to input hdf5 master file
 
-        snapshot (int):  Snapshot for which the redshift is to gotten
+        snapshot (int):  Snapshot for which the redshift is to grabbed
 
     *Returns*:
         redshift (float):   Corresponding redshift value
@@ -224,6 +221,27 @@ def grab_redshift(fname, snapshot):
 
     with h5.File(fname, 'r') as fin:
         redshift = fin["Snap{:03d}".format(snapshot)].attrs["Redshift"][0]
+
+    return redshift
+
+
+def grab_corrected_snapshot(fname, snapshot):
+
+    """ Quickly grab the corrected snapshot value of a single snapshot from a
+    Meraxes HDF5 file.
+
+    *Args*:
+        fname (str):  Full path to input hdf5 master file
+
+        snapshot (int):  Snapshot for which the corrected value is to be
+                         grabbed
+
+    *Returns*:
+        redshift (float):   Corresponding corrected snapshot value
+    """
+
+    with h5.File(fname, 'r') as fin:
+        redshift = fin["Snap{:03d}".format(snapshot)].attrs["CorrectedSnap"][0]
 
     return redshift
 
