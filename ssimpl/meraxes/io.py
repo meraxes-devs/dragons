@@ -7,12 +7,27 @@ import numpy as np
 import h5py as h5
 from astropy import log
 
+try:
+    import pandas as pd
+except ImportError:
+    log.warn("The `pandas` package is unavailable therefore `pandas=True`"
+             " cannot be used in any function.")
+
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.0'
 
 
-def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
+def _check_pandas():
+    try:
+        pd
+    except NameError:
+        raise ImportError("The pandas package must be available if"
+                          " pandas=True.")
+
+
+def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
+              pandas=False):
 
     """ Read in a Meraxes hdf5 output file.
 
@@ -34,6 +49,9 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
         sim_props (bool): Output some simulation properties as well.
                           (default = False)
 
+        pandas (bool): Ouput a pandas dataframe instead of a numpy array.
+                       (default = False)
+
     *Returns*:
         Array with the requested galaxies and properties.
 
@@ -47,6 +65,9 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
             Volume,
             Redshift )
     """
+
+    if pandas:
+        _check_pandas()
 
     # Open the file for reading
     fin = h5.File(fname, 'r')
@@ -86,7 +107,27 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
     if not quiet:
         log.info('Read in %d galaxies.' % len(G))
 
-    output = [G, ]
+    # If requested convert the numpy array into a pandas dataframe
+    if pandas:
+
+        # Get a list of all of the columns which a 1D
+        names = []
+        for k, v in G.dtype.fields.iteritems():
+            if len(v[0].shape) == 0:
+                names.append(k)
+
+        # Create a new dataframe with these columns
+        Gdf = pd.DataFrame(G[names])
+
+        # Loop through each N(>1)D galaxy property and append each dimension as
+        # its own column in the dataframe
+        for k, v in G.dtype.fields.iteritems():
+            if len(v[0].shape) != 0:
+                for i in range(v[0].shape[0]):
+                    Gdf[k+'_%d' % i] = G[k][:, i]
+
+        # Make G now point to our pandas dataframe
+        G = Gdf
 
     # Set some run properties
     if sim_props:
@@ -95,19 +136,18 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
         MaxTreeFiles = fin['InputParams'].attrs['FilesPerSnapshot'][0]
         Volume = BoxSize**3.0
         Redshift = snap_group.attrs['Redshift']
-        output.append(
-            {'BoxSize': BoxSize,
-             'MaxTreeFiles': MaxTreeFiles,
-             'Hubble_h': Hubble_h,
-             'Volume': Volume,
-             'Redshift': Redshift})
+        properties = {'BoxSize': BoxSize,
+                      'MaxTreeFiles': MaxTreeFiles,
+                      'Hubble_h': Hubble_h,
+                      'Volume': Volume,
+                      'Redshift': Redshift}
 
     fin.close()
 
-    if len(output) == 1:
-        return output[0]
+    if sim_props:
+        return G, properties
     else:
-        return output
+        return G
 
 
 def read_input_params(fname, props=None):
@@ -246,7 +286,7 @@ def grab_corrected_snapshot(fname, snapshot):
     return redshift
 
 
-def read_firstprogenitor_indices(fname, snapshot):
+def read_firstprogenitor_indices(fname, snapshot, pandas=False):
 
     """ Read the FirstProgenitor indices from the Meraxes HDF5 file.
 
@@ -256,17 +296,27 @@ def read_firstprogenitor_indices(fname, snapshot):
         snapshot (int):  Snapshot from which the progenitors dataset is to be
                          read from.
 
+        pandas (bool): Return a pandas series instead of a numpy array.
+                       (default = False)
+
+
     *Returns*:
-        fp_ind (array): FirstProgenitor indices
+        fp_ind (array or series): FirstProgenitor indices
     """
+
+    if pandas:
+        _check_pandas()
 
     with h5.File(fname, 'r') as fin:
         fp_ind = fin["Snap{:03d}/FirstProgenitorIndices".format(snapshot)][:]
 
+    if pandas:
+        fp_ind = pd.Series(fp_ind)
+
     return fp_ind
 
 
-def read_nextprogenitor_indices(fname, snapshot):
+def read_nextprogenitor_indices(fname, snapshot, pandas=False):
 
     """ Read the NextProgenitor indices from the Meraxes HDF5 file.
 
@@ -276,12 +326,21 @@ def read_nextprogenitor_indices(fname, snapshot):
         snapshot (int):  Snapshot from which the progenitors dataset is to be
                          read from.
 
+        pandas (bool): Return a pandas series instead of a numpy array.
+                       (default = False)
+
     *Returns*:
         np_ind: NextProgenitor indices
     """
 
+    if pandas:
+        _check_pandas()
+
     with h5.File(fname, 'r') as fin:
         np_ind = fin["Snap{:03d}/NextProgenitorIndices".format(snapshot)][:]
+
+    if pandas:
+        np_ind = pd.Series(np_ind)
 
     return np_ind
 
