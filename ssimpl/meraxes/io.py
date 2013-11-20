@@ -12,7 +12,8 @@ __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.0'
 
 
-def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
+def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
+              pandas=False):
 
     """ Read in a Meraxes hdf5 output file.
 
@@ -34,6 +35,9 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
         sim_props (bool): Output some simulation properties as well.
                           (default = False)
 
+        pandas (bool): Ouput a pandas dataframe instead of a numpy array.
+                       (default = False)
+
     *Returns*:
         Array with the requested galaxies and properties.
 
@@ -47,6 +51,13 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
             Volume,
             Redshift )
     """
+
+    if pandas:
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError("The pandas package must be available if"
+                              " pandas=True.")
 
     # Open the file for reading
     fin = h5.File(fname, 'r')
@@ -86,7 +97,27 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
     if not quiet:
         log.info('Read in %d galaxies.' % len(G))
 
-    output = [G, ]
+    # If requested convert the numpy array into a pandas dataframe
+    if pandas:
+
+        # Get a list of all of the columns which a 1D
+        names = []
+        for k, v in G.dtype.fields.iteritems():
+            if len(v[0].shape) == 0:
+                names.append(k)
+
+        # Create a new dataframe with these columns
+        Gdf = pd.DataFrame(G[names])
+
+        # Loop through each N(>1)D galaxy property and append each dimension as
+        # its own column in the dataframe
+        for k, v in G.dtype.fields.iteritems():
+            if len(v[0].shape) != 0:
+                for i in range(v[0].shape[0]):
+                    Gdf[k+'_%d' % i] = G[k][:, i]
+
+        # Make G now point to our pandas dataframe
+        G = Gdf
 
     # Set some run properties
     if sim_props:
@@ -95,19 +126,18 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False):
         MaxTreeFiles = fin['InputParams'].attrs['FilesPerSnapshot'][0]
         Volume = BoxSize**3.0
         Redshift = snap_group.attrs['Redshift']
-        output.append(
-            {'BoxSize': BoxSize,
-             'MaxTreeFiles': MaxTreeFiles,
-             'Hubble_h': Hubble_h,
-             'Volume': Volume,
-             'Redshift': Redshift})
+        properties = {'BoxSize': BoxSize,
+                      'MaxTreeFiles': MaxTreeFiles,
+                      'Hubble_h': Hubble_h,
+                      'Volume': Volume,
+                      'Redshift': Redshift}
 
     fin.close()
 
-    if len(output) == 1:
-        return output[0]
+    if sim_props:
+        return G, properties
     else:
-        return output
+        return G
 
 
 def read_input_params(fname, props=None):
