@@ -1,6 +1,4 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__all__ = ['io',]
-
-import io
+from io import *
