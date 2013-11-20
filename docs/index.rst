@@ -27,6 +27,7 @@ Modules
    meraxes
    munge
    nbody
+   plotutils
 
 Indices and tables
 ==================
