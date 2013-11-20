@@ -7,9 +7,23 @@ import numpy as np
 import h5py as h5
 from astropy import log
 
+try:
+    import pandas as pd
+except ImportError:
+    log.warn("The `pandas` package is unavailable therefore `pandas=True`"
+             " cannot be used in any function.")
+
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.0'
+
+
+def _check_pandas():
+    try:
+        pd
+    except NameError:
+        raise ImportError("The pandas package must be available if"
+                          " pandas=True.")
 
 
 def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
@@ -53,11 +67,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
     """
 
     if pandas:
-        try:
-            import pandas as pd
-        except ImportError:
-            raise ImportError("The pandas package must be available if"
-                              " pandas=True.")
+        _check_pandas()
 
     # Open the file for reading
     fin = h5.File(fname, 'r')
@@ -276,7 +286,7 @@ def grab_corrected_snapshot(fname, snapshot):
     return redshift
 
 
-def read_firstprogenitor_indices(fname, snapshot):
+def read_firstprogenitor_indices(fname, snapshot, pandas=False):
 
     """ Read the FirstProgenitor indices from the Meraxes HDF5 file.
 
@@ -286,17 +296,27 @@ def read_firstprogenitor_indices(fname, snapshot):
         snapshot (int):  Snapshot from which the progenitors dataset is to be
                          read from.
 
+        pandas (bool): Return a pandas series instead of a numpy array.
+                       (default = False)
+
+
     *Returns*:
-        fp_ind (array): FirstProgenitor indices
+        fp_ind (array or series): FirstProgenitor indices
     """
+
+    if pandas:
+        _check_pandas()
 
     with h5.File(fname, 'r') as fin:
         fp_ind = fin["Snap{:03d}/FirstProgenitorIndices".format(snapshot)][:]
 
+    if pandas:
+        fp_ind = pd.Series(fp_ind)
+
     return fp_ind
 
 
-def read_nextprogenitor_indices(fname, snapshot):
+def read_nextprogenitor_indices(fname, snapshot, pandas=False):
 
     """ Read the NextProgenitor indices from the Meraxes HDF5 file.
 
@@ -306,12 +326,21 @@ def read_nextprogenitor_indices(fname, snapshot):
         snapshot (int):  Snapshot from which the progenitors dataset is to be
                          read from.
 
+        pandas (bool): Return a pandas series instead of a numpy array.
+                       (default = False)
+
     *Returns*:
         np_ind: NextProgenitor indices
     """
 
+    if pandas:
+        _check_pandas()
+
     with h5.File(fname, 'r') as fin:
         np_ind = fin["Snap{:03d}/NextProgenitorIndices".format(snapshot)][:]
+
+    if pandas:
+        np_ind = pd.Series(np_ind)
 
     return np_ind
 
