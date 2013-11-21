@@ -11,6 +11,18 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.colors as mplcol
 import matplotlib.pyplot as plt
+from pkg_resources import resource_filename
+
+
+def init_style():
+    """Initialises the ssimpl plotutils plotting style."""
+
+    # Reset the plotting parameters to internal defaults
+    plt.rcdefaults()
+
+    # Load the ssimpl params
+    fname = resource_filename(__name__, 'matplotlibrc_ssimpl')
+    plt.rcParams = mpl.rc_params_from_file(fname, fail_on_error=True)
 
 
 def color_palette(name=None, n_colors=6, desat=None):
