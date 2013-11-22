@@ -17,12 +17,15 @@ from pkg_resources import resource_filename
 def init_style():
     """Initialises the ssimpl plotutils plotting style."""
 
-    # Reset the plotting parameters to internal defaults
-    plt.rcdefaults()
-
     # Load the ssimpl params
     fname = resource_filename(__name__, 'matplotlibrc_ssimpl')
-    plt.rcParams.update(mpl.rc_params_from_file(fname, fail_on_error=True))
+    ssimpl_params = mpl.rc_params_from_file(fname, fail_on_error=True)
+
+    # Don't try and change the currently selected backend
+    ssimpl_params.pop("backend")
+
+    # Update the current rcParams with the ssimpl values
+    plt.rcParams.update()
 
 
 def color_palette(name=None, n_colors=6, desat=None):
