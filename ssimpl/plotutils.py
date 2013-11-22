@@ -22,7 +22,7 @@ def init_style():
 
     # Load the ssimpl params
     fname = resource_filename(__name__, 'matplotlibrc_ssimpl')
-    plt.rcParams = mpl.rc_params_from_file(fname, fail_on_error=True)
+    plt.rcParams.update(mpl.rc_params_from_file(fname, fail_on_error=True))
 
 
 def color_palette(name=None, n_colors=6, desat=None):
