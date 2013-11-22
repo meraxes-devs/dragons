@@ -3,6 +3,7 @@
 
 """A collection of functions for doing common processing tasks."""
 
+import re
 import numpy as np
 from astropy import log
 from astroML.density_estimation import scotts_bin_width, freedman_bin_width,\
@@ -11,6 +12,27 @@ from astroML.density_estimation import scotts_bin_width, freedman_bin_width,\
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.0'
+
+
+def pretty_print_dict(d, fmtlen=30):
+
+    """Pretty print a dictionary, dealing with recursion.
+
+    *Args*:
+        d (dict): The dictionary to print
+
+        fmtlen (int): maximum length of dictionary key for print formatting
+    """
+
+    fmtstr = "%%%ds :" % fmtlen
+    fmtstr_title = "\n%%%ds\n%%%ds" % (fmtlen, fmtlen)
+
+    for k, v in d.iteritems():
+        if isinstance(v, dict):
+            print fmtstr_title % (k.upper(), re.sub('\S', '-', k))
+            pretty_print_dict(v)
+        else:
+            print fmtstr % k, v
 
 
 def mass_function(mass, volume, bins,
