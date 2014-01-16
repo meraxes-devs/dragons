@@ -35,6 +35,7 @@ def init_style(context="default", theme="default"):
     # Modify based on chosen context if necessary
     if context is "talk":
         ssimpl_params["font.size"] = 14.0
+        ssimpl_params["lines.linewidth"] = 3.0
     elif context is "inline":
         ssimpl_params.update({'font.size': 10.0,
                               'figure.figsize': (6.0, 4.0)})
