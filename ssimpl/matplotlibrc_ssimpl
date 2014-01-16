@@ -126,7 +126,7 @@ font.family         : sans-serif
 # settings for axes and ticks. Special text sizes can be defined
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
-#font.size           : 14.0
+font.size           : 12.0
 #font.serif          : Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif     : Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
@@ -303,7 +303,7 @@ legend.frameon       : False   # whether or not to draw a frame around legend
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 figure.figsize   : 8, 4.944    # figure size in inches
 # figure.dpi       : 100     # figure dots per inch
-#figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
+# figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor
 #figure.autolayout : False  # When True, automatically adjust subplot
                             # parameters to make the plot fit the figure
@@ -312,7 +312,7 @@ figure.figsize   : 8, 4.944    # figure size in inches
 # figure width or height
 #figure.subplot.left    : 0.125  # the left side of the subplots of the figure
 #figure.subplot.right   : 0.9    # the right side of the subplots of the figure
-#figure.subplot.bottom  : 0.1    # the bottom of the subplots of the figure
+figure.subplot.bottom  : 0.125    # the bottom of the subplots of the figure
 #figure.subplot.top     : 0.9    # the top of the subplots of the figure
 #figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots
 #figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots
@@ -352,7 +352,7 @@ image.origin : lower             # lower | upper
 # the default savefig params can be different from the display params
 # Eg, you may want a higher resolution, or to make the figure
 # background white
-# savefig.dpi        : 300      # figure dots per inch
+savefig.dpi        : 72      # figure dots per inch
 #savefig.facecolor  : white    # figure facecolor when saving
 #savefig.edgecolor  : white    # figure edgecolor when saving
 #savefig.format     : png      # png, ps, pdf, svg

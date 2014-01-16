@@ -14,8 +14,16 @@ import matplotlib.pyplot as plt
 from pkg_resources import resource_filename
 
 
-def init_style():
+def init_style(context="default", theme="default"):
     """Initialises the ssimpl plotutils plotting style."""
+
+    valid_contexts = ("default", "talk", "inline")
+    valid_themes = ("default", "white_bg")
+
+    if context not in valid_contexts:
+        raise ValueError("Invalid context")
+    if theme not in valid_themes:
+        raise ValueError("Invalid theme")
 
     # Load the ssimpl params
     fname = resource_filename(__name__, 'matplotlibrc_ssimpl')
@@ -24,8 +32,29 @@ def init_style():
     # Don't try and change the currently selected backend
     ssimpl_params.pop("backend")
 
+    # Modify based on chosen context if necessary
+    if context is "talk":
+        ssimpl_params["font.size"] = 14.0
+    elif context is "inline":
+        ssimpl_params.update({'font.size': 10.0,
+                              'figure.figsize': (6.0, 4.0)})
+
+    # Modify based on chosen theme if necessary
+    if theme is "white_bg":
+        ssimpl_params["axes.facecolor"] = "w"
+        ssimpl_params["grid.color"] = "0.95"
+
+    # If we are using ipython with the inline backend then update the params to
+    # match what IPython wants to enforce.  This is a hack, but ensures that we
+    # get reproducable results with this backend.
+    if mpl.get_backend().find("backend_inline") != -1:
+        fig = plt.figure()
+        del(fig)
+        ssimpl_params.update(dict({'figure.facecolor': 'white',
+                                   'figure.edgecolor': 'white'}))
+
     # Update the current rcParams with the ssimpl values
-    plt.rcParams.update()
+    plt.rcParams.update(ssimpl_params)
 
 
 def color_palette(name=None, n_colors=6, desat=None):
