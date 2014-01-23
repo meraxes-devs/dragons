@@ -106,4 +106,4 @@ def read_halo_catalog(catalog_loc):
             n_halos += n_halos_file
             bar.update()
 
-    return halo
+    return halo[list(catalog_halo_dtype.names[:-1])]
