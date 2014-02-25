@@ -314,7 +314,43 @@ def read_firstprogenitor_indices(fname, snapshot, pandas=False):
         _check_pandas()
 
     with h5.File(fname, 'r') as fin:
-        fp_ind = fin["Snap{:03d}/FirstProgenitorIndices".format(snapshot)][:]
+
+        # number of cores used for this run
+        n_cores = fin.attrs["NCores"][0]
+
+        # group in the master file for this snapshot
+        snap_group = fin["Snap{:03d}".format(snapshot)]
+
+        # group for the previous snapshot
+        prev_snap_group = fin["Snap{:03d}".format(snapshot-1)]
+
+        # number of galaxies in this snapshot
+        n_gals = snap_group.attrs["NGalaxies"][0]
+
+        # malloc the fp_ind array and an array that will hold offsets for
+        # each core
+        fp_ind = np.zeros(n_gals, 'i4')
+        prev_core_counter = np.zeros(n_cores, 'i4')
+
+        # calculate the offsets for each core
+        for i_core in xrange(n_cores):
+            prev_core_counter[i_core] = \
+                prev_snap_group["Core{:d}/Galaxies".format(i_core)].size
+        prev_core_counter = np.cumsum(prev_core_counter)
+
+        # loop through and read in the FirstProgenitorIndices for each core. Be
+        # sure to update the value to reflect that we are making one big array
+        # from the output of all cores. Also be sure *not* to update fp indices
+        # that = -1.  This has special meaning!
+        counter = 0
+        for i_core in xrange(n_cores):
+            ds = snap_group["Core{:d}/FirstProgenitorIndices".format(i_core)]
+            core_nvals = ds.size
+            dest_sel = np.s_[counter:core_nvals+counter]
+            ds.read_direct(fp_ind, dest_sel=dest_sel)
+            counter += core_nvals
+            fp_ind[dest_sel][fp_ind[dest_sel] > -1] += \
+                prev_core_counter[i_core]
 
     if pandas:
         fp_ind = pd.Series(fp_ind)
@@ -343,7 +379,31 @@ def read_nextprogenitor_indices(fname, snapshot, pandas=False):
         _check_pandas()
 
     with h5.File(fname, 'r') as fin:
-        np_ind = fin["Snap{:03d}/NextProgenitorIndices".format(snapshot)][:]
+
+        # number of cores used for this run
+        n_cores = fin.attrs["NCores"][0]
+
+        # group in the master file for this snapshot
+        snap_group = fin["Snap{:03d}".format(snapshot)]
+
+        # number of galaxies in this snapshot
+        n_gals = snap_group.attrs["NGalaxies"][0]
+
+        # malloc the np_ind array
+        np_ind = np.zeros(n_gals, 'i4')
+
+        # loop through and read in the NextProgenitorIndices for each core. Be
+        # sure to update the value to reflect that we are making one big array
+        # from the output of all cores. Also be sure *not* to update np indices
+        # that = -1.  This has special meaning!
+        counter = 0
+        for i_core in xrange(n_cores):
+            ds = snap_group["Core{:d}/NextProgenitorIndices".format(i_core)]
+            core_nvals = ds.size
+            dest_sel = np.s_[counter:core_nvals+counter]
+            ds.read_direct(np_ind, dest_sel=dest_sel)
+            np_ind[dest_sel][np_ind[dest_sel] > -1] += counter
+            counter += core_nvals
 
     if pandas:
         np_ind = pd.Series(np_ind)
