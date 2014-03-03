@@ -333,8 +333,9 @@ def read_firstprogenitor_indices(fname, snapshot, pandas=False):
         prev_core_counter = np.zeros(n_cores, 'i4')
 
         # calculate the offsets for each core
-        for i_core in xrange(n_cores):
-            prev_core_counter[i_core] = \
+        prev_core_counter[0] = 0
+        for i_core in xrange(n_cores-1):
+            prev_core_counter[i_core+1] = \
                 prev_snap_group["Core{:d}/Galaxies".format(i_core)].size
         prev_core_counter = np.cumsum(prev_core_counter)
 
