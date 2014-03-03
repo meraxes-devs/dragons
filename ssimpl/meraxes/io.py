@@ -412,6 +412,72 @@ def read_nextprogenitor_indices(fname, snapshot, pandas=False):
     return np_ind
 
 
+def read_descendant_indices(fname, snapshot, pandas=False):
+
+    """ Read the Descendant indices from the Meraxes HDF5 file.
+
+    *Args*:
+        fname (str):  Full path to input hdf5 master file
+
+        snapshot (int):  Snapshot from which the descendant dataset is to be
+                         read from.
+
+        pandas (bool): Return a pandas series instead of a numpy array.
+                       (default = False)
+
+    *Returns*:
+        desc_ind: NextProgenitor indices
+    """
+
+    if pandas:
+        _check_pandas()
+
+    with h5.File(fname, 'r') as fin:
+
+        # number of cores used for this run
+        n_cores = fin.attrs["NCores"][0]
+
+        # group in the master file for this snapshot
+        snap_group = fin["Snap{:03d}".format(snapshot)]
+
+        # group for the next snapshot
+        next_snap_group = fin["Snap{:03d}".format(snapshot+1)]
+
+        # number of galaxies in this snapshot
+        n_gals = snap_group.attrs["NGalaxies"][0]
+
+        # malloc the desc_ind array and an array that will hold offsets for
+        # each core
+        desc_ind = np.zeros(n_gals, 'i4')
+        prev_core_counter = np.zeros(n_cores, 'i4')
+
+        # calculate the offsets for each core
+        prev_core_counter[0] = 0
+        for i_core in xrange(n_cores-1):
+            prev_core_counter[i_core+1] = \
+                next_snap_group["Core{:d}/Galaxies".format(i_core)].size
+        prev_core_counter = np.cumsum(prev_core_counter)
+
+        # loop through and read in the DescendantIndices for each core. Be sure
+        # to update the value to reflect that we are making one big array from
+        # the output of all cores. Also be sure *not* to update desc indices
+        # that = -1.  This has special meaning!
+        counter = 0
+        for i_core in xrange(n_cores):
+            ds = snap_group["Core{:d}/DescendantIndices".format(i_core)]
+            core_nvals = ds.size
+            dest_sel = np.s_[counter:core_nvals+counter]
+            ds.read_direct(desc_ind, dest_sel=dest_sel)
+            counter += core_nvals
+            desc_ind[dest_sel][desc_ind[dest_sel] > -1] += \
+                prev_core_counter[i_core]
+
+    if pandas:
+        desc_ind = pd.Series(desc_ind)
+
+    return desc_ind
+
+
 def read_xH_grid(fname, snapshot):
 
     """ Read the neutral hydrogren fraction (xH) grids from the Meraxes HDF5
