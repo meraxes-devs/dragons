@@ -60,7 +60,6 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
         as a dictionary:
 
             ( BoxSize,
-            MaxTreeFiles,
             ObsHubble_h,
             Volume,
             Redshift )
@@ -144,11 +143,9 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
     if sim_props:
         Hubble_h = fin['InputParams'].attrs['Hubble_h'][0]
         BoxSize = fin['InputParams'].attrs['BoxSize'][0] / Hubble_h
-        MaxTreeFiles = fin['InputParams'].attrs['FilesPerSnapshot'][0]
         Volume = BoxSize**3.0
         Redshift = snap_group.attrs['Redshift']
         properties = {'BoxSize': BoxSize,
-                      'MaxTreeFiles': MaxTreeFiles,
                       'Hubble_h': Hubble_h,
                       'Volume': Volume,
                       'Redshift': Redshift}
