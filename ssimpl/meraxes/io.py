@@ -3,15 +3,12 @@
 
 """Routines for reading Meraxes output files."""
 
+from ..munge import ndarray_to_dataframe
+
 import numpy as np
 import h5py as h5
 from astropy import log
-
-try:
-    import pandas as pd
-except ImportError:
-    log.warn("The `pandas` package is unavailable therefore `pandas=True`"
-             " cannot be used in any function.")
+import pandas as pd
 
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
@@ -119,25 +116,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
     # If requested convert the numpy array into a pandas dataframe
     if pandas:
-
-        # Get a list of all of the columns which a 1D
-        names = []
-        for k, v in G.dtype.fields.iteritems():
-            if len(v[0].shape) == 0:
-                names.append(k)
-
-        # Create a new dataframe with these columns
-        Gdf = pd.DataFrame(G[names])
-
-        # Loop through each N(>1)D galaxy property and append each dimension as
-        # its own column in the dataframe
-        for k, v in G.dtype.fields.iteritems():
-            if len(v[0].shape) != 0:
-                for i in range(v[0].shape[0]):
-                    Gdf[k+'_%d' % i] = G[k][:, i]
-
-        # Make G now point to our pandas dataframe
-        G = Gdf
+        G = ndarray_to_dataframe(G)
 
     # Set some run properties
     if sim_props:

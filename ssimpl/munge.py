@@ -8,6 +8,7 @@ import numpy as np
 from astropy import log
 from astroML.density_estimation import scotts_bin_width, freedman_bin_width,\
     knuth_bin_width, bayesian_blocks
+import pandas as pd
 
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
@@ -35,8 +36,40 @@ def pretty_print_dict(d, fmtlen=30):
             print fmtstr % k, v
 
 
+def ndarray_to_dataframe(arr):
+
+    """Convert numpy ndarray to a pandas DataFrame, dealing with N(>1)
+    dimensional datatypes.
+
+    *Args*:
+        arr (ndarray): Numpy ndarray
+
+    *Returns*:
+        df (DataFrame): Pandas DataFrame
+    """
+
+    # Get a list of all of the columns which are 1D
+    names = []
+    for k, v in arr.dtype.fields.iteritems():
+        if len(v[0].shape) == 0:
+            names.append(k)
+
+    # Create a new dataframe with these columns
+    df = pd.DataFrame(arr[names])
+
+    # Loop through each N(>1)D property and append each dimension as
+    # its own column in the dataframe
+    for k, v in arr.dtype.fields.iteritems():
+        if len(v[0].shape) != 0:
+            for i in range(v[0].shape[0]):
+                df[k+'_%d' % i] = arr[k][:, i]
+
+    return df
+
+
 def mass_function(mass, volume, bins,
                   range=None, return_edges=False, **kwargs):
+
     """Generate a mass function.
 
     *Args*:

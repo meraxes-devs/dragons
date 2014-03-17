@@ -2,3 +2,4 @@
 # -*- coding: utf-8 -*-
 
 from io import *
+from galaxy_history import *
