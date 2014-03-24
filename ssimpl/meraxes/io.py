@@ -107,8 +107,10 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
         for i_core in xrange(n_cores):
             galaxies = snap_group['Core%d/Galaxies' % i_core]
             core_ngals = galaxies.size
-            galaxies.read_direct(G, dest_sel=np.s_[counter:core_ngals+counter])
-            counter += core_ngals
+            if(core_ngals > 0):
+                galaxies.read_direct(G, dest_sel=np.s_[counter:
+                                                       core_ngals+counter])
+                counter += core_ngals
 
     # Print some checking statistics
     if not quiet:
@@ -323,11 +325,12 @@ def read_firstprogenitor_indices(fname, snapshot, pandas=False):
         for i_core in xrange(n_cores):
             ds = snap_group["Core{:d}/FirstProgenitorIndices".format(i_core)]
             core_nvals = ds.size
-            dest_sel = np.s_[counter:core_nvals+counter]
-            ds.read_direct(fp_ind, dest_sel=dest_sel)
-            counter += core_nvals
-            fp_ind[dest_sel][fp_ind[dest_sel] > -1] += \
-                prev_core_counter[i_core]
+            if core_nvals > 0:
+                dest_sel = np.s_[counter:core_nvals+counter]
+                ds.read_direct(fp_ind, dest_sel=dest_sel)
+                counter += core_nvals
+                fp_ind[dest_sel][fp_ind[dest_sel] > -1] += \
+                    prev_core_counter[i_core]
 
     if pandas:
         fp_ind = pd.Series(fp_ind)
@@ -377,10 +380,11 @@ def read_nextprogenitor_indices(fname, snapshot, pandas=False):
         for i_core in xrange(n_cores):
             ds = snap_group["Core{:d}/NextProgenitorIndices".format(i_core)]
             core_nvals = ds.size
-            dest_sel = np.s_[counter:core_nvals+counter]
-            ds.read_direct(np_ind, dest_sel=dest_sel)
-            np_ind[dest_sel][np_ind[dest_sel] > -1] += counter
-            counter += core_nvals
+            if core_nvals > 0:
+                dest_sel = np.s_[counter:core_nvals+counter]
+                ds.read_direct(np_ind, dest_sel=dest_sel)
+                np_ind[dest_sel][np_ind[dest_sel] > -1] += counter
+                counter += core_nvals
 
     if pandas:
         np_ind = pd.Series(np_ind)
@@ -442,11 +446,12 @@ def read_descendant_indices(fname, snapshot, pandas=False):
         for i_core in xrange(n_cores):
             ds = snap_group["Core{:d}/DescendantIndices".format(i_core)]
             core_nvals = ds.size
-            dest_sel = np.s_[counter:core_nvals+counter]
-            ds.read_direct(desc_ind, dest_sel=dest_sel)
-            counter += core_nvals
-            desc_ind[dest_sel][desc_ind[dest_sel] > -1] += \
-                prev_core_counter[i_core]
+            if core_nvals > 0:
+                dest_sel = np.s_[counter:core_nvals+counter]
+                ds.read_direct(desc_ind, dest_sel=dest_sel)
+                counter += core_nvals
+                desc_ind[dest_sel][desc_ind[dest_sel] > -1] += \
+                    prev_core_counter[i_core]
 
     if pandas:
         desc_ind = pd.Series(desc_ind)

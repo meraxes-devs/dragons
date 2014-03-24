@@ -5,6 +5,7 @@
 
 from ..munge import ndarray_to_dataframe
 from io import read_gals, read_firstprogenitor_indices
+from astropy.utils.console import ProgressBar
 
 import numpy as np
 
@@ -46,12 +47,14 @@ def galaxy_history(fname, gal_id, last_snapshot, pandas=False):
     if ind == -1:
         raise IndexError("This galaxy has no progenitors!")
 
-    for snap in xrange(last_snapshot-1, -1, -1):
-        history[snap] = read_gals(fname, snapshot=snap, pandas=False,
-                                  quiet=True)[ind]
-        ind = read_firstprogenitor_indices(fname, snap)[ind]
-        if ind == -1:
-            break
+    with ProgressBar(last_snapshot) as bar:
+        for snap in xrange(last_snapshot-1, -1, -1):
+            history[snap] = read_gals(fname, snapshot=snap, pandas=False,
+                                      quiet=True)[ind]
+            ind = read_firstprogenitor_indices(fname, snap)[ind]
+            if ind == -1:
+                break
+            bar.update()
 
     if pandas:
         history = ndarray_to_dataframe(history)
