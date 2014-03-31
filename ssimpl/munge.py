@@ -36,13 +36,17 @@ def pretty_print_dict(d, fmtlen=30):
             print fmtstr % k, v
 
 
-def ndarray_to_dataframe(arr):
+def ndarray_to_dataframe(arr, drop_vectors=False):
 
     """Convert numpy ndarray to a pandas DataFrame, dealing with N(>1)
     dimensional datatypes.
 
     *Args*:
         arr (ndarray): Numpy ndarray
+
+    *Kwargs*:
+        drop_vectors (bool): only include single value datatypes in output
+                             DataFrame
 
     *Returns*:
         df (DataFrame): Pandas DataFrame
@@ -57,12 +61,13 @@ def ndarray_to_dataframe(arr):
     # Create a new dataframe with these columns
     df = pd.DataFrame(arr[names])
 
-    # Loop through each N(>1)D property and append each dimension as
-    # its own column in the dataframe
-    for k, v in arr.dtype.fields.iteritems():
-        if len(v[0].shape) != 0:
-            for i in range(v[0].shape[0]):
-                df[k+'_%d' % i] = arr[k][:, i]
+    if not drop_vectors:
+        # Loop through each N(>1)D property and append each dimension as
+        # its own column in the dataframe
+        for k, v in arr.dtype.fields.iteritems():
+            if len(v[0].shape) != 0:
+                for i in range(v[0].shape[0]):
+                    df[k+'_%d' % i] = arr[k][:, i]
 
     return df
 
