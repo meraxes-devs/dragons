@@ -44,6 +44,7 @@ def init_style(context="default", theme="default"):
     if theme is "white_bg":
         ssimpl_params["axes.facecolor"] = "w"
         ssimpl_params["grid.color"] = "0.95"
+        ssimpl_params["axes.edgecolor"] = "bcbcbc"
 
     # If we are using ipython with the inline backend then update the params to
     # match what IPython wants to enforce.  This is a hack, but ensures that we
@@ -362,3 +363,11 @@ def despine(fig=None, ax=None, top=True, right=True,
     for ax_i in axes:
         for side in ["top", "right", "left", "bottom"]:
             ax_i.spines[side].set_visible(not locals()[side])
+        if right:
+            ax_i.yaxis.set_ticks_position('left')
+        elif left:
+            ax_i.yaxis.set_ticks_position('right')
+        if top:
+            ax_i.xaxis.set_ticks_position('bottom')
+        elif bottom:
+            ax_i.xaxis.set_ticks_position('top')
