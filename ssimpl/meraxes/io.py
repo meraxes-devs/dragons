@@ -223,6 +223,34 @@ def read_snaplist(fname):
         np.array(lt_times, dtype=float)
 
 
+def check_for_redshift(fname, redshift, tol=0.1):
+    """Check a Meraxes output file for the presence of a particular
+    redshift.
+
+    *Args*:
+        fname (str):  Full path to input hdf5 master file
+        redshift (float):  Redshift value
+
+    *Kwargs*:
+        tol (float):  +- tolerance on redshift value present.  An error will be
+                      thrown of no redshift within this tollerance is found.
+
+    *Returns*:
+        snapshot (int):      Closest snapshot
+        redshift (float):    Closest corresponding redshift
+    """
+
+    snaps, zs, lt_times = read_snaplist(fname)
+    zs -= redshift
+
+    w = np.argmin(zs)
+
+    if np.abs(zs[w]) > tol:
+        raise KeyError("No redshifts within tolerance found.")
+
+    return snaps[w], zs[w]
+
+
 def grab_redshift(fname, snapshot):
 
     """ Quickly grab the redshift value of a single snapshot from a Meraxes
