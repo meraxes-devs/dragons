@@ -122,14 +122,8 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
     # Set some run properties
     if sim_props:
-        Hubble_h = fin['InputParams'].attrs['Hubble_h'][0]
-        BoxSize = fin['InputParams'].attrs['BoxSize'][0] / Hubble_h
-        Volume = BoxSize**3.0
-        Redshift = snap_group.attrs['Redshift']
-        properties = {'BoxSize': BoxSize,
-                      'Hubble_h': Hubble_h,
-                      'Volume': Volume,
-                      'Redshift': Redshift}
+        properties = read_input_params(fname)
+        properties["Redshift"] = snap_group.attrs["Redshift"]
 
     fin.close()
 
