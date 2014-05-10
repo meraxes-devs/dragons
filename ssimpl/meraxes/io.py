@@ -175,20 +175,22 @@ def read_input_params(fname):
     return props_dict
 
 
-def read_gitref(fname):
-    """Read the git ref saved in the master file.
+def read_git_info(fname):
+    """Read the git diff and ref saved in the master file.
 
     *Args*:
         fname (str):  Full path to input hdf5 master file.
 
     *Returns*:
-        (str) git ref of the model
+        ref (str):  git ref of the model
+        diff (str): git diff of the model
     """
 
     with h5.File(fname, 'r') as fin:
-        gitref = fin.attrs['GitRef'].copy()[0]
+        gitdiff = fin['gitdiff'].value
+        gitref = fin['gitdiff'].attrs['gitref'].copy()[0]
 
-    return gitref
+    return gitref, gitdiff
 
 
 def read_snaplist(fname):
