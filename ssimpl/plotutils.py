@@ -12,6 +12,7 @@ import matplotlib as mpl
 import matplotlib.colors as mplcol
 import matplotlib.pyplot as plt
 from pkg_resources import resource_filename
+from scipy import optimize as so
 
 
 def init_style(context="default", theme="default"):
@@ -371,3 +372,70 @@ def despine(fig=None, ax=None, top=True, right=True,
             ax_i.xaxis.set_ticks_position('bottom')
         elif bottom:
             ax_i.xaxis.set_ticks_position('top')
+
+
+def _find_confidence_interval(x, pdf, confidence_level):
+    return pdf[pdf > x].sum() - confidence_level
+
+
+def density_contour(xdata, ydata, nbins_x, nbins_y, ax, label=True,
+                    clabel_kwargs={}, **contour_kwargs):
+    """ Create a density contour plot.
+
+    Code modified from:
+    https://gist.github.com/adrn/3993992#file-density_contour-py
+
+    *Args*:
+        xdata (ndarray)
+
+        ydata (ndarray)
+
+        nbins_x (int):  Number of bins along x dimension
+
+        nbins_y (int):  Number of bins along y dimension
+
+        ax (matplotlib.axes.AxesSubplot):  Axis to draw contours on
+
+    *Kwargs*:
+        label (bool):  Draw labels on the contours? (default: True)
+
+        clabel_kwargs (dict):  kwargs to be passed to pyplot.clabel()
+                               (default: {})
+
+        \*\*contour_kwargs (dict): kwargs to be passed to pyplot.contour()
+
+    *Returns*:
+        contour (matplotlib.contour.QuadContourSet)
+    """
+
+    H, xedges, yedges = np.histogram2d(xdata, ydata, bins=(nbins_x, nbins_y),
+                                       normed=True)
+    x_bin_sizes = (xedges[1:] - xedges[:-1]).reshape((1, nbins_x))
+    y_bin_sizes = (yedges[1:] - yedges[:-1]).reshape((nbins_y, 1))
+
+    pdf = (H*(x_bin_sizes*y_bin_sizes))
+
+    one_sigma = so.brentq(_find_confidence_interval, 0., 1., args=(pdf, 0.68))
+    two_sigma = so.brentq(_find_confidence_interval, 0., 1., args=(pdf, 0.95))
+    three_sigma = so.brentq(_find_confidence_interval, 0., 1.,
+                            args=(pdf, 0.99))
+    levels = [one_sigma, two_sigma, three_sigma]
+
+    X, Y = 0.5*(xedges[1:]+xedges[:-1]), 0.5*(yedges[1:]+yedges[:-1])
+    Z = pdf.T
+
+    if label:
+        lim = ax.axis()
+
+        contour = ax.contour(X, Y, Z, levels=levels, origin="lower",
+                             **contour_kwargs)
+        fmt = {}
+        strs = ['68%', '95%', '99.7%']
+        for l, s in zip(contour.levels, strs):
+            fmt[l] = s
+
+        ax.clabel(contour, contour.levels, fmt=fmt, **clabel_kwargs)
+
+        ax.axis(lim)
+
+    return contour
