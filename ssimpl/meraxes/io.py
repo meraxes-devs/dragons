@@ -188,7 +188,7 @@ def read_git_info(fname):
 
     with h5.File(fname, 'r') as fin:
         gitdiff = fin['gitdiff'].value
-        gitref = fin['gitdiff'].attrs['gitref'].copy()[0]
+        gitref = fin['gitdiff'].attrs['gitref'].copy()
 
     return gitref, gitdiff
 
