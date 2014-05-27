@@ -483,27 +483,53 @@ def read_descendant_indices(fname, snapshot, pandas=False):
     return desc_ind
 
 
-def read_xH_grid(fname, snapshot):
+def read_grid(fname, snapshot, name):
 
-    """ Read the neutral hydrogren fraction (xH) grids from the Meraxes HDF5
-    file.
+    """ Read a grid from the Meraxes HDF5 file.
 
     *Args*:
         fname (str):  Full path to input hdf5 master file
 
-        snapshot (int):  Snapshot from which the xH grid dataset is to be
-                         read from.
+        snapshot (int):  Snapshot from which the grid is to be read from.
+
+        name (str):  Name of the requested grid
 
     *Returns*:
-        xH_grid (array):   xH grid
-        props (dict):   associated attributes
+        grid (array):  The requested grid
     """
 
     with h5.File(fname, 'r') as fin:
-        ds_name = "Snap{:03d}/xH_grid".format(snapshot)
-        xH_grid = fin[ds_name][:]
-        props = dict(fin[ds_name].attrs.iteritems())
+        HII_dim = fin["InputParams/tocf"].attrs["HII_dim"][0]
+        ds_name = "Snap{:03d}/Grids/{:s}".format(snapshot, name)
+        try:
+            grid = fin[ds_name][:]
+        except KeyError:
+            log.error("No grid called %s found in file %s ." % (name, fname))
 
-    xH_grid.shape = [props["HII_dim"][0], ]*3
+    grid.shape = [HII_dim, ]*3
 
-    return xH_grid, props
+    return grid
+
+
+def list_grids(fname, snapshot):
+
+    """ List the available grids from a Meraxes HDF5 output file.
+
+    *Args*:
+        fname (str):  Full path to input hdf5 master file
+
+        snapshot (int):  Snapshot for which the grids are to be listed.
+
+    *Returns*:
+        grids (list):  A list of the available grids
+    """
+
+    with h5.File(fname, 'r') as fin:
+        group_name = "Snap{:03d}/Grids".format(snapshot)
+        try:
+            grids = fin[group_name].keys()
+        except KeyError:
+            log.error("No grids found for snapshot %d in file %s ." %
+                      (snapshot, fname))
+
+    return grids
