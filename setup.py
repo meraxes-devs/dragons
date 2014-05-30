@@ -5,9 +5,17 @@ import os
 import sys
 
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
     from distutils.core import setup
+    from pkgutil import walk_packages
+
+    def find_packages(path=__path__, prefix=""):
+        yield prefix
+        prefix = prefix + "."
+        for _, name, ispkg in walk_packages(path, prefix):
+            if ispkg:
+                yield name
 
 # if sys.argv[-1] == 'publish':
 #     os.system('python setup.py sdist upload')
@@ -25,9 +33,7 @@ setup(
     author='Simon Mutch',
     author_email='smutch.astro@gmail.com',
     url='https://bitbucket.org/smutch/ssimpl',
-    packages=[
-        'ssimpl',
-    ],
+    packages=find_packages(),
     package_dir={'ssimpl': 'ssimpl'},
     include_package_data=True,
     install_requires=requirements,

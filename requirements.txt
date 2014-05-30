@@ -1,5 +1,8 @@
 ssimpl
+pip>=1.5.6
 numpy>=1.7.0
+h5py>=2.3.0
 astroML>=0.2
-h5py>=2.1.3
 astropy>=0.2
+pandas>=0.13.1
+husl>=2.1.0
