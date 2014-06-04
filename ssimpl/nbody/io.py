@@ -88,6 +88,9 @@ def read_halo_catalog(catalog_loc):
     if path.isdir(catalog_loc[0]):
         dirname = catalog_loc[0]
         catalog_loc = listdir(catalog_loc[0])
+        file_num = [int(f.rsplit(".")[-1]) for f in catalog_loc]
+        sort_index = np.argsort(file_num)
+        catalog_loc = [catalog_loc[i] for i in sort_index]
         catalog_loc = [path.join(dirname, f) for f in catalog_loc]
 
     n_halos = np.fromfile(catalog_loc[0], catalog_header_dtype,
