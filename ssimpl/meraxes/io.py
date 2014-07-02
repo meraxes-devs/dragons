@@ -56,10 +56,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
         (galaxies, sim_props) where sim_props holds the following information
         as a dictionary:
 
-            ( BoxSize,
-            ObsHubble_h,
-            Volume,
-            Redshift )
+        (BoxSize, Hubble_h, Volume, Redshift)
     """
 
     if pandas:
@@ -108,8 +105,15 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             galaxies = snap_group['Core%d/Galaxies' % i_core]
             core_ngals = galaxies.size
             if(core_ngals > 0):
-                galaxies.read_direct(G, dest_sel=np.s_[counter:
-                                                       core_ngals+counter])
+                dest_sel = np.s_[counter:core_ngals+counter]
+                galaxies.read_direct(G, dest_sel=dest_sel)
+
+                # Deal with any indices that need offsets applied
+                try:
+                    G[dest_sel]['CentralGal'] += counter
+                except KeyError:
+                    pass
+
                 counter += core_ngals
 
     # Print some checking statistics
