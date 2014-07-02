@@ -205,6 +205,7 @@ def read_input_params(fname, h=0.7):
 
     # Update some properties
     log.info("Converting units to h = %.3f" % h)
+    props_dict['Hubble_h'] = h
     props_dict['BoxSize'] = group.attrs['BoxSize'][0] / h
     props_dict['PartMass'] = group.attrs['PartMass'][0] / h
 
