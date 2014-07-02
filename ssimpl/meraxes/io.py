@@ -175,6 +175,9 @@ def read_input_params(fname, h=0.7):
     *Args*:
         fname (str): Full path to input hdf5 master file.
 
+        h (float): Hubble constant (/100) to convert the galaxy properties to.
+                   (default = 0.7)
+
     *Returns*:
         A dict containing all run properties.
     """
