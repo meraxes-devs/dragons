@@ -132,7 +132,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
                 # Deal with any indices that need offsets applied
                 try:
                     G[dest_sel]['CentralGal'] += counter
-                except KeyError:
+                except ValueError:
                     pass
 
                 counter += core_ngals
