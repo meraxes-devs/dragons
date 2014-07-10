@@ -17,6 +17,7 @@ __version__ = '0.1.1'
 __gal_props_h_conv = {
     "Pos": lambda x, h: x/h,
     "Mvir": lambda x, h: x/h,
+    "FOFMvir": lambda x, h: x/h,
     "Rvir": lambda x, h: x/h,
     "HotGas": lambda x, h: x/h,
     "MetalsHotGas": lambda x, h: x/h,
