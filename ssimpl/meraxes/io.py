@@ -142,7 +142,8 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
     # Apply any unit conversions
     if h is not None:
         h = float(h)
-        log.info("Converting units to h = %.3f" % h)
+        if not quiet:
+            log.info("Converting units to h = %.3f" % h)
         for p in gal_dtype.names:
             try:
                 G[p] = __gal_props_h_conv[p](G[p], h)
@@ -159,7 +160,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
     # Set some run properties
     if sim_props:
-        properties = read_input_params(fname, h)
+        properties = read_input_params(fname, h=h, quiet=quiet)
         properties["Redshift"] = snap_group.attrs["Redshift"]
 
     fin.close()
@@ -170,7 +171,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
         return G
 
 
-def read_input_params(fname, h=None):
+def read_input_params(fname, h=None, quiet=False):
     """ Read in the input parameters from a Meraxes hdf5 output file.
 
     *Args*:
@@ -194,7 +195,8 @@ def read_input_params(fname, h=None):
             props_dict[name] = dict(obj.attrs.items())
             arr_to_value(props_dict[name])
 
-    log.info("Reading input params...")
+    if not quiet:
+        log.info("Reading input params...")
 
     # Open the file for reading
     fin = h5.File(fname, 'r')
@@ -207,7 +209,8 @@ def read_input_params(fname, h=None):
 
     # Update some properties
     if h is not None:
-        log.info("Converting units to h = %.3f" % h)
+        if not quiet:
+            log.info("Converting units to h = %.3f" % h)
         props_dict['BoxSize'] = group.attrs['BoxSize'][0] / h
         props_dict['PartMass'] = group.attrs['PartMass'][0] / h
 
