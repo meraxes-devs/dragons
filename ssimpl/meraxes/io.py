@@ -240,12 +240,17 @@ def read_git_info(fname):
     return gitref, gitdiff
 
 
-def read_snaplist(fname):
+def read_snaplist(fname, h=None):
 
     """ Read in the list of available snapshots from the Meraxes hdf5 file.
 
     *Args*:
         fname (str): Full path to input hdf5 master file.
+
+    *Kwargs:*
+        h (float): Hubble constant (/100) to convert the galaxy properties to.
+                   If `None` then no conversion is made.
+                   (default = None)
 
     *Returns*:
         snaps:      array of snapshots
@@ -265,6 +270,9 @@ def read_snaplist(fname):
                 zlist.append(fin[snap].attrs['Redshift'][0])
                 snaplist.append(int(snap[-3:]))
                 lt_times.append(fin[snap].attrs['LTTime'][0])
+                if h is not None:
+                    log.info("Converting units to h = %.3f" % h)
+                    lt_times /= h
             except KeyError:
                 pass
 
