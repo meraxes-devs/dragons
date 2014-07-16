@@ -302,7 +302,7 @@ def check_for_redshift(fname, redshift, tol=0.1):
     snaps, zs, lt_times = read_snaplist(fname)
     zs -= redshift
 
-    w = np.argmin(zs)
+    w = np.argmin(np.abs(zs))
 
     if np.abs(zs[w]) > tol:
         raise KeyError("No redshifts within tolerance found.")
