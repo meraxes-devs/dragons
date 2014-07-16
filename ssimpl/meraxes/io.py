@@ -264,20 +264,22 @@ def read_snaplist(fname, h=None):
     snaplist = []
     lt_times = []
 
-    if h is not None:
-        log.info("Converting units to h = %.3f" % h)
     with h5.File(fname, 'r') as fin:
         for snap in fin.keys():
             try:
                 zlist.append(fin[snap].attrs['Redshift'][0])
                 snaplist.append(int(snap[-3:]))
                 lt_times.append(fin[snap].attrs['LTTime'][0])
-                lt_times[-1] /= h
             except KeyError:
                 pass
 
+    lt_times = np.array(lt_times, dtype=float)
+    if h is not None:
+        log.info("Converting units to h = %.3f" % h)
+        lt_times /= h
+
     return np.array(snaplist, dtype=float), np.array(zlist, dtype=float),\
-        np.array(lt_times, dtype=float)
+        lt_times
 
 
 def check_for_redshift(fname, redshift, tol=0.1):
