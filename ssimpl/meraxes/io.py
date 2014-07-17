@@ -330,23 +330,23 @@ def grab_redshift(fname, snapshot):
     return redshift
 
 
-def grab_corrected_snapshot(fname, snapshot):
+def grab_unsampled_snapshot(fname, snapshot):
 
-    """ Quickly grab the corrected snapshot value of a single snapshot from a
+    """ Quickly grab the unsampled snapshot value of a single snapshot from a
     Meraxes HDF5 file.
 
     *Args*:
         fname (str):  Full path to input hdf5 master file
 
-        snapshot (int):  Snapshot for which the corrected value is to be
+        snapshot (int):  Snapshot for which the unsampled value is to be
                          grabbed
 
     *Returns*:
-        redshift (float):   Corresponding corrected snapshot value
+        redshift (float):   Corresponding unsampled snapshot value
     """
 
     with h5.File(fname, 'r') as fin:
-        redshift = fin["Snap{:03d}".format(snapshot)].attrs["CorrectedSnap"][0]
+        redshift = fin["Snap{:03d}".format(snapshot)].attrs["UnsampledSnapshot"][0]
 
     return redshift
 
