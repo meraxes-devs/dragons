@@ -18,6 +18,12 @@ except ImportError:
             if ispkg:
                 yield name
 
+try:
+    import numpy
+    np_inc_dirs = numpy.get_include()
+except ImportError:
+    np_inc_dirs = ""
+
 # if sys.argv[-1] == 'publish':
 #     os.system('python setup.py sdist upload')
 #     sys.exit()
@@ -25,6 +31,7 @@ except ImportError:
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 requirements = open('requirements.txt').readlines()[1:]
+
 
 setup(
     name='ssimpl',
@@ -38,6 +45,7 @@ setup(
     package_dir={'ssimpl': 'ssimpl'},
     include_package_data=True,
     install_requires=requirements,
+    include_dirs = [np_inc_dirs],
     ext_modules = [Extension("ssimpl/munge/regrid", ["ssimpl/munge/regrid.c"])],
     license="BSD",
     zip_safe=False,
