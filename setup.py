@@ -5,9 +5,10 @@ import os
 import sys
 
 try:
-    from setuptools import setup, find_packages
+    from setuptools import setup, find_packages, Extension
 except ImportError:
     from distutils.core import setup
+    from distutils.extension import Extension
     from pkgutil import walk_packages
 
     def find_packages(path=__path__, prefix=""):
@@ -37,6 +38,7 @@ setup(
     package_dir={'ssimpl': 'ssimpl'},
     include_package_data=True,
     install_requires=requirements,
+    ext_modules = [Extension("ssimpl/munge/regrid", ["ssimpl/munge/regrid.c"])],
     license="BSD",
     zip_safe=False,
     keywords='ssimpl',

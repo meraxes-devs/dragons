@@ -32,7 +32,6 @@ __gal_props_h_conv = {
     "MetalsEjectedGas": lambda x, h: x/h,
     "Rcool": lambda x, h: x/h,
     "MergTime": lambda x, h: x/h,
-    "LTTime": lambda x, h: x/h,
     "Mag": lambda x, h: x+5.0*np.log10(h),
     "MagDust": lambda x, h: x+5.0*np.log10(h)
 }
@@ -307,7 +306,7 @@ def check_for_redshift(fname, redshift, tol=0.1):
     if np.abs(zs[w]) > tol:
         raise KeyError("No redshifts within tolerance found.")
 
-    return snaps[w], zs[w]
+    return int(snaps[w]), zs[w]
 
 
 def grab_redshift(fname, snapshot):
