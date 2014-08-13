@@ -109,6 +109,10 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
     # Grab the total number of galaxies in this snapshot
     ngals = snap_group.attrs['NGalaxies'][0]
 
+    if ngals == 0:
+        raise IndexError("There are no galaxies in snapshot{:d}!"
+                         .format(snapshot))
+
     # Set the galaxy data type
     if props is not None:
         gal_dtype = snap_group['Core0/Galaxies'].value[list(props)[:]][0].dtype
@@ -277,7 +281,7 @@ def read_snaplist(fname, h=None):
         log.info("Converting units to h = %.3f" % h)
         lt_times /= h
 
-    return np.array(snaplist, dtype=float), np.array(zlist, dtype=float),\
+    return np.array(snaplist, dtype=int), np.array(zlist, dtype=float),\
         lt_times
 
 
