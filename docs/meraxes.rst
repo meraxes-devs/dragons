@@ -3,12 +3,18 @@
 meraxes
 =======
 
-Description...
+meraxes.galaxy_history
+----------------------
 
+.. automodule:: ssimpl.meraxes.galaxy_history
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-io
---
+meraxes.io
+----------
 
 .. automodule:: ssimpl.meraxes.io
-   :members:
-
+    :members:
+    :undoc-members:
+    :show-inheritance:

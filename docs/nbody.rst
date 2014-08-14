@@ -3,12 +3,11 @@
 nbody
 =====
 
-Description...
-
-
-io
---
+nbody.io
+--------
 
 .. automodule:: ssimpl.nbody.io
-   :members:
+    :members:
+    :undoc-members:
+    :show-inheritance:
 

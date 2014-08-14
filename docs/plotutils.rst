@@ -4,5 +4,7 @@ plotutils
 =========
 
 .. automodule:: ssimpl.plotutils
-   :members:
+    :members:
+    :undoc-members:
+    :show-inheritance:
 

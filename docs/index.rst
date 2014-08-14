@@ -18,8 +18,8 @@ Contents:
    authors
    history
 
-Modules
--------
+Subpackages
+-----------
 
 .. toctree::
    :maxdepth: 2
@@ -27,6 +27,13 @@ Modules
    meraxes
    munge
    nbody
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 2
+
    plotutils
 
 Indices and tables

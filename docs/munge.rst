@@ -3,6 +3,13 @@
 munge
 =====
 
-.. automodule:: ssimpl.munge
-   :members:
+.. automodule:: ssimpl.munge.munge
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: ssimpl.munge.regrid
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
