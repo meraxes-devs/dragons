@@ -302,15 +302,15 @@ def check_for_redshift(fname, redshift, tol=0.1):
         redshift (float):    Closest corresponding redshift
     """
 
-    snaps, zs, lt_times = read_snaplist(fname)
-    zs -= redshift
+    snaps, z, lt_times = read_snaplist(fname)
+    zs = z-redshift
 
     w = np.argmin(np.abs(zs))
 
     if np.abs(zs[w]) > tol:
         raise KeyError("No redshifts within tolerance found.")
 
-    return int(snaps[w]), zs[w]
+    return int(snaps[w]), z[w]
 
 
 def grab_redshift(fname, snapshot):
