@@ -45,7 +45,7 @@ def _check_pandas():
 
 
 def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
-              pandas=False, h=None):
+              pandas=False, h=None, indices=None):
 
     """ Read in a Meraxes hdf5 output file.
 
@@ -74,12 +74,24 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
                    If `None` then no conversion is made.
                    (default = None)
 
+        indices (list or array): Indices of galaxies to be read.  If `None`
+                                 then read all galaxies.
+                                 (default = None)
+
     *Returns*:
         Array with the requested galaxies and properties.
 
         If sim_props==True then output is a tuple of form
         (galaxies, sim_props)
     """
+
+    def __apply_offsets(G, dest_sel, counter):
+        # Deal with any indices that need offsets applied
+        try:
+            G[dest_sel]['CentralGal'] += counter
+        except ValueError:
+            pass
+
 
     if pandas:
         _check_pandas()
@@ -113,6 +125,12 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
         raise IndexError("There are no galaxies in snapshot{:d}!"
                          .format(snapshot))
 
+    # Reset ngals to be the number of requested galaxies if appropriate
+    if indices is not None:
+        indices = np.array(indices, 'i')
+        indices.sort()
+        ngals = indices.shape[0]
+
     # Set the galaxy data type
     if props is not None:
         gal_dtype = snap_group['Core0/Galaxies'].value[list(props)[:]][0].dtype
@@ -127,20 +145,34 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
     # Loop through each of the requested groups and read in the galaxies
     if ngals > 0:
         counter = 0
+        total_read = 0
         for i_core in xrange(n_cores):
             galaxies = snap_group['Core%d/Galaxies' % i_core]
             core_ngals = galaxies.size
-            if(core_ngals > 0):
+
+            if (indices is None) and (core_ngals > 0):
                 dest_sel = np.s_[counter:core_ngals+counter]
                 galaxies.read_direct(G, dest_sel=dest_sel)
 
-                # Deal with any indices that need offsets applied
-                try:
-                    G[dest_sel]['CentralGal'] += counter
-                except ValueError:
-                    pass
-
+                __apply_offsets(G, dest_sel, counter)
                 counter += core_ngals
+
+            else:
+                read_ind = np.compress((indices >= total_read) &
+                                       (indices < total_read+core_ngals),
+                                       indices) - total_read
+                if read_ind.shape[0] > 0:
+                    dest_sel = np.s_[counter:read_ind.shape[0]+counter]
+                    bool_sel = np.zeros(core_ngals, 'bool')
+                    bool_sel[read_ind] = True
+                    G[dest_sel] = galaxies[bool_sel]
+
+                    __apply_offsets(G, dest_sel, total_read)
+                    total_read += core_ngals
+                    counter += read_ind.shape[0]
+
+            if counter >= ngals:
+                break
 
     # Apply any unit conversions
     if h is not None:

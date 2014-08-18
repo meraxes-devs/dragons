@@ -50,7 +50,7 @@ def galaxy_history(fname, gal_id, last_snapshot, pandas=False):
     with ProgressBar(last_snapshot) as bar:
         for snap in xrange(last_snapshot-1, -1, -1):
             history[snap] = read_gals(fname, snapshot=snap, pandas=False,
-                                      quiet=True)[ind]
+                                      quiet=True, indices=[ind])
             ind = read_firstprogenitor_indices(fname, snap)[ind]
             if ind == -1:
                 break
