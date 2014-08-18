@@ -14,7 +14,7 @@ __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.1'
 
 
-def galaxy_history(fname, gal_id, last_snapshot, pandas=False):
+def galaxy_history(fname, gal_id, last_snapshot, pandas=False, props=None):
 
     """ Read in the full first progenitor history of a galaxy at a given final
     snapshot.
@@ -27,6 +27,9 @@ def galaxy_history(fname, gal_id, last_snapshot, pandas=False):
         last_snapshot (int): Last snapshot (lowest redshift) at which the
                              history is to be traced from.
 
+        props (list): A list of galaxy properties requested.
+                      (default: All properties)
+
     *Kwargs*:
         pandas (bool): Return panads dataframe.
                        (default = False)
@@ -35,7 +38,7 @@ def galaxy_history(fname, gal_id, last_snapshot, pandas=False):
         history (ndarray or DataFrame): The requested first progenitor history.
     """
 
-    gals = read_gals(fname, snapshot=last_snapshot, pandas=False, quiet=True)
+    gals = read_gals(fname, snapshot=last_snapshot, props=props, pandas=False, quiet=True)
 
     ind = np.where(gals["ID"] == gal_id)[0][0]
 
@@ -50,7 +53,7 @@ def galaxy_history(fname, gal_id, last_snapshot, pandas=False):
     with ProgressBar(last_snapshot) as bar:
         for snap in xrange(last_snapshot-1, -1, -1):
             history[snap] = read_gals(fname, snapshot=snap, pandas=False,
-                                      quiet=True, indices=[ind])
+                                      quiet=True, props=props, indices=[ind])
             ind = read_firstprogenitor_indices(fname, snap)[ind]
             if ind == -1:
                 break
