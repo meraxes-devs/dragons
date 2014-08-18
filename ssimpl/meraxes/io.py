@@ -161,6 +161,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
                 read_ind = np.compress((indices >= total_read) &
                                        (indices < total_read+core_ngals),
                                        indices) - total_read
+
                 if read_ind.shape[0] > 0:
                     dest_sel = np.s_[counter:read_ind.shape[0]+counter]
                     bool_sel = np.zeros(core_ngals, 'bool')
@@ -168,8 +169,9 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
                     G[dest_sel] = galaxies[bool_sel]
 
                     __apply_offsets(G, dest_sel, total_read)
-                    total_read += core_ngals
                     counter += read_ind.shape[0]
+
+                total_read += core_ngals
 
             if counter >= ngals:
                 break
