@@ -122,7 +122,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
     ngals = snap_group.attrs['NGalaxies'][0]
 
     if ngals == 0:
-        raise IndexError("There are no galaxies in snapshot{:d}!"
+        raise IndexError("There are no galaxies in snapshot {:d}!"
                          .format(snapshot))
 
     # Reset ngals to be the number of requested galaxies if appropriate

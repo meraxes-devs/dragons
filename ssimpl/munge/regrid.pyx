@@ -3,7 +3,7 @@
 
 from __future__ import division
 import numpy as np
-from astropy.utils.console import ProgressBar
+from tqdm import tqdm
 from astropy import log
 cimport numpy as np
 
@@ -29,14 +29,12 @@ def regrid(np.ndarray[np.float32_t, ndim=3] old_grid not None,
     cdef np.ndarray[np.float32_t, ndim=3] new_grid = np.zeros([n_cell,n_cell,n_cell], np.float32)
 
     cdef unsigned int i,j,k, rsi, rsj, rsk
-    with ProgressBar(old_dim) as bar:
-        for i in xrange(old_dim):
-            for j in xrange(old_dim):
-                for k in xrange(old_dim):
-                    rsi = int(i*resample_factor)
-                    rsj = int(j*resample_factor)
-                    rsk = int(k*resample_factor)
-                    new_grid[rsi, rsj, rsk] += old_grid[i,j,k]
-            bar.update()
+    for i in tqdm(xrange(old_dim)):
+        for j in xrange(old_dim):
+            for k in xrange(old_dim):
+                rsi = int(i*resample_factor)
+                rsj = int(j*resample_factor)
+                rsk = int(k*resample_factor)
+                new_grid[rsi, rsj, rsk] += old_grid[i,j,k]
 
     return new_grid

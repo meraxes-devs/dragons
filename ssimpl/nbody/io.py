@@ -7,7 +7,7 @@ from os import path
 from os import listdir
 import numpy as np
 from astropy import log
-from astropy.utils.console import ProgressBar
+from tqdm import tqdm
 
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
@@ -99,14 +99,12 @@ def read_halo_catalog(catalog_loc):
     print "Reading in {:d} halos...".format(n_halos)
 
     n_halos = 0
-    with ProgressBar(len(catalog_loc)) as bar:
-        for f in catalog_loc:
-            with open(f, "rb") as fd:
-                n_halos_file = \
-                    np.fromfile(fd, catalog_header_dtype, 1)[0]["N_halos_file"]
-                halo[n_halos:n_halos+n_halos_file] = \
-                    np.fromfile(fd, catalog_halo_dtype, n_halos_file)
-            n_halos += n_halos_file
-            bar.update()
+    for f in tqdm(catalog_loc):
+        with open(f, "rb") as fd:
+            n_halos_file = \
+                np.fromfile(fd, catalog_header_dtype, 1)[0]["N_halos_file"]
+            halo[n_halos:n_halos+n_halos_file] = \
+                np.fromfile(fd, catalog_halo_dtype, n_halos_file)
+        n_halos += n_halos_file
 
     return halo[list(catalog_halo_dtype.names[:-1])]

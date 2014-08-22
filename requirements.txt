@@ -6,3 +6,4 @@ astroML>=0.2
 astropy>=0.2
 pandas>=0.13.1
 husl>=2.1.0
+tqdm>=1.0
