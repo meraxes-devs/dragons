@@ -25,6 +25,7 @@ __gal_props_h_conv = {
     "MetalsColdGas": lambda x, h: x/h,
     "Mcool": lambda x, h: x/h,
     "StellarMass": lambda x, h: x/h,
+    "NewStars": lambda x, h: x/h,
     "BlackHoleMass": lambda x, h: x/h,
     "DiskScaleLength": lambda x, h: x/h,
     "MetalsStellarMass": lambda x, h: x/h,
@@ -33,7 +34,7 @@ __gal_props_h_conv = {
     "Rcool": lambda x, h: x/h,
     "MergTime": lambda x, h: x/h,
     "Mag": lambda x, h: x+5.0*np.log10(h),
-    "MagDust": lambda x, h: x+5.0*np.log10(h)
+    "MagDust": lambda x, h: x+5.0*np.log10(h),
 }
 
 def _check_pandas():
@@ -101,13 +102,12 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
     # Set the snapshot correctly
     if snapshot is None:
+        snapshot = -1
+    if snapshot < 0:
         present_snaps = np.asarray(fin.keys())
         selection = np.array([(p.find('Snap') == 0) for p in present_snaps])
         present_snaps = [int(p[4:]) for p in present_snaps[selection]]
-        snapshot = sorted(present_snaps)[-1]
-    elif snapshot < 0:
-        MaxSnaps = fin['InputParams'].attrs['LastSnapshotNr'][0]+1
-        snapshot += MaxSnaps
+        snapshot = sorted(present_snaps)[snapshot]
 
     if not quiet:
         log.info("Reading snapshot %d" % snapshot)
@@ -362,6 +362,11 @@ def grab_redshift(fname, snapshot):
     """
 
     with h5.File(fname, 'r') as fin:
+        if snapshot < 0:
+            present_snaps = np.asarray(fin.keys())
+            selection = np.array([(p.find('Snap') == 0) for p in present_snaps])
+            present_snaps = [int(p[4:]) for p in present_snaps[selection]]
+            snapshot = sorted(present_snaps)[snapshot]
         redshift = fin["Snap{:03d}".format(snapshot)].attrs["Redshift"][0]
 
     return redshift
