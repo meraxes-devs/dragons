@@ -37,6 +37,7 @@ __gal_props_h_conv = {
     "MagDust": lambda x, h: x+5.0*np.log10(h),
 }
 
+
 def _check_pandas():
     try:
         pd
@@ -92,7 +93,6 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             G[dest_sel]['CentralGal'] += counter
         except ValueError:
             pass
-
 
     if pandas:
         _check_pandas()
@@ -364,7 +364,8 @@ def grab_redshift(fname, snapshot):
     with h5.File(fname, 'r') as fin:
         if snapshot < 0:
             present_snaps = np.asarray(fin.keys())
-            selection = np.array([(p.find('Snap') == 0) for p in present_snaps])
+            selection = np.array([(p.find('Snap') == 0) for p in
+                                  present_snaps])
             present_snaps = [int(p[4:]) for p in present_snaps[selection]]
             snapshot = sorted(present_snaps)[snapshot]
         redshift = fin["Snap{:03d}".format(snapshot)].attrs["Redshift"][0]
@@ -388,7 +389,8 @@ def grab_unsampled_snapshot(fname, snapshot):
     """
 
     with h5.File(fname, 'r') as fin:
-        redshift = fin["Snap{:03d}".format(snapshot)].attrs["UnsampledSnapshot"][0]
+        redshift = fin["Snap{:03d}".format(snapshot)]\
+            .attrs["UnsampledSnapshot"][0]
 
     return redshift
 
@@ -634,7 +636,6 @@ def list_grids(fname, snapshot):
     return grids
 
 
-# PMG ADDED
 def read_ps(fname, snapshot):
 
     """ Read 21cm power spectrum from the Meraxes HDF5 file.
@@ -642,30 +643,29 @@ def read_ps(fname, snapshot):
     *Args*:
         fname (str):  Full path to input hdf5 master file
 
-        snapshot (int):  Snapshot from which the power spectrum is to be read from.
+        snapshot (int):  Snapshot from which the power spectrum is to be read
+                         from.
 
-    *Returns*:        
+    *Returns*:
         kval  (array): k value
         ps    (array): power value
         pserr (array): error
-        
+
     """
-    
+
     with h5.File(fname, 'r') as fin:
         ds_name = "Snap{:03d}/PowerSpectrum".format(snapshot)
         try:
-            ps_nbins = fin[ds_name].attrs["nbins"][0]   # added
+            ps_nbins = fin[ds_name].attrs["nbins"][0]
             ps = fin[ds_name][:]
         except KeyError:
             log.error("No data called found in file %s ." % (fname))
-    
-    ps.shape = [ps_nbins, 3]   # added
-    
-    #return ps
-    return ps[:,0], ps[:,1], ps[:,2]   # added
+
+    ps.shape = [ps_nbins, 3]
+
+    return ps[:, 0], ps[:, 1], ps[:, 2]
 
 
-# PMG ADDED
 def read_size_dist(fname, snapshot):
 
     """ Read region size distribution from the Meraxes HDF5 file.
@@ -673,14 +673,15 @@ def read_size_dist(fname, snapshot):
     *Args*:
         fname (str):  Full path to input hdf5 master file
 
-        snapshot (int):  Snapshot from which the region size distribution is to be read from.
+        snapshot (int):  Snapshot from which the region size distribution is to
+                         be read from.
 
-    *Returns*:        
+    *Returns*:
         Rval  (array): R value
         RdpdR (array): RdpdR value
-        
+
     """
-    
+
     with h5.File(fname, 'r') as fin:
         ds_name = "Snap{:03d}/RegionSizeDist".format(snapshot)
         try:
@@ -688,7 +689,7 @@ def read_size_dist(fname, snapshot):
             RdpdR = fin[ds_name][:]
         except KeyError:
             log.error("No data called found in file %s ." % (fname))
-    
+
     RdpdR.shape = [R_nbins, 2]
-    
-    return RdpdR[:,0], RdpdR[:,1]
+
+    return RdpdR[:, 0], RdpdR[:, 1]
