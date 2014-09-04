@@ -632,3 +632,63 @@ def list_grids(fname, snapshot):
                       (snapshot, fname))
 
     return grids
+
+
+# PMG ADDED
+def read_ps(fname, snapshot):
+
+    """ Read 21cm power spectrum from the Meraxes HDF5 file.
+
+    *Args*:
+        fname (str):  Full path to input hdf5 master file
+
+        snapshot (int):  Snapshot from which the power spectrum is to be read from.
+
+    *Returns*:        
+        kval  (array): k value
+        ps    (array): power value
+        pserr (array): error
+        
+    """
+    
+    with h5.File(fname, 'r') as fin:
+        ds_name = "Snap{:03d}/PowerSpectrum".format(snapshot)
+        try:
+            ps_nbins = fin[ds_name].attrs["nbins"][0]   # added
+            ps = fin[ds_name][:]
+        except KeyError:
+            log.error("No data called found in file %s ." % (fname))
+    
+    ps.shape = [ps_nbins, 3]   # added
+    
+    #return ps
+    return ps[:,0], ps[:,1], ps[:,2]   # added
+
+
+# PMG ADDED
+def read_size_dist(fname, snapshot):
+
+    """ Read region size distribution from the Meraxes HDF5 file.
+
+    *Args*:
+        fname (str):  Full path to input hdf5 master file
+
+        snapshot (int):  Snapshot from which the region size distribution is to be read from.
+
+    *Returns*:        
+        Rval  (array): R value
+        RdpdR (array): RdpdR value
+        
+    """
+    
+    with h5.File(fname, 'r') as fin:
+        ds_name = "Snap{:03d}/RegionSizeDist".format(snapshot)
+        try:
+            R_nbins = fin[ds_name].attrs["nbins"][0]
+            RdpdR = fin[ds_name][:]
+        except KeyError:
+            log.error("No data called found in file %s ." % (fname))
+    
+    RdpdR.shape = [R_nbins, 2]
+    
+    return RdpdR[:,0], RdpdR[:,1]
