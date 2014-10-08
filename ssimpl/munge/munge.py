@@ -72,8 +72,8 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
     return df
 
 
-def mass_function(mass, volume, bins,
-                  range=None, return_edges=False, **kwargs):
+def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
+                  return_edges=False, **kwargs):
 
     """Generate a mass function.
 
@@ -92,12 +92,17 @@ def mass_function(mass, volume, bins,
     *Kwargs*:
         range (len=2 list or array): range of data to be used for mass function
 
+        poisson_uncert (bool): return poisson uncertainties in output array
+                               (default: False)
+
         return_edges (bool): return the bin_edges (default: False)
 
         \*\*kwargs: passed to np.histogram call
 
     *Returns*:
         array of [bin centers, mass function vals]
+
+        If poisson_uncert=True then array has 3rd column with uncertainties.
 
         If return_edges=True then the bin edges are also returned.
 
@@ -108,7 +113,7 @@ def mass_function(mass, volume, bins,
 
     if "normed" in kwargs:
         kwargs["normed"] = False
-        log.warn("Turned of normed kwarg in mass_function()")
+        log.warn("Turned off normed kwarg in mass_function()")
 
     if (range is not None and (bins in ['blocks',
                                         'knuth', 'knuths',
@@ -134,9 +139,16 @@ def mass_function(mass, volume, bins,
     width = edges[1]-edges[0]
     radius = width/2.0
     centers = edges[:-1]+radius
+    if poisson_uncert:
+        uncert = np.sqrt(vals.astype(float))
+
     vals = vals.astype(float) / (volume * width)
 
-    mf = np.dstack((centers, vals)).squeeze()
+    if not poisson_uncert:
+        mf = np.dstack((centers, vals)).squeeze()
+    else:
+        uncert /= (volume * width)
+        mf = np.dstack((centers, vals, uncert)).squeeze()
 
     if not return_edges:
         return mf
