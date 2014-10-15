@@ -8,7 +8,8 @@ import numpy as np
 from astropy import log
 from astroML.density_estimation import scotts_bin_width, freedman_bin_width,\
     knuth_bin_width, bayesian_blocks
-import pandas as pd
+from pandas import DataFrame as Dataframe
+from scipy.stats import describe as sp_describe
 
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
@@ -59,7 +60,7 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
             names.append(k)
 
     # Create a new dataframe with these columns
-    df = pd.DataFrame(arr[names])
+    df = DataFrame(arr[names])
 
     if not drop_vectors:
         # Loop through each N(>1)D property and append each dimension as
@@ -154,3 +155,30 @@ def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
         return mf
     else:
         return mf, edges
+
+
+def describe(arr, **kwargs):
+
+    """Run scipy.stats.describe and produce legible output.
+
+    *Args*:
+        arr (ndarray): Numpy ndarray
+
+    *Kwargs*:
+        passed to scipy.stats.describe
+
+    *Returns*:
+        output of scipy.stats.describe
+    """
+
+    stats = sp_describe(arr)
+
+    print("{:15s} : {:g}".format("size", stats[0]))
+    print("{:15s} : {:g}".format("min", stats[1][0]))
+    print("{:15s} : {:g}".format("max", stats[1][1]))
+    print("{:15s} : {:g}".format("mean", stats[2]))
+    print("{:15s} : {:g}".format("unbiased var", stats[3]))
+    print("{:15s} : {:g}".format("biased skew", stats[4]))
+    print("{:15s} : {:g}".format("biased kurt", stats[5]))
+
+    return stats
