@@ -14,6 +14,7 @@ def regrid(np.ndarray[np.float32_t, ndim=3] old_grid not None,
 
     *Args*:
         old_grid (np.ndarray[float32, ndim=3]) :  Grid to be resampled
+
         n_cell (int) :  n cells per dimension of new grid
 
     *Returns*:

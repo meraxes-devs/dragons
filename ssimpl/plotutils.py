@@ -1,8 +1,17 @@
 """Small plotting-related utility functions.
 
-Almost all of this code is shamelessly copied verbatim from the excellent
-`seaborn <https://github.com/mwaskom/seaborn>`_ plotting package.
+Three new matplotlib styles are added to the user library upon import:
+    - ssimpl
+    - talk
+    - white_background
+
+These can be combined as required.
+
+Almost all of the rest of this code is shamelessly copied verbatim from the
+excellent `seaborn <https://github.com/mwaskom/seaborn>`_ plotting package.
 """
+
+
 from __future__ import division
 import colorsys
 from itertools import cycle
