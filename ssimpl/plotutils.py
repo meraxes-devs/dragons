@@ -13,10 +13,20 @@ import matplotlib.colors as mplcol
 import matplotlib.pyplot as plt
 from pkg_resources import resource_filename
 from scipy import optimize as so
+import warnings
+
+
+# Add custom styles
+plt.style.core.USER_LIBRARY_PATHS.append(resource_filename(__name__,
+                                                           'stylelib'))
+plt.style.reload_library()
 
 
 def init_style(context="default", theme="default"):
-    """Initialises the ssimpl plotutils plotting style."""
+    """DEPRECIATED - Initialises the ssimpl plotutils plotting style."""
+
+    warnings.warn("ssimpl.plotutils.init_style is depreciated. Please use"
+                  "matplotlib.style.use instead.", DeprecationWarning)
 
     valid_contexts = ("default", "talk", "inline")
     valid_themes = ("default", "white_bg")
@@ -27,7 +37,7 @@ def init_style(context="default", theme="default"):
         raise ValueError("Invalid theme")
 
     # Load the ssimpl params
-    fname = resource_filename(__name__, 'matplotlibrc_ssimpl')
+    fname = resource_filename(__name__, 'stylelib/ssimpl.mplstyle')
     ssimpl_params = mpl.rc_params_from_file(fname, fail_on_error=True)
 
     # Don't try and change the currently selected backend

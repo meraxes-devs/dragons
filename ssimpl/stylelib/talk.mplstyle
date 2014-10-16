@@ -1,0 +1,5 @@
+### LINES
+lines.linewidth   : 3.0     # line width in points
+
+### FONT
+font.size           : 14.0

@@ -1,0 +1,6 @@
+### AXES
+axes.facecolor    : w
+axes.edgecolor    : bcbcbc
+
+### GRID
+grid.color        : 0.95
