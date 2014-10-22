@@ -12,7 +12,8 @@ DRAGONS Tools
         :target: https://crate.io/packages/dragons?version=latest
 
 
-Python tools for dealing with simulations, semi-analytic models and associated post-processing.
+Python tools for dealing with Meraxes semi-analytic model output and associated
+post-processing.
 
 * Free software: BSD license
 
@@ -24,3 +25,4 @@ Features
 * Common processing tasks for analysing simulation/model data (:ref:`munge`)
 * Functions for reading and parsing Meraxes output (:ref:`meraxes`)
 * Functions for reading and parsing nbody (gbpCode) output (:ref:`nbody`)
+* Tools for making nice looking plots with matplotlib (:ref:`plotutils`)
