@@ -40,7 +40,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author='Simon Mutch',
     author_email='smutch.astro@gmail.com',
-    url='https://bitbucket.org/smutch/dragons',
+    url='https://bitbucket.org/dragons-astro/dragons',
     packages=find_packages(),
     package_dir={'dragons': 'dragons'},
     include_package_data=True,

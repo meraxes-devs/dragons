@@ -4,9 +4,9 @@ DRAGONS Tools
 
 .. .. image:: https://badge.fury.io/py/dragons.png
     :target: http://badge.fury.io/py/dragons
-    
-.. .. image:: https://travis-ci.org/smutch/dragons.png?branch=master
-        :target: https://travis-ci.org/smutch/dragons
+
+.. .. image:: https://travis-ci.org/dragons-astro/dragons.png?branch=master
+        :target: https://travis-ci.org/dragons-astro/dragons
 
 .. .. image:: https://pypip.in/d/dragons/badge.png
         :target: https://crate.io/packages/dragons?version=latest
@@ -17,7 +17,7 @@ post-processing.
 
 * Free software: BSD license
 
-.. * Documentation: http://dragons.rtfd.org.
+* Documentation: http://www.ph.unimelb.edu.au/~smutch/docs/dragons .
 
 Features
 --------
