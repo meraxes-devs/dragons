@@ -50,9 +50,9 @@ clean:
 	rm -rf $(BUILDDIR)/*
 
 html:
-	@cp ../regrid.so ../ssimpl/munge/
+	@cp ../regrid.so ../dragons/munge/
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	@rm ../ssimpl/munge/regrid.so
+	@rm ../dragons/munge/regrid.so
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 

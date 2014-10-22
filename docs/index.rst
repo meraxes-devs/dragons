@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SSimPL Tools's documentation!
+Welcome to DRAGONS Tools's documentation!
 ========================================
 
 Contents:

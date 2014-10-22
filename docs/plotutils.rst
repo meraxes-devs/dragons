@@ -3,7 +3,7 @@
 plotutils
 =========
 
-.. automodule:: ssimpl.plotutils
+.. automodule:: dragons.plotutils
     :members:
     :undoc-members:
     :show-inheritance:

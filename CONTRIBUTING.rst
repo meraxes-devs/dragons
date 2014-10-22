@@ -13,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://bitbucket.org/smutch/ssimpl/issues.
+Report bugs at https://bitbucket.org/smutch/dragons/issues.
 
 If you are reporting a bug, please include:
 
@@ -36,15 +36,15 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-SSimPL Tools could always use more documentation, whether as part of the 
-official SSimPL Tools docs or in docstrings.
+DRAGONS Tools could always use more documentation, whether as part of the 
+official DRAGONS Tools docs or in docstrings.
 
 .. or even on the web in blog posts, articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://bitbucket.org/smutch/ssimpl/issues.
+The best way to send feedback is to file an issue at https://bitbucket.org/smutch/dragons/issues.
 
 If you are proposing a feature:
 
@@ -56,19 +56,19 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `ssimpl` for local development.
+Ready to contribute? Here's how to set up `dragons` for local development.
 
-1. Fork the `ssimpl` repo on BitBucket.
+1. Fork the `dragons` repo on BitBucket.
 2. Clone your fork locally::
 
-    $ git clone git@bitbucket.org:your_name_here/ssimpl.git
+    $ git clone git@bitbucket.org:your_name_here/dragons.git
 
 3. Install your local copy into a virtualenv. Assuming you have
    virtualenvwrapper installed, this is how you set up your fork for local
    development::
 
-    $ mkvirtualenv ssimpl
-    $ cd ssimpl/
+    $ mkvirtualenv dragons
+    $ cd dragons/
     $ python setup.py develop
 
 4. Create a branch for local development::
@@ -80,7 +80,7 @@ Now you can make your changes locally.
 5. When you're done making changes, check that your changes pass flake8 and the
 tests::
 
-    $ flake8 ssimpl tests
+    $ flake8 dragons tests
     $ python setup.py test
   
 To get flake8, just pip install them into your virtualenv. 
@@ -105,7 +105,7 @@ Before you submit a pull request, check that it meets these guidelines:
    feature to the list in README.rst.
 
 .. 3. The pull request should work for Python 2.6, 2.7, and 3.3, and for PyPy. Check 
-..    https://travis-ci.org/smutch/ssimpl/pull_requests
+..    https://travis-ci.org/smutch/dragons/pull_requests
 ..    and make sure that the tests pass for all supported Python versions.
 
 Tips
@@ -113,4 +113,4 @@ Tips
 
 To run a subset of tests::
 
-	$ python -m unittest tests.test_ssimpl
+	$ python -m unittest tests.test_dragons

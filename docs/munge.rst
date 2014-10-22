@@ -3,12 +3,12 @@
 munge
 =====
 
-.. automodule:: ssimpl.munge.munge
+.. automodule:: dragons.munge.munge
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: ssimpl.munge.regrid
+.. automodule:: dragons.munge.regrid
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,9 +1,10 @@
 """Small plotting-related utility functions.
 
 Three new matplotlib styles are added to the user library upon import:
-    - ssimpl
-    - talk
-    - white_background
+
+- dragons
+- talk
+- white_background
 
 These can be combined as required.
 
@@ -32,9 +33,9 @@ plt.style.reload_library()
 
 
 def init_style(context="default", theme="default"):
-    """DEPRECIATED - Initialises the ssimpl plotutils plotting style."""
+    """DEPRECIATED - Initialises the dragons plotutils plotting style."""
 
-    warnings.warn("ssimpl.plotutils.init_style is depreciated. Please use"
+    warnings.warn("dragons.plotutils.init_style is depreciated. Please use"
                   "matplotlib.style.use instead.", DeprecationWarning)
 
     valid_contexts = ("default", "talk", "inline")
@@ -45,26 +46,26 @@ def init_style(context="default", theme="default"):
     if theme not in valid_themes:
         raise ValueError("Invalid theme")
 
-    # Load the ssimpl params
-    fname = resource_filename(__name__, 'stylelib/ssimpl.mplstyle')
-    ssimpl_params = mpl.rc_params_from_file(fname, fail_on_error=True)
+    # Load the dragons params
+    fname = resource_filename(__name__, 'stylelib/dragons.mplstyle')
+    dragons_params = mpl.rc_params_from_file(fname, fail_on_error=True)
 
     # Don't try and change the currently selected backend
-    ssimpl_params.pop("backend")
+    dragons_params.pop("backend")
 
     # Modify based on chosen context if necessary
     if context is "talk":
-        ssimpl_params["font.size"] = 14.0
-        ssimpl_params["lines.linewidth"] = 3.0
+        dragons_params["font.size"] = 14.0
+        dragons_params["lines.linewidth"] = 3.0
     elif context is "inline":
-        ssimpl_params.update({'font.size': 10.0,
+        dragons_params.update({'font.size': 10.0,
                               'figure.figsize': (6.0, 4.0)})
 
     # Modify based on chosen theme if necessary
     if theme is "white_bg":
-        ssimpl_params["axes.facecolor"] = "w"
-        ssimpl_params["grid.color"] = "0.95"
-        ssimpl_params["axes.edgecolor"] = "bcbcbc"
+        dragons_params["axes.facecolor"] = "w"
+        dragons_params["grid.color"] = "0.95"
+        dragons_params["axes.edgecolor"] = "bcbcbc"
 
     # If we are using ipython with the inline backend then update the params to
     # match what IPython wants to enforce.  This is a hack, but ensures that we
@@ -72,11 +73,11 @@ def init_style(context="default", theme="default"):
     if mpl.get_backend().find("backend_inline") != -1:
         fig = plt.figure()
         del(fig)
-        ssimpl_params.update(dict({'figure.facecolor': 'white',
+        dragons_params.update(dict({'figure.facecolor': 'white',
                                    'figure.edgecolor': 'white'}))
 
-    # Update the current rcParams with the ssimpl values
-    plt.rcParams.update(ssimpl_params)
+    # Update the current rcParams with the dragons values
+    plt.rcParams.update(dragons_params)
 
 
 def color_palette(name=None, n_colors=6, desat=None):
@@ -89,7 +90,7 @@ def color_palette(name=None, n_colors=6, desat=None):
         hls, husl, any matplotlib palette
 
     *Params*:
-        name: None, string, or list-ish
+        name : None, string, or list-ish
             name of palette or None to return current color list. if
             list-ish (i.e. arrays work too), input colors are used but
             possibly desaturated
@@ -405,26 +406,31 @@ def density_contour(xdata, ydata, nbins_x, nbins_y, ax, label=True,
     https://gist.github.com/adrn/3993992#file-density_contour-py
 
     *Args*:
-        xdata (ndarray)
+        xdata : ndarray
 
-        ydata (ndarray)
+        ydata : ndarray
 
-        nbins_x (int):  Number of bins along x dimension
+        nbins_x : int
+            Number of bins along x dimension
 
-        nbins_y (int):  Number of bins along y dimension
+        nbins_y : int
+            Number of bins along y dimension
 
-        ax (matplotlib.axes.AxesSubplot):  Axis to draw contours on
+        ax : matplotlib.axes.AxesSubplot
+            Axis to draw contours on
 
     *Kwargs*:
-        label (bool):  Draw labels on the contours? (default: True)
+        label : bool
+            Draw labels on the contours? (default: True)
 
-        clabel_kwargs (dict):  kwargs to be passed to pyplot.clabel()
-                               (default: {})
+        clabel_kwargs : dict
+            kwargs to be passed to pyplot.clabel() (default: {})
 
-        \*\*contour_kwargs (dict): kwargs to be passed to pyplot.contour()
+        **contour_kwargs : dict
+            kwargs to be passed to pyplot.contour()
 
     *Returns*:
-        contour (matplotlib.contour.QuadContourSet)
+        contour : matplotlib.contour.QuadContourSet
     """
 
     H, xedges, yedges = np.histogram2d(xdata, ydata, bins=(nbins_x, nbins_y),

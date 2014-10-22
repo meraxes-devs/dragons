@@ -2,6 +2,6 @@
 Usage
 ========
 
-To use SSimPL Tools in a project::
+To use DRAGONS Tools in a project::
 
-	import ssimpl
+	import dragons

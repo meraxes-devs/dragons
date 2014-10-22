@@ -2,16 +2,16 @@
 # -*- coding: utf-8 -*-
 
 """
-test_ssimpl
+test_dragons
 ----------------------------------
 
-Tests for `ssimpl` module.
+Tests for `dragons` module.
 """
 
 import unittest
 import numpy as np
 
-import ssimpl
+import dragons
 
 class TestMunge(unittest.TestCase):
 
@@ -20,7 +20,7 @@ class TestMunge(unittest.TestCase):
         self.volume = (100./0.705)**3.  # Mpc^3
 
     def test_mass_function(self):
-        mf, edges = ssimpl.munge.mass_function(self.masses, self.volume,
+        mf, edges = dragons.munge.mass_function(self.masses, self.volume,
                                                bins='knuth',
                                                return_edges=True)  
         self.assertAlmostEqual(mf.max(), 6.85)
