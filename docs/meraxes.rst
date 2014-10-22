@@ -6,7 +6,7 @@ meraxes
 meraxes.galaxy_history
 ----------------------
 
-.. automodule:: ssimpl.meraxes.galaxy_history
+.. automodule:: dragons.meraxes.galaxy_history
     :members:
     :undoc-members:
     :show-inheritance:
@@ -14,7 +14,7 @@ meraxes.galaxy_history
 meraxes.io
 ----------
 
-.. automodule:: ssimpl.meraxes.io
+.. automodule:: dragons.meraxes.io
     :members:
     :undoc-members:
     :show-inheritance:

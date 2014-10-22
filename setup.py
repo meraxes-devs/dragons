@@ -34,22 +34,22 @@ requirements = open('requirements.txt').readlines()[1:]
 
 
 setup(
-    name='ssimpl',
+    name='dragons',
     version='0.1.0',
     description='Python tools for dealing with simulations, semi-analytic models and associated post-processing.',
     long_description=readme + '\n\n' + history,
     author='Simon Mutch',
     author_email='smutch.astro@gmail.com',
-    url='https://bitbucket.org/smutch/ssimpl',
+    url='https://bitbucket.org/smutch/dragons',
     packages=find_packages(),
-    package_dir={'ssimpl': 'ssimpl'},
+    package_dir={'dragons': 'dragons'},
     include_package_data=True,
     install_requires=requirements,
     include_dirs = [np_inc_dirs],
-    ext_modules = [Extension("ssimpl/munge/regrid", ["ssimpl/munge/regrid.c"])],
+    ext_modules = [Extension("dragons/munge/regrid", ["dragons/munge/regrid.c"])],
     license="BSD",
     zip_safe=False,
-    keywords='ssimpl',
+    keywords='dragons',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

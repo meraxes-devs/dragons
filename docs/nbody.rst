@@ -6,7 +6,7 @@ nbody
 nbody.io
 --------
 
-.. automodule:: ssimpl.nbody.io
+.. automodule:: dragons.nbody.io
     :members:
     :undoc-members:
     :show-inheritance:

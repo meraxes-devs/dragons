@@ -21,9 +21,11 @@ def pretty_print_dict(d, fmtlen=30):
     """Pretty print a dictionary, dealing with recursion.
 
     *Args*:
-        d (dict): The dictionary to print
+        d : dict
+            the dictionary to print
 
-        fmtlen (int): maximum length of dictionary key for print formatting
+        fmtlen : int
+            maximum length of dictionary key for print formatting
     """
 
     fmtstr = "%%%ds :" % fmtlen
@@ -43,14 +45,16 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
     dimensional datatypes.
 
     *Args*:
-        arr (ndarray): Numpy ndarray
+        arr : ndarray
+            Numpy ndarray
 
     *Kwargs*:
-        drop_vectors (bool): only include single value datatypes in output
-                             DataFrame
+        drop_vectors : bool
+            only include single value datatypes in output DataFrame
 
     *Returns*:
-        df (DataFrame): Pandas DataFrame
+        df : DataFrame
+            Pandas DataFrame
     """
 
     # Get a list of all of the columns which are 1D
@@ -79,11 +83,13 @@ def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
     """Generate a mass function.
 
     *Args*:
-        mass (array):  an array of 'masses'
+        mass : array
+            an array of 'masses'
 
-        volume (float):  volume of simulation cube/subset
+        volume : float
+            volume of simulation cube/subset
 
-        bins (int or list or str):
+        bins : int or list or str
             If bins is a string, then it must be one of:
                 | 'blocks'   : use bayesian blocks for dynamic bin widths
                 | 'knuth'    : use Knuth's rule to determine bins
@@ -91,14 +97,17 @@ def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
                 | 'freedman' : use the Freedman-diaconis rule to determine bins
 
     *Kwargs*:
-        range (len=2 list or array): range of data to be used for mass function
+        range : len=2 list or array
+            range of data to be used for mass function
 
-        poisson_uncert (bool): return poisson uncertainties in output array
-                               (default: False)
+        poisson_uncert : bool
+            return poisson uncertainties in output array (default: False)
 
-        return_edges (bool): return the bin_edges (default: False)
+        return_edges : bool
+            return the bin_edges (default: False)
 
-        \*\*kwargs: passed to np.histogram call
+        **kwargs
+            passed to np.histogram call
 
     *Returns*:
         array of [bin centers, mass function vals]
@@ -162,7 +171,8 @@ def describe(arr, **kwargs):
     """Run scipy.stats.describe and produce legible output.
 
     *Args*:
-        arr (ndarray): Numpy ndarray
+        arr : ndarray
+            Numpy ndarray
 
     *Kwargs*:
         passed to scipy.stats.describe

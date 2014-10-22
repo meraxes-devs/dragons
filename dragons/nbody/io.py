@@ -34,13 +34,15 @@ catalog_header_dtype = np.dtype(dict(names=("i_file", "N_files",
 
 def read_density_grid(fname):
 
-    """ Read in a density grid produced by gbpCode.
+    """Read in a density grid produced by gbpCode.
 
     *Args*:
-        fname (str): Full path to input grid file.
+        fname : str
+            Full path to input grid file.
 
     *Returns*:
-        grid (array): The density grid.
+        grid : array
+            The density grid.
     """
 
     log.info("Reading density grid from %s" % fname)
@@ -76,10 +78,12 @@ def read_halo_catalog(catalog_loc):
     """ Read in a halo catalog produced by gbpCode.
 
     *Args*:
-        catalog_loc (str): Full path to input catalog file or directory
+        catalog_loc : str
+            Full path to input catalog file or directory
 
     *Returns*:
-        halo (array): The catalog of halos
+        halo : array
+            The catalog of halos
     """
 
     if type(catalog_loc) is str:

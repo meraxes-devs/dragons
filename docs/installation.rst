@@ -4,9 +4,9 @@ Installation
 
 At the command line::
 
-    $ easy_install ssimpl
+    $ easy_install dragons
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv ssimpl
-    $ pip install ssimpl
+    $ mkvirtualenv dragons
+    $ pip install dragons

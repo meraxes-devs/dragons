@@ -20,22 +20,26 @@ def galaxy_history(fname, gal_id, last_snapshot, pandas=False, props=None):
     snapshot.
 
     *Args*:
-        fname (str): Full path to input hdf5 master file.
+        fname : str
+            Full path to input hdf5 master file.
 
-        gal_id (int): Unique ID of the target galaxy.
+        gal_id : int
+            Unique ID of the target galaxy.
 
-        last_snapshot (int): Last snapshot (lowest redshift) at which the
-                             history is to be traced from.
+        last_snapshot : int
+            Last snapshot (lowest redshift) at which the history is to be
+            traced from.
 
-        props (list): A list of galaxy properties requested.
-                      (default: All properties)
+        props : list
+            A list of galaxy properties requested.  (default: All properties)
 
     *Kwargs*:
-        pandas (bool): Return panads dataframe.
-                       (default = False)
+        pandas : bool
+            Return panads dataframe.  (default = False)
 
     *Returns*:
-        history (ndarray or DataFrame): The requested first progenitor history.
+        history : ndarray or DataFrame
+            The requested first progenitor history.
     """
 
     gals = read_gals(fname, snapshot=last_snapshot, props=props, pandas=False, quiet=True)
