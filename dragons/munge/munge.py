@@ -8,7 +8,7 @@ import numpy as np
 from astropy import log
 from astroML.density_estimation import scotts_bin_width, freedman_bin_width,\
     knuth_bin_width, bayesian_blocks
-from pandas import DataFrame as Dataframe
+from pandas import DataFrame
 from scipy.stats import describe as sp_describe
 
 __author__ = 'Simon Mutch'
