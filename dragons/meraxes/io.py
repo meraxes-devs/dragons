@@ -14,27 +14,52 @@ __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.1'
 
-__gal_props_h_conv = {
+__gal_props_h_scaling = {
+    "id_MBP" : lambda x, h: x,
+    "ID": lambda x, h: x,
+    "Type": lambda x, h: x,
+    "CentralGal": lambda x, h: x,
+    "GhostFlag": lambda x, h: x,
+    "Len": lambda x, h: x,
     "Pos": lambda x, h: x/h,
+    "Vel": lambda x, h: x,
+    "Spin": lambda x, h: x,
     "Mvir": lambda x, h: x/h,
     "FOFMvir": lambda x, h: x/h,
     "Rvir": lambda x, h: x/h,
+    "Vvir": lambda x, h: x,
+    "Vmax": lambda x, h: x,
     "HotGas": lambda x, h: x/h,
     "MetalsHotGas": lambda x, h: x/h,
     "ColdGas": lambda x, h: x/h,
     "MetalsColdGas": lambda x, h: x/h,
     "Mcool": lambda x, h: x/h,
     "StellarMass": lambda x, h: x/h,
+    "GrossStellarMass": lambda x, h: x/h,
     "NewStars": lambda x, h: x/h,
+    "MWMSA": lambda x, h: x/h,
+    "Sfr": lambda x, h: x,
     "BlackHoleMass": lambda x, h: x/h,
     "DiskScaleLength": lambda x, h: x/h,
     "MetalsStellarMass": lambda x, h: x/h,
     "EjectedGas": lambda x, h: x/h,
     "MetalsEjectedGas": lambda x, h: x/h,
     "Rcool": lambda x, h: x/h,
+    "Cos_Inc": lambda x, h: x,
     "MergTime": lambda x, h: x/h,
+    "BaryonFracModifier": lambda x, h: x,
     "Mag": lambda x, h: x+5.0*np.log10(h),
     "MagDust": lambda x, h: x+5.0*np.log10(h),
+}
+
+__grids_h_scaling = {
+    "xH": lambda x, h: x,
+    "J_21": lambda x, h: x,
+    "J_21_at_ionization": lambda x, h: x,
+    "z_at_ionization": lambda x, h: x,
+    "Mvir_crit": lambda x, h: x/h,
+    "StellarMass": lambda x, h: x/h,
+    "Sfr": lambda x, h: x,
 }
 
 
@@ -47,7 +72,7 @@ def _check_pandas():
 
 
 def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
-              pandas=False, h=None, indices=None):
+              pandas=False, h=None, h_scaling={}, indices=None):
 
     """Read in a Meraxes hdf5 output file.
 
@@ -76,8 +101,13 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             False)
 
         h : float
-            Hubble constant (/100) to convert the galaxy properties to.  If
-            `None` then no conversion is made.  (default = None)
+            Hubble constant (/100) to scale the galaxy properties to.  If
+            `None` then no scaling is made.  (default = None)
+
+        h_scaling : dict
+            Dictionary of galaxy properties (keys) and associated Hubble
+            constant scalings (values) as lambda functions. e.g.
+            | h_scaling = {"MassLikeProp" : lambda x, h: x/h,}
 
         indices : list or array
             Indices of galaxies to be read.  If `None` then read all galaxies.
@@ -178,16 +208,18 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             if counter >= ngals:
                 break
 
-    # Apply any unit conversions
+    # Apply any Hubble scalings
     if h is not None:
         h = float(h)
+        h_scaling.update(__gal_props_h_scaling)
         if not quiet:
-            log.info("Converting units to h = %.3f" % h)
+            log.info("Scaling galaxy properties to h = %.3f" % h)
         for p in gal_dtype.names:
             try:
-                G[p] = __gal_props_h_conv[p](G[p], h)
+                G[p] = h_scaling[p](G[p], h)
             except KeyError:
-                pass
+                log.warn("Unrecognised galaxy property %s - assuming no "
+                         "scaling with Hubble const!" % p)
 
     # Print some checking statistics
     if not quiet:
@@ -218,8 +250,8 @@ def read_input_params(fname, h=None, quiet=False):
             Full path to input hdf5 master file.
 
         h : float
-            Hubble constant (/100) to convert the galaxy properties to.  If
-            `None` then no conversion is made.  (default = None)
+            Hubble constant (/100) to scale the galaxy properties to.  If
+            `None` then no scaling is made.  (default = None)
 
     *Returns*:
         A dict containing all run properties.
@@ -250,7 +282,7 @@ def read_input_params(fname, h=None, quiet=False):
     # Update some properties
     if h is not None:
         if not quiet:
-            log.info("Converting units to h = %.3f" % h)
+            log.info("Scaling params to h = %.3f" % h)
         props_dict['BoxSize'] = group.attrs['BoxSize'][0] / h
         props_dict['PartMass'] = group.attrs['PartMass'][0] / h
 
@@ -294,8 +326,8 @@ def read_snaplist(fname, h=None):
 
     *Kwargs:*
         h : float
-            Hubble constant (/100) to convert the galaxy properties to.  If `None`
-            then no conversion is made.  (default = None)
+            Hubble constant (/100) to scale the lt times to.  If `None`
+            then no scaling is made.  (default = None)
 
     *Returns*:
         snaps : array
@@ -323,7 +355,7 @@ def read_snaplist(fname, h=None):
 
     lt_times = np.array(lt_times, dtype=float)
     if h is not None:
-        log.info("Converting units to h = %.3f" % h)
+        log.info("Scaling lt_times to h = %.3f" % h)
         lt_times /= h
 
     return np.array(snaplist, dtype=int), np.array(zlist, dtype=float),\
@@ -613,7 +645,7 @@ def read_descendant_indices(fname, snapshot, pandas=False):
     return desc_ind
 
 
-def read_grid(fname, snapshot, name):
+def read_grid(fname, snapshot, name, h=None, h_scaling=None):
 
     """ Read a grid from the Meraxes HDF5 file.
 
@@ -627,6 +659,15 @@ def read_grid(fname, snapshot, name):
         name : str
             Name of the requested grid
 
+        h : float
+            Hubble constant (/100) to scale the galaxy properties to.  If
+            `None` then no scaling is made.  (default = None)
+
+        h_scaling : dict
+            Dictionary of grid names (keys) and associated Hubble
+            constant scalings (values) as lambda functions. e.g.
+            | h_scaling = {"MassLikeGrid" : lambda x, h: x/h,}
+
     *Returns*:
         grid : array
             The requested grid
@@ -639,6 +680,18 @@ def read_grid(fname, snapshot, name):
             grid = fin[ds_name][:]
         except KeyError:
             log.error("No grid called %s found in file %s ." % (name, fname))
+
+    # Apply any Hubble scalings
+    if h is not None:
+        h = float(h)
+        h_scaling.update(__grids_h_scaling)
+        if not quiet:
+            log.info("Scaling grid to h = %.3f" % h)
+        try:
+            grid = h_scaling[name](grid, h)
+        except KeyError:
+            log.warn("Unrecognised grid %s - assuming no "
+                     "scaling with Hubble const!" % name)
 
     grid.shape = [HII_dim, ]*3
 
