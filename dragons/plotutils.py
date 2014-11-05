@@ -21,15 +21,16 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.colors as mplcol
 import matplotlib.pyplot as plt
+from matplotlib import style
 from pkg_resources import resource_filename
 from scipy import optimize as so
 import warnings
 
 
 # Add custom styles
-plt.style.core.USER_LIBRARY_PATHS.append(resource_filename(__name__,
+style.core.USER_LIBRARY_PATHS.append(resource_filename(__name__,
                                                            'stylelib'))
-plt.style.reload_library()
+style.reload_library()
 
 
 def init_style(context="default", theme="default"):
