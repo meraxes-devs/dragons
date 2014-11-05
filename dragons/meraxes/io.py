@@ -633,7 +633,7 @@ def read_grid(fname, snapshot, name):
     """
 
     with h5.File(fname, 'r') as fin:
-        HII_dim = fin["InputParams"].attrs["HII_dim"][0]
+        HII_dim = fin["InputParams"].attrs["TOCF_HII_dim"][0]
         ds_name = "Snap{:03d}/Grids/{:s}".format(snapshot, name)
         try:
             grid = fin[ds_name][:]
