@@ -70,7 +70,7 @@ Ready to contribute? Here's how to set up `dragons` for local development.
 
     $ mkvirtualenv dragons
     $ cd dragons/
-    $ python setup.py develop
+    $ pip install -e .
 
 4. Create a branch for local development::
 
