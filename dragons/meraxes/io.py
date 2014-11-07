@@ -294,6 +294,44 @@ def read_input_params(fname, h=None, quiet=False):
     return props_dict
 
 
+def read_units(fname, quiet=False):
+    """ Read in the units information from a Meraxes hdf5 output file.
+
+    *Args*:
+        fname : str
+            Full path to input hdf5 master file.
+
+    *Returns*:
+        A dict containing all units.
+    """
+
+    def arr_to_value(d):
+        for k, v in d.iteritems():
+            if v.size is 1:
+                d[k] = v[0]
+
+    def visitfunc(name, obj):
+        if isinstance(obj, h5.Group):
+            units_dict[name] = dict(obj.attrs.items())
+            arr_to_value(units_dict[name])
+
+    if not quiet:
+        log.info("Reading units...")
+
+    # Open the file for reading
+    fin = h5.File(fname, 'r')
+
+    group = fin['Units']
+
+    units_dict = dict(group.attrs.items())
+    arr_to_value(units_dict)
+    group.visititems(visitfunc)
+
+    fin.close()
+
+    return units_dict
+
+
 def read_git_info(fname):
     """Read the git diff and ref saved in the master file.
 
