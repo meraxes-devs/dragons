@@ -242,7 +242,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
         return G
 
 
-def read_input_params(fname, h=None, quiet=False):
+def read_input_params(fname, h=None, quiet=False, raw=False):
     """ Read in the input parameters from a Meraxes hdf5 output file.
 
     *Args*:
@@ -252,6 +252,9 @@ def read_input_params(fname, h=None, quiet=False):
         h : float
             Hubble constant (/100) to scale the galaxy properties to.  If
             `None` then no scaling is made.  (default = None)
+
+        raw : bool
+            Don't augment with extra useful quantities. (default = False)
 
     *Returns*:
         A dict containing all run properties.
@@ -286,8 +289,14 @@ def read_input_params(fname, h=None, quiet=False):
         props_dict['BoxSize'] = group.attrs['BoxSize'][0] / h
         props_dict['PartMass'] = group.attrs['PartMass'][0] / h
 
-    props_dict['Volume'] = props_dict['BoxSize']**3.0 *\
-        props_dict['VolumeFactor']
+    # Add extra props
+    if not raw:
+        props_dict['Volume'] = props_dict['BoxSize']**3.0 *\
+            props_dict['VolumeFactor']
+
+        info = read_git_info(fname)
+        props_dict.update({'model_git_ref' : info[0],
+                           'model_git_diff' : info[1]})
 
     fin.close()
 
