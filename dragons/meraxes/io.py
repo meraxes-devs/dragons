@@ -384,7 +384,7 @@ def read_snaplist(fname, h=None):
             redshifts
 
         lt_times : array
-            light travel times (Gyr)
+            light travel times (Myr)
     """
 
     zlist = []
@@ -833,8 +833,35 @@ def read_size_dist(fname, snapshot):
             R_nbins = fin[ds_name].attrs["nbins"][0]
             RdpdR = fin[ds_name][:]
         except KeyError:
-            log.error("No data called found in file %s ." % (fname))
+            log.error("No RegionSizeDist found in file %s ." % (fname))
 
     RdpdR.shape = [R_nbins, 2]
 
     return RdpdR[:, 0], RdpdR[:, 1]
+
+
+def read_global_xH(fname, snapshot):
+
+    """ Read global xH from the Meraxes HDF5 file.
+
+    *Args*:
+        fname : str
+            Full path to input hdf5 master file
+
+        snapshot : int
+            Snapshot from which the global xH is to be read
+            from.
+
+    *Returns*:
+        global_xH : float
+            Global xH value
+        """
+
+    with h5.File(fname, 'r') as fin:
+        ds_name = "Snap{:03d}/Grids/xH".format(snapshot)
+        try:
+            global_xH = fin[ds_name].attrs["global_xH"][0]
+        except KeyError:
+            log.error("No global_xH found in file %s ." % (fname))
+
+    return global_xH
