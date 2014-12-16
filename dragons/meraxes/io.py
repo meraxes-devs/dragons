@@ -14,8 +14,11 @@ __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.1'
 
+
+__meraxes_h = None
+
 __gal_props_h_scaling = {
-    "id_MBP" : lambda x, h: x,
+    "id_MBP": lambda x, h: x,
     "ID": lambda x, h: x,
     "Type": lambda x, h: x,
     "CentralGal": lambda x, h: x,
@@ -71,6 +74,26 @@ def _check_pandas():
                           " pandas=True.")
 
 
+def set_little_h(h):
+
+    """ Set the value of little h to be used by all future meraxes.io calls
+    where applicable.
+
+    *Args*:
+        h : float
+            Little h value
+    """
+
+    global __meraxes_h
+
+    log.info("Setting little h to %.3f for future io calls." % h)
+
+    if h == 1.0:
+        h = None
+
+    __meraxes_h = h
+
+
 def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
               pandas=False, h=None, h_scaling={}, indices=None):
 
@@ -102,7 +125,8 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
         h : float
             Hubble constant (/100) to scale the galaxy properties to.  If
-            `None` then no scaling is made.  (default = None)
+            `None` then no scaling is made unless `set_little_h` was previously
+            called.  (default = None)
 
         h_scaling : dict
             Dictionary of galaxy properties (keys) and associated Hubble
@@ -118,6 +142,9 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
         If sim_props==True then output is a tuple of form (galaxies, sim_props)
     """
+
+    if (h is None) and (__meraxes_h is not None):
+        h = __meraxes_h
 
     def __apply_offsets(G, dest_sel, counter):
         # Deal with any indices that need offsets applied
@@ -251,7 +278,8 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
 
         h : float
             Hubble constant (/100) to scale the galaxy properties to.  If
-            `None` then no scaling is made.  (default = None)
+            `None` then no scaling is made unless `set_little_h` was previously
+            called.  (default = None)
 
         raw : bool
             Don't augment with extra useful quantities. (default = False)
@@ -259,6 +287,9 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
     *Returns*:
         A dict containing all run properties.
     """
+
+    if (h is None) and (__meraxes_h is not None):
+        h = __meraxes_h
 
     def arr_to_value(d):
         for k, v in d.iteritems():
@@ -373,8 +404,9 @@ def read_snaplist(fname, h=None):
 
     *Kwargs:*
         h : float
-            Hubble constant (/100) to scale the lt times to.  If `None`
-            then no scaling is made.  (default = None)
+            Hubble constant (/100) to scale the galaxy properties to.  If
+            `None` then no scaling is made unless `set_little_h` was previously
+            called.  (default = None)
 
     *Returns*:
         snaps : array
@@ -386,6 +418,9 @@ def read_snaplist(fname, h=None):
         lt_times : array
             light travel times (Myr)
     """
+
+    if (h is None) and (__meraxes_h is not None):
+        h = __meraxes_h
 
     zlist = []
     snaplist = []
@@ -708,7 +743,8 @@ def read_grid(fname, snapshot, name, h=None, h_scaling=None):
 
         h : float
             Hubble constant (/100) to scale the galaxy properties to.  If
-            `None` then no scaling is made.  (default = None)
+            `None` then no scaling is made unless `set_little_h` was previously
+            called.  (default = None)
 
         h_scaling : dict
             Dictionary of grid names (keys) and associated Hubble
@@ -719,6 +755,9 @@ def read_grid(fname, snapshot, name, h=None, h_scaling=None):
         grid : array
             The requested grid
     """
+
+    if (h is None) and (__meraxes_h is not None):
+        h = __meraxes_h
 
     with h5.File(fname, 'r') as fin:
         HII_dim = fin["InputParams"].attrs["TOCF_HII_dim"][0]
