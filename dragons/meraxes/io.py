@@ -57,8 +57,6 @@ __gal_props_h_scaling = {
 
 __grids_h_scaling = {
     "xH": lambda x, h: x,
-    "J_21": lambda x, h: x,
-    "J_21_at_ionization": lambda x, h: x,
     "z_at_ionization": lambda x, h: x,
     "Mvir_crit": lambda x, h: x/h,
     "StellarMass": lambda x, h: x/h,
@@ -776,7 +774,7 @@ def read_grid(fname, snapshot, name, h=None, h_scaling=None):
         try:
             grid = h_scaling[name](grid, h)
         except KeyError:
-            log.warn("Unrecognised grid %s - assuming no "
+            log.warn("Unknown scaling for grid %s - assuming no "
                      "scaling with Hubble const!" % name)
 
     grid.shape = [HII_dim, ]*3

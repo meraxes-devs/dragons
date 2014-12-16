@@ -2,12 +2,13 @@
 lines.linewidth   : 2.0     # line width in points
 lines.solid_capstyle : round   # butt|round|projecting
 lines.antialiased : True         # render lines in antialised (no jaggies)
+lines.markersize  : 8            # markersize, in points
 
 ### PATCHES
 patch.linewidth        : 0.5     # edge width in points
 patch.facecolor        : 348ABD
 patch.edgecolor        : eeeeee
-patch.antialiased      : True 
+patch.antialiased      : True
 
 ### FONT
 font.family         : sans-serif

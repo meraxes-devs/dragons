@@ -399,7 +399,7 @@ def _find_confidence_interval(x, pdf, confidence_level):
     return pdf[pdf > x].sum() - confidence_level
 
 
-def density_contour(xdata, ydata, nbins_x, nbins_y, ax, label=True,
+def density_contour(xdata, ydata, bins, ax, label=True,
                     clabel_kwargs={}, **contour_kwargs):
     """ Create a density contour plot.
 
@@ -411,8 +411,9 @@ def density_contour(xdata, ydata, nbins_x, nbins_y, ax, label=True,
 
         ydata : ndarray
 
-        nbins_x : int
-            Number of bins along x dimension
+        bins : int or list
+            Number of bins [nbins_x, nbins_y]. If int then
+            nbins_x=nbins_y=nbins.
 
         nbins_y : int
             Number of bins along y dimension
@@ -434,7 +435,13 @@ def density_contour(xdata, ydata, nbins_x, nbins_y, ax, label=True,
         contour : matplotlib.contour.QuadContourSet
     """
 
-    H, xedges, yedges = np.histogram2d(xdata, ydata, bins=(nbins_x, nbins_y),
+    if type(bins) is int:
+        nbins_x = nbins_y = bins
+    else:
+        nbins_x = bins[0]
+        nbins_y = bins[1]
+
+    H, xedges, yedges = np.histogram2d(xdata, ydata, bins=bins,
                                        normed=True)
     x_bin_sizes = (xedges[1:] - xedges[:-1]).reshape((1, nbins_x))
     y_bin_sizes = (yedges[1:] - yedges[:-1]).reshape((nbins_y, 1))
@@ -450,11 +457,12 @@ def density_contour(xdata, ydata, nbins_x, nbins_y, ax, label=True,
     X, Y = 0.5*(xedges[1:]+xedges[:-1]), 0.5*(yedges[1:]+yedges[:-1])
     Z = pdf.T
 
+    contour = ax.contour(X, Y, Z, levels=levels, origin="lower",
+                         **contour_kwargs)
+
     if label:
         lim = ax.axis()
 
-        contour = ax.contour(X, Y, Z, levels=levels, origin="lower",
-                             **contour_kwargs)
         fmt = {}
         strs = ['68%', '95%', '99.7%']
         for l, s in zip(contour.levels, strs):
