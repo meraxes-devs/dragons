@@ -166,6 +166,37 @@ def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
         return mf, edges
 
 
+def edges_to_centers(edges, width=False):
+
+    """Convert **evenly spaced** bin edges to centers.
+
+    *Args*:
+        edges : ndarray
+            bin edges
+
+    *Kwargs*:
+        width : bool
+            also return the bin width
+
+    *Returns*:
+        centers : ndarray
+            bin centers (size = edges.size-1)
+
+        bin_width : float
+            only returned if width = True
+
+    """
+
+    bin_width = edges[1] - edges[0]
+    radius = bin_width * 0.5
+    centers = edges[:-1] + radius
+
+    if width:
+        return centers, bin_width
+    else:
+        return centers
+
+
 def describe(arr, **kwargs):
 
     """Run scipy.stats.describe and produce legible output.
