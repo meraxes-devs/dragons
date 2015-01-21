@@ -356,9 +356,10 @@ def set_hls_values(color, h=None, l=None, s=None):
     return rgb
 
 
-def axlabel(xlabel, ylabel, **kwargs):
+def axlabel(xlabel, ylabel, ax=None, **kwargs):
     """Grab current axis and label it."""
-    ax = plt.gca()
+    if ax is None:
+        ax = plt.gca()
     ax.set_xlabel(xlabel, **kwargs)
     ax.set_ylabel(ylabel, **kwargs)
 
