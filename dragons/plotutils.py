@@ -416,9 +416,6 @@ def density_contour(xdata, ydata, bins, ax, label=True,
             Number of bins [nbins_x, nbins_y]. If int then
             nbins_x=nbins_y=nbins.
 
-        nbins_y : int
-            Number of bins along y dimension
-
         ax : matplotlib.axes.AxesSubplot
             Axis to draw contours on
 
