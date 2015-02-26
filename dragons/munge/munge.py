@@ -223,3 +223,58 @@ def describe(arr, **kwargs):
     print("{:15s} : {:g}".format("biased kurt", stats[5]))
 
     return stats
+
+
+def smooth_grid(grid, side_length, radius, filt="tophat"):
+
+    """Smooth a grid by convolution with a filter.
+
+    *Args*:
+        grid : ndarray
+            The grid to be smoothed
+
+        side_length : float
+            The side length of the grid (assumes all side lengths are equal)
+
+        radius : float
+            The radius of the smoothing filter
+
+    *Kwargs*:
+        filt : string
+            The name of the filter.  Currently only "tophat" (real space) is
+            implemented.  More filters will be added over time.
+
+    *Returns*:
+        smoothed_grid : ndarray
+            The smoothed grid
+    """
+
+    # The tuple of implemented filters
+    IMPLEMENTED_FILTERS = ("tophat",)
+
+    # Check to see if this filter is implemented
+    if filt not in IMPLEMENTED_FILTERS:
+        raise NotImplementedError("Filter not implemented.")
+
+    side_length, radius = float(side_length), float(radius)
+
+    # Do the forward fft
+    grid = np.fft.fftn(grid)
+
+    # Construct a grid of k*radius values
+    k = np.fft.fftfreq(grid.shape[0], d=2.0*np.pi/side_length)
+    k = np.meshgrid(k, k, k, sparse=True, indexing='ij')
+    kR = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)*radius
+
+    # Evaluate the convolution
+    if filt == "tophat":
+        fgrid = grid * 3.0 * (np.sin(kR)/kR**3 - np.cos(kR)/kR**2)
+    fgrid[kR==0] = grid[kR==0]
+
+    # Inverse transform back to real space
+    grid = np.fft.ifftn(fgrid).real
+
+    # Make sure fgrid is marked available for garbage collection
+    del(fgrid)
+
+    return grid
