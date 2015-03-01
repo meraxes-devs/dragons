@@ -9,4 +9,3 @@ import munge
 import meraxes
 import nbody
 import plotutils
-from regrid import regrid
