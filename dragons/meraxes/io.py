@@ -822,10 +822,11 @@ def read_ps(fname, snapshot):
 
     *Returns*:
         kval : array
-            k value
+            k value (Mpc^-1)
 
         ps : array
-            power value
+            power value (should be dimensionless but actually might be power
+            density i.e. with units [Mpc^-3])
 
         pserr : array
             error
