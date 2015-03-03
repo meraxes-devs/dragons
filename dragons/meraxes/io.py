@@ -725,7 +725,7 @@ def read_descendant_indices(fname, snapshot, pandas=False):
     return desc_ind
 
 
-def read_grid(fname, snapshot, name, h=None, h_scaling=None):
+def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
 
     """ Read a grid from the Meraxes HDF5 file.
 
