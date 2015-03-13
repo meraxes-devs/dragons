@@ -262,7 +262,8 @@ def smooth_grid(grid, side_length, radius, filt="tophat"):
     grid = np.fft.fftn(grid)
 
     # Construct a grid of k*radius values
-    k = np.fft.fftfreq(grid.shape[0], d=2.0*np.pi/side_length)
+    k = 2.0 * np.pi * np.fft.fftfreq(grid.shape[0],
+                                     1/float(grid.shape[0])) / side_length
     k = np.meshgrid(k, k, k, sparse=True, indexing='ij')
     kR = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)*radius
 
