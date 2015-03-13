@@ -279,3 +279,66 @@ def smooth_grid(grid, side_length, radius, filt="tophat"):
     del(fgrid)
 
     return grid
+
+
+def power_spectrum(grid, side_length, n_bins):
+
+    """Calculate the dimensionless power spectrum of a grid (G):
+
+    .. math::
+
+       \Delta = \frac{k^3}{2\pi^2 V} <|\hat G|^2>
+
+    *Args*:
+        grid : ndarray
+            The grid from which to construct the power spectrum
+
+        side_length : float
+            The side length of the grid (assumes all side lengths are equal)
+
+        n_bins : int
+            The number of k bins to use
+
+    *Returns*:
+        kmean : ndarray
+            The mean wavenumber of each bin
+
+        power : ndarray
+            The dimensionless power (:math:`\Delta`)
+
+        uncert : ndarray
+            The standard deviation of the power within each k bin
+    """
+
+
+    volume = side_length**3
+
+    # do the FFT (note the normalising 1.0/N_cells factor)
+    ft_grid = np.fft.fftn(grid) / float(grid.size)
+
+    # generate a grid of k magnitudes
+    k1d = 2.0*np.pi * np.fft.fftfreq(grid.shape[0],
+                                     1/float(grid.shape[0])) / side_length
+    k = np.meshgrid(k1d, k1d, k1d, sparse=True)
+    k = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)
+
+    # bin up the k magnitudes
+    k_edges = np.logspace(np.log10(np.sort(np.abs(k1d))[1]),
+                          np.log10(k1d.max()), n_bins+1)
+    k_bin = np.digitize(k.flat, k_edges) - 1
+    np.clip(k_bin, 0, n_bins-1, k_bin)
+    k_bin.shape = k.shape
+
+    # loop through each k magnitude bin and calculate the mean power, k and uncert
+    kmean = np.zeros(n_bins)
+    power = np.zeros(n_bins)
+    uncert = np.zeros(n_bins)
+
+    for ii in xrange(n_bins):
+        sel = k_bin == ii
+        val = k[sel]**3 * np.abs(ft_grid[sel])**2 / (2.0 * np.pi**2) * volume
+        power[ii] = val.mean()
+        uncert[ii] = val.std()
+        kmean[ii] = k[sel].mean()
+
+    return kmean, power, uncert
