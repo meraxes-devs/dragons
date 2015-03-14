@@ -283,7 +283,7 @@ def smooth_grid(grid, side_length, radius, filt="tophat"):
 
 def power_spectrum(grid, side_length, n_bins):
 
-    """Calculate the dimensionless power spectrum of a grid (G):
+    r"""Calculate the dimensionless power spectrum of a grid (G):
 
     .. math::
 
@@ -314,17 +314,18 @@ def power_spectrum(grid, side_length, n_bins):
     volume = side_length**3
 
     # do the FFT (note the normalising 1.0/N_cells factor)
-    ft_grid = np.fft.fftn(grid) / float(grid.size)
+    ft_grid = np.fft.rfftn(grid) / float(grid.size)
 
     # generate a grid of k magnitudes
     k1d = 2.0*np.pi * np.fft.fftfreq(grid.shape[0],
                                      1/float(grid.shape[0])) / side_length
-    k = np.meshgrid(k1d, k1d, k1d, sparse=True)
+    k1d_r = 2.0*np.pi * np.fft.rfftfreq(grid.shape[0],
+                                        1/float(grid.shape[0])) / side_length
+    k = np.meshgrid(k1d, k1d, k1d_r, sparse=True)
     k = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)
 
     # bin up the k magnitudes
-    k_edges = np.logspace(np.log10(np.sort(np.abs(k1d))[1]),
-                          np.log10(k1d.max()), n_bins+1)
+    k_edges = np.logspace(np.log10(k1d_r[1]), np.log10(k1d_r[-1]), n_bins+1)
     k_bin = np.digitize(k.flat, k_edges) - 1
     np.clip(k_bin, 0, n_bins-1, k_bin)
     k_bin.shape = k.shape
