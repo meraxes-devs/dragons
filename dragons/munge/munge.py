@@ -259,12 +259,14 @@ def smooth_grid(grid, side_length, radius, filt="tophat"):
     side_length, radius = float(side_length), float(radius)
 
     # Do the forward fft
-    grid = np.fft.fftn(grid)
+    grid = np.fft.rfftn(grid)
 
     # Construct a grid of k*radius values
     k = 2.0 * np.pi * np.fft.fftfreq(grid.shape[0],
                                      1/float(grid.shape[0])) / side_length
-    k = np.meshgrid(k, k, k, sparse=True, indexing='ij')
+    k_r = 2.0 * np.pi * np.fft.rfftfreq(grid.shape[0],
+                                        1/float(grid.shape[0])) / side_length
+    k = np.meshgrid(k, k, k_r, sparse=True, indexing='ij')
     kR = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)*radius
 
     # Evaluate the convolution
@@ -273,10 +275,12 @@ def smooth_grid(grid, side_length, radius, filt="tophat"):
     fgrid[kR==0] = grid[kR==0]
 
     # Inverse transform back to real space
-    grid = np.fft.ifftn(fgrid).real
+    grid = np.fft.irfftn(fgrid).real
 
     # Make sure fgrid is marked available for garbage collection
     del(fgrid)
+    del(k)
+    del(kR)
 
     return grid
 
@@ -321,7 +325,7 @@ def power_spectrum(grid, side_length, n_bins):
                                      1/float(grid.shape[0])) / side_length
     k1d_r = 2.0*np.pi * np.fft.rfftfreq(grid.shape[0],
                                         1/float(grid.shape[0])) / side_length
-    k = np.meshgrid(k1d, k1d, k1d_r, sparse=True)
+    k = np.meshgrid(k1d, k1d, k1d_r, sparse=True, indexing='ij')
     k = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)
 
     # bin up the k magnitudes
