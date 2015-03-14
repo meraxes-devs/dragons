@@ -272,7 +272,7 @@ def smooth_grid(grid, side_length, radius, filt="tophat"):
     # Evaluate the convolution
     if filt == "tophat":
         fgrid = grid * 3.0 * (np.sin(kR)/kR**3 - np.cos(kR)/kR**2)
-    fgrid[kR==0] = grid[kR==0]
+    fgrid[kR == 0] = grid[kR == 0]
 
     # Inverse transform back to real space
     grid = np.fft.irfftn(fgrid).real
@@ -314,7 +314,6 @@ def power_spectrum(grid, side_length, n_bins):
             The standard deviation of the power within each k bin
     """
 
-
     volume = side_length**3
 
     # do the FFT (note the normalising 1.0/N_cells factor)
@@ -334,7 +333,8 @@ def power_spectrum(grid, side_length, n_bins):
     np.clip(k_bin, 0, n_bins-1, k_bin)
     k_bin.shape = k.shape
 
-    # loop through each k magnitude bin and calculate the mean power, k and uncert
+    # loop through each k magnitude bin and calculate the mean power, k and
+    # uncert
     kmean = np.zeros(n_bins)
     power = np.zeros(n_bins)
     uncert = np.zeros(n_bins)

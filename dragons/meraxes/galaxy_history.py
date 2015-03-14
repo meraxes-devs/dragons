@@ -42,7 +42,8 @@ def galaxy_history(fname, gal_id, last_snapshot, pandas=False, props=None):
             The requested first progenitor history.
     """
 
-    gals = read_gals(fname, snapshot=last_snapshot, props=props, pandas=False, quiet=True)
+    gals = read_gals(fname, snapshot=last_snapshot, props=props, pandas=False,
+                     quiet=True)
 
     ind = np.where(gals["ID"] == gal_id)[0][0]
 

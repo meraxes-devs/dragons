@@ -324,8 +324,8 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
             props_dict['VolumeFactor']
 
         info = read_git_info(fname)
-        props_dict.update({'model_git_ref' : info[0],
-                           'model_git_diff' : info[1]})
+        props_dict.update({'model_git_ref': info[0],
+                           'model_git_diff': info[1]})
 
     fin.close()
 

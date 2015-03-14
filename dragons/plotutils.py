@@ -29,7 +29,7 @@ import warnings
 
 # Add custom styles
 style.core.USER_LIBRARY_PATHS.append(resource_filename(__name__,
-                                                           'stylelib'))
+                                                       'stylelib'))
 style.reload_library()
 
 
