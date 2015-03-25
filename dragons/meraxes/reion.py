@@ -78,14 +78,15 @@ def electron_optical_depth(fname):
         prefac = C.c * (1+z)**2 / cosmo.H(z) * thomson_cross_section
         return (prefac * (density_H*xHII + density_He*xHII)).decompose()
 
-
     post_sim_contrib = integrate.quad(d_te_postsim, 0, z_list[0])[0]
 
     sim_contrib = np.zeros(z_list.size)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        sim_contrib = np.array([integrate.simps(d_te_sim(z_list[:ii+1], xHII[:ii+1]),
-                                                z_list[:ii+1]) for ii in xrange(z_list.size)])
+        sim_contrib = np.array([integrate.simps(d_te_sim(z_list[:ii+1],
+                                                         xHII[:ii+1]),
+                                                z_list[:ii+1]) for ii
+                                in xrange(z_list.size)])
 
     scattering_depth = sim_contrib + post_sim_contrib
 
