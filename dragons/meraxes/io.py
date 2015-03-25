@@ -896,6 +896,9 @@ def read_global_xH(fname, snapshot):
             Global xH value(s)
         """
 
+    if not hasattr(snapshot, '__len__'):
+        snapshot = [snapshot,]
+
     snapshot = np.array(snapshot)
     global_xH = np.zeros(snapshot.size)
 
@@ -905,9 +908,10 @@ def read_global_xH(fname, snapshot):
             try:
                 global_xH[ii] = fin[ds_name].attrs["global_xH"][0]
             except KeyError:
-                log.error("No global_xH found for snapshot %d in file %s ." % (snap, fname))
-    
+                log.error("No global_xH found for snapshot %d in file %s ."
+                          % (snap, fname))
+
     if snapshot.size == 1:
         return global_xH[0]
-    else
+    else:
         return global_xH
