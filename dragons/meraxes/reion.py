@@ -4,10 +4,12 @@
 """Routines for reionisation related calculations."""
 
 import numpy as np
+import warnings
 from astropy import cosmology
 from astropy import units as U
 from astropy import constants as C
 from scipy import integrate
+from tqdm import tqdm
 
 from .io import read_input_params, read_snaplist, read_global_xH, read_grid
 
@@ -41,11 +43,20 @@ def electron_optical_depth(fname):
 
     # reweight the ionised fraction by mass
     sel = ~(np.isclose(xHII, 0) | np.isclose(xHII, 1))
-    for ii, snap in enumerate(snaps[sel]):
-        deltax = read_grid(fname, snap, 'deltax', h=run_params['Hubble_h'])
+    for ii, snap in tqdm(enumerate(snaps[sel]),
+                         desc='Calculating mass weighted neutral frac:',
+                         total=snaps[sel].size):
+        mass = read_grid(fname, snap, 'deltax', h=run_params['Hubble_h'],
+                         quiet=True) + 1
+        mass = mass / mass.sum()
         xHII_grid = 1.0 - read_grid(fname, snap, 'xH',
-                                    h=run_params['Hubble_h'])
-        xHII[sel][ii] = np.mean(deltax * xHII_grid)
+                                    h=run_params['Hubble_h'],
+                                    quiet=True)
+        xHII[sel][ii] = np.average(xHII_grid, weights=mass)
+
+    # reorder the run data from low z to high z for ease of integration
+    xHII = xHII[::-1]
+    z_list = z_list[::-1]
 
     def d_te_postsim(z):
         """This is d/dz scattering depth for redshifts greater than the final
@@ -63,15 +74,19 @@ def electron_optical_depth(fname):
 
     def d_te_sim(z, xHII):
         """This is d/dz scattering depth for redshifts covered by the run.
-
-        N.B. THIS ASSUMES THAT THE NEUTRAL FRACTION IS ZERO AT THE START OF THE
-        RUN AND 1 BY THE END!
         """
         prefac = C.c * (1+z)**2 / cosmo.H(z) * thomson_cross_section
         return (prefac * (density_H*xHII + density_He*xHII)).decompose()
 
-    sim_contrib = integrate.simps(d_te_sim(z_list, xHII), z_list)*-1
-    post_sim_contrib = integrate.quad(d_te_postsim, 0, 5)
+
+    post_sim_contrib = integrate.quad(d_te_postsim, 0, z_list[0])[0]
+
+    sim_contrib = np.zeros(z_list.size)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sim_contrib = np.array([integrate.simps(d_te_sim(z_list[:ii+1], xHII[:ii+1]),
+                                                z_list[:ii+1]) for ii in xrange(z_list.size)])
+
     scattering_depth = sim_contrib + post_sim_contrib
 
-    return scattering_depth
+    return z_list, scattering_depth
