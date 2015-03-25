@@ -106,7 +106,7 @@ def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
         return_edges : bool
             return the bin_edges (default: False)
 
-        **kwargs
+        \*\*kwargs
             passed to np.histogram call
 
     *Returns*:

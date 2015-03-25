@@ -887,20 +887,31 @@ def read_global_xH(fname, snapshot):
         fname : str
             Full path to input hdf5 master file
 
-        snapshot : int
-            Snapshot from which the global xH is to be read
+        snapshot : int or list
+            Snapshot(s) from which the global xH is to be read
             from.
 
     *Returns*:
-        global_xH : float
-            Global xH value
+        global_xH : float or ndarray
+            Global xH value(s)
         """
 
-    with h5.File(fname, 'r') as fin:
-        ds_name = "Snap{:03d}/Grids/xH".format(snapshot)
-        try:
-            global_xH = fin[ds_name].attrs["global_xH"][0]
-        except KeyError:
-            log.error("No global_xH found in file %s ." % (fname))
+    if not hasattr(snapshot, '__len__'):
+        snapshot = [snapshot, ]
 
-    return global_xH
+    snapshot = np.array(snapshot)
+    global_xH = np.zeros(snapshot.size)
+
+    with h5.File(fname, 'r') as fin:
+        for ii, snap in enumerate(snapshot):
+            ds_name = "Snap{:03d}/Grids/xH".format(snap)
+            try:
+                global_xH[ii] = fin[ds_name].attrs["global_xH"][0]
+            except KeyError:
+                log.error("No global_xH found for snapshot %d in file %s ."
+                          % (snap, fname))
+
+    if snapshot.size == 1:
+        return global_xH[0]
+    else:
+        return global_xH
