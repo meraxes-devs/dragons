@@ -426,7 +426,7 @@ def density_contour(xdata, ydata, bins, ax, label=True,
         clabel_kwargs : dict
             kwargs to be passed to pyplot.clabel() (default: {})
 
-        **contour_kwargs : dict
+        \*\*contour_kwargs : dict
             kwargs to be passed to pyplot.contour()
 
     *Returns*:

@@ -897,7 +897,7 @@ def read_global_xH(fname, snapshot):
         """
 
     if not hasattr(snapshot, '__len__'):
-        snapshot = [snapshot,]
+        snapshot = [snapshot, ]
 
     snapshot = np.array(snapshot)
     global_xH = np.zeros(snapshot.size)

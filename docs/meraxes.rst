@@ -18,3 +18,11 @@ meraxes.io
     :members:
     :undoc-members:
     :show-inheritance:
+
+meraxes.reion
+-------------
+
+.. automodule:: dragons.meraxes.reion
+    :members:
+    :undoc-members:
+    :show-inheritance:
