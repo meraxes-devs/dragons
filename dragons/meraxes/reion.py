@@ -3,14 +3,13 @@
 
 """Routines for reionisation related calculations."""
 
-import numpy as np
 import warnings
+import numpy as np
+from scipy import integrate
+from tqdm import tqdm
 from astropy import cosmology
 from astropy import units as U
 from astropy import constants as C
-from scipy import integrate
-from tqdm import tqdm
-
 from .io import read_input_params, read_snaplist, read_global_xH, read_grid
 
 __author__ = 'Simon Mutch'
@@ -20,7 +19,21 @@ __version__ = '0.1.1'
 
 def electron_optical_depth(fname):
     """Calculate the electron Thomson scattering optical depth from a Meraxes +
-    21cmFAST run."""
+    21cmFAST run.  Note that this implementation assumes that the simulation
+    volume is fully ionised before the final snapshot stored in the input file.
+
+    *Args*:
+        fname : str
+            Full path to input hdf5 master file
+
+    *Returns*:
+        z_list : ndarray
+            Redshifts of each snapshot read in the input simulation.
+
+        scattering_depth : ndarray
+            Thomson scattering depth integrated between z=0 and each snapshot
+            of the input simulation.
+    """
 
     # read in the model run parameters and set up the cosmology
     run_params = read_input_params(fname)
