@@ -62,7 +62,7 @@ def read_density_grid(fname):
 
         # keep reading grids until we get the density one
         i_grid = 1
-        while((ident != 'rho_r_dark') and (i_grid < n_grids)):
+        while((ident[:10] != 'rho_r_dark') and (i_grid < n_grids)):
             print "Skipping grid '%s'" % ident
             ident = np.fromfile(fin, 'S32', 1)[0]
             grid = np.fromfile(fin, '<f4', n_cell.cumprod()[-1])

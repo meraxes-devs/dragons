@@ -57,6 +57,7 @@ __gal_props_h_scaling = {
 
 __grids_h_scaling = {
     "xH": lambda x, h: x,
+    "deltax": lambda x, h: x,
     "z_at_ionization": lambda x, h: x,
     "Mvir_crit": lambda x, h: x/h,
     "StellarMass": lambda x, h: x/h,
