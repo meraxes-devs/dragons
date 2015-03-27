@@ -71,6 +71,7 @@ Ready to contribute? Here's how to set up `dragons` for local development.
     $ mkvirtualenv dragons
     $ cd dragons/
     $ pip install -e .
+    $ mv regrid.so dragons/munge
 
 4. Create a branch for local development::
 
