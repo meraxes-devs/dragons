@@ -78,17 +78,15 @@ def electron_optical_depth(fname):
         N.B. THIS ASSUMES THAT THE NEUTRAL FRACTION IS ZERO BY THE END OF THE
         INPUT RUN!
         """
-        if z > 4:
+        if z <= 4:
             return (cosmo_factor(z) * (density_H + 3.0*density_He)).decompose()
-        elif z > 5:
-            return (cosmo_factor(z) * (density_H + density_He)).decompose()
         else:
-            return 0
+            return (cosmo_factor(z) * (density_H + density_He)).decompose()
 
     def d_te_sim(z, xHII):
         """This is d/dz scattering depth for redshifts covered by the run.
         """
-        prefac = C.c * (1+z)**2 / cosmo.H(z) * thomson_cross_section
+        prefac = cosmo_factor(z)
         return (prefac * (density_H*xHII + density_He*xHII)).decompose()
 
     post_sim_contrib = integrate.quad(d_te_postsim, 0, z_list[0])[0]
@@ -101,6 +99,7 @@ def electron_optical_depth(fname):
                                                 z_list[:ii+1]) for ii
                                 in xrange(z_list.size)])
 
+    sim_contrib[:] = 0.0;
     scattering_depth = sim_contrib + post_sim_contrib
 
     return z_list, scattering_depth
