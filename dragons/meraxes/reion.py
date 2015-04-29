@@ -52,7 +52,7 @@ def electron_optical_depth(fname):
 
     # read in the model run data
     snaps, z_list, _ = read_snaplist(fname)
-    xHII = 1.0 - read_global_xH(fname, snaps)
+    xHII = 1.0 - read_global_xH(fname, snaps, quiet=True)
 
     # reweight the ionised fraction by mass
     sel = ~(np.isclose(xHII, 0) | np.isclose(xHII, 1))
@@ -99,7 +99,6 @@ def electron_optical_depth(fname):
                                                 z_list[:ii+1]) for ii
                                 in xrange(z_list.size)])
 
-    sim_contrib[:] = 0.0;
     scattering_depth = sim_contrib + post_sim_contrib
 
     return z_list, scattering_depth

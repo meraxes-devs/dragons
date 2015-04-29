@@ -879,7 +879,7 @@ def read_size_dist(fname, snapshot):
     return RdpdR[:, 0], RdpdR[:, 1]
 
 
-def read_global_xH(fname, snapshot):
+def read_global_xH(fname, snapshot, quiet=False):
 
     """ Read global xH from the Meraxes HDF5 file.
 
@@ -908,8 +908,9 @@ def read_global_xH(fname, snapshot):
             try:
                 global_xH[ii] = fin[ds_name].attrs["global_xH"][0]
             except KeyError:
-                log.error("No global_xH found for snapshot %d in file %s ."
-                          % (snap, fname))
+                if not quiet:
+                    log.error("No global_xH found for snapshot %d in file %s ."
+                              % (snap, fname))
 
     if snapshot.size == 1:
         return global_xH[0]
