@@ -79,7 +79,7 @@ def electron_optical_depth(fname):
         INPUT RUN!
         """
         if z <= 4:
-            return (cosmo_factor(z) * (density_H + 3.0*density_He)).decompose()
+            return (cosmo_factor(z) * (density_H + 2.0*density_He)).decompose()
         else:
             return (cosmo_factor(z) * (density_H + density_He)).decompose()
 
