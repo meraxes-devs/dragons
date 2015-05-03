@@ -17,7 +17,7 @@ __email__ = 'smutch.astro@gmail.com'
 __version__ = '0.1.1'
 
 
-def electron_optical_depth(fname):
+def electron_optical_depth(fname, volume_weighted=False):
     """Calculate the electron Thomson scattering optical depth from a Meraxes +
     21cmFAST run.  Note that this implementation assumes that the simulation
     volume is fully ionised before the final snapshot stored in the input file.
@@ -25,6 +25,13 @@ def electron_optical_depth(fname):
     *Args*:
         fname : str
             Full path to input hdf5 master file
+
+        volume_weighted : bool
+            This option is just for testing purposes as it can take a long time
+            to mass weight the neutral fraction depending on the grid size.
+            The optical depth obtained is often very similar to the correctly
+            mass weighted value, however, this should not be used to final
+            results.
 
     *Returns*:
         z_list : ndarray
@@ -53,19 +60,23 @@ def electron_optical_depth(fname):
     # read in the model run data
     snaps, z_list, _ = read_snaplist(fname)
     xHII = 1.0 - read_global_xH(fname, snaps, quiet=True)
+    first_valid, last_valid = np.where(~np.isnan(xHII))[0][[0, -1]]
+    xHII[:first_valid] = 0.0
+    xHII[last_valid+1:] = 1.0
 
     # reweight the ionised fraction by mass
-    sel = ~(np.isclose(xHII, 0) | np.isclose(xHII, 1))
-    for ii, snap in tqdm(enumerate(snaps[sel]),
-                         desc='Calculating mass weighted neutral frac:',
-                         total=snaps[sel].size):
-        mass = read_grid(fname, snap, 'deltax', h=run_params['Hubble_h'],
-                         quiet=True) + 1
-        mass = mass / mass.sum()
-        xHII_grid = 1.0 - read_grid(fname, snap, 'xH',
-                                    h=run_params['Hubble_h'],
-                                    quiet=True)
-        xHII[sel][ii] = np.average(xHII_grid, weights=mass)
+    if not volume_weighted:
+        sel = ~(np.isclose(xHII, 0) | np.isclose(xHII, 1))
+        for ii, snap in tqdm(enumerate(snaps[sel]),
+                             desc='Calculating mass weighted neutral frac:',
+                             total=snaps[sel].size):
+            mass = read_grid(fname, snap, 'deltax', h=run_params['Hubble_h'],
+                             quiet=True) + 1
+            mass = mass / mass.sum()
+            xHII_grid = 1.0 - read_grid(fname, snap, 'xH',
+                                        h=run_params['Hubble_h'],
+                                        quiet=True)
+            xHII[sel][ii] = np.average(xHII_grid, weights=mass)
 
     # reorder the run data from low z to high z for ease of integration
     xHII = xHII[::-1]

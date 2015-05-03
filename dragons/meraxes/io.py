@@ -908,6 +908,7 @@ def read_global_xH(fname, snapshot, quiet=False):
             try:
                 global_xH[ii] = fin[ds_name].attrs["global_xH"][0]
             except KeyError:
+                global_xH[ii] = np.nan
                 if not quiet:
                     log.error("No global_xH found for snapshot %d in file %s ."
                               % (snap, fname))
