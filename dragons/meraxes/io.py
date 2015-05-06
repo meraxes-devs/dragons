@@ -208,28 +208,29 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             galaxies = snap_group['Core%d/Galaxies' % i_core]
             core_ngals = galaxies.size
 
-            if (indices is None) and (core_ngals > 0):
-                dest_sel = np.s_[counter:core_ngals+counter]
-                galaxies.read_direct(G, dest_sel=dest_sel)
+            if core_ngals > 0:
+                if indices is None:
+                    dest_sel = np.s_[counter:core_ngals+counter]
+                    galaxies.read_direct(G, dest_sel=dest_sel)
 
-                __apply_offsets(G, dest_sel, counter)
-                counter += core_ngals
+                    __apply_offsets(G, dest_sel, counter)
+                    counter += core_ngals
 
-            else:
-                read_ind = np.compress((indices >= total_read) &
-                                       (indices < total_read+core_ngals),
-                                       indices) - total_read
+                else:
+                    read_ind = np.compress((indices >= total_read) &
+                                           (indices < total_read+core_ngals),
+                                           indices) - total_read
 
-                if read_ind.shape[0] > 0:
-                    dest_sel = np.s_[counter:read_ind.shape[0]+counter]
-                    bool_sel = np.zeros(core_ngals, 'bool')
-                    bool_sel[read_ind] = True
-                    G[dest_sel] = galaxies[bool_sel]
+                    if read_ind.shape[0] > 0:
+                        dest_sel = np.s_[counter:read_ind.shape[0]+counter]
+                        bool_sel = np.zeros(core_ngals, 'bool')
+                        bool_sel[read_ind] = True
+                        G[dest_sel] = galaxies[bool_sel]
 
-                    __apply_offsets(G, dest_sel, total_read)
-                    counter += read_ind.shape[0]
+                        __apply_offsets(G, dest_sel, total_read)
+                        counter += read_ind.shape[0]
 
-                total_read += core_ngals
+                    total_read += core_ngals
 
             if counter >= ngals:
                 break
