@@ -1,6 +1,13 @@
 ### AXES
 axes.facecolor    : w
-axes.edgecolor    : bcbcbc
+axes.edgecolor    : 0.1
+
+### TICKS
+xtick.color          : 0.1      # color of the tick labels
+xtick.major.size     : 4      # major tick size in points
+
+ytick.color          : 0.1      # color of the tick labels
+ytick.major.size     : 4      # major tick size in points
 
 ### GRID
 grid.color        : 0.95
