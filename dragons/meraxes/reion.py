@@ -52,7 +52,9 @@ def electron_optical_depth(fname, volume_weighted=False):
     # define the necessary constants
     thomson_cross_section = 6.652e-25 * U.cm * U.cm
     density_H = 1.88e-7 * cosmo.Ob0 * cosmo.h**2 / 0.022 * U.cm**-3
-    density_He = 0.19e-7 * cosmo.Ob0 * cosmo.h**2 / 0.022 * U.cm**-3
+    # density_He = 0.19e-7 * cosmo.Ob0 * cosmo.h**2 / 0.022 * U.cm**-3
+    # Not what is in Whythe et al.!
+    density_He = 0.148e-7 * cosmo.Ob0 * cosmo.h**2 / 0.022 * U.cm**-3
 
     cosmo_factor = lambda z: C.c * (1+z)**2 \
         / cosmo.H(z) * thomson_cross_section
@@ -67,16 +69,16 @@ def electron_optical_depth(fname, volume_weighted=False):
     # reweight the ionised fraction by mass
     if not volume_weighted:
         sel = ~(np.isclose(xHII, 0) | np.isclose(xHII, 1))
-        for ii, snap in tqdm(enumerate(snaps[sel]),
-                             desc='Calculating mass weighted neutral frac:',
-                             total=snaps[sel].size):
+        for snap in tqdm(snaps[sel],
+                         desc='Calculating mass weighted neutral frac:',
+                         total=snaps[sel].size):
             mass = read_grid(fname, snap, 'deltax', h=run_params['Hubble_h'],
                              quiet=True) + 1
             mass = mass / mass.sum()
             xHII_grid = 1.0 - read_grid(fname, snap, 'xH',
                                         h=run_params['Hubble_h'],
                                         quiet=True)
-            xHII[sel][ii] = np.average(xHII_grid, weights=mass)
+            xHII[snap] = np.average(xHII_grid, weights=mass)
 
     # reorder the run data from low z to high z for ease of integration
     xHII = xHII[::-1]
@@ -107,8 +109,8 @@ def electron_optical_depth(fname, volume_weighted=False):
         warnings.simplefilter("ignore")
         sim_contrib = np.array([integrate.simps(d_te_sim(z_list[:ii+1],
                                                          xHII[:ii+1]),
-                                                z_list[:ii+1]) for ii
-                                in xrange(z_list.size)])
+                                                z_list[:ii+1])
+                                for ii in xrange(z_list.size)])
 
     scattering_depth = sim_contrib + post_sim_contrib
 

@@ -765,7 +765,8 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
         try:
             grid = fin[ds_name][:]
         except KeyError:
-            log.error("No grid called %s found in file %s ." % (name, fname))
+            if not quiet:
+                log.error("No grid called %s found in file %s ." % (name, fname))
 
     # Apply any Hubble scalings
     if h is not None:
