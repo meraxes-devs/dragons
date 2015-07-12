@@ -8,6 +8,8 @@ from ..munge import ndarray_to_dataframe
 import numpy as np
 import h5py as h5
 from astropy import log
+from astropy import units as U
+from astropy.table import Table
 import pandas as pd
 
 __author__ = 'Simon Mutch'
@@ -58,7 +60,7 @@ def set_little_h(h=None):
 
 
 def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
-              pandas=False, h=None, h_scaling={}, indices=None):
+              pandas=False, h=None, indices=None):
 
     """Read in a Meraxes hdf5 output file.
 
@@ -83,7 +85,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             Output some simulation properties as well.  (default = False)
 
         pandas : bool
-            Ouput a pandas dataframe instead of a numpy array.  (default =
+            Ouput a pandas dataframe instead of an astropy table.  (default =
             False)
 
         h : float
@@ -91,17 +93,12 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             `None` then no scaling is made unless `set_little_h` was previously
             called.  (default = None)
 
-        h_scaling : dict
-            Dictionary of galaxy properties (keys) and associated Hubble
-            constant scalings (values) as lambda functions. e.g.
-            | h_scaling = {"MassLikeProp" : lambda x, h: x/h,}
-
         indices : list or array
             Indices of galaxies to be read.  If `None` then read all galaxies.
             (default = None)
 
     *Returns*:
-        Array with the requested galaxies and properties.
+        An astropy table with the requested galaxies and properties.
 
         If sim_props==True then output is a tuple of form (galaxies, sim_props)
     """
@@ -118,6 +115,9 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
     if pandas:
         _check_pandas()
+
+    # Grab the units and hubble conversions information
+    units = read_units(fname, quiet=quiet)
 
     # Open the file for reading
     fin = h5.File(fname, "r")
@@ -199,26 +199,36 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             if counter >= ngals:
                 break
 
-    # Apply any Hubble scalings
-    if h is not None:
-        h = float(h)
-        h_scaling.update(__gal_props_h_scaling)
-        if not quiet:
-            log.info("Scaling galaxy properties to h = %.3f" % h)
-        for p in gal_dtype.names:
-            try:
-                G[p] = h_scaling[p](G[p], h)
-            except KeyError:
-                log.warn("Unrecognised galaxy property %s - assuming no "
-                         "scaling with Hubble const!" % p)
-
     # Print some checking statistics
     if not quiet:
         log.info('Read in %d galaxies.' % len(G))
 
+    # Apply any Hubble scalings
+    if h is not None:
+        h = float(h)
+        h_conv = units['HubbleConversions']
+        if not quiet:
+            log.info("Scaling galaxy properties to h = %.3f" % h)
+        for p in gal_dtype.names:
+            try:
+                G[p] = eval(h_conv[p], globals=dict(v=G[p], h=h))
+            except KeyError:
+                log.warn("Unrecognised galaxy property %s - assuming no "
+                         "scaling with Hubble const!" % p)
+
+
     # If requested convert the numpy array into a pandas dataframe
     if pandas:
         G = ndarray_to_dataframe(G)
+    # else convert to astropy table and attach units
+    else:
+        G = Table(G, copy=False)
+        for k, v in G.columns.iteritems():
+            try:
+                v.unit = units[k]
+            except KeyError:
+                log.warn("Unrecognised galaxy property %s - assuming "
+                         "dimensionless quantitiy!" % p)
 
     # Set some run properties
     if sim_props:
@@ -308,9 +318,8 @@ def read_units(fname, quiet=False):
 
     *Returns*:
         units : dict
-            A dict containing all units.
-        hubble_conv : dict
-            A dict containing all hubble conversions.
+            A dict containing all units (Hubble conversions are stored with key
+            `HubbleConversions`).
     """
 
     def arr_to_value(d):
@@ -335,14 +344,17 @@ def read_units(fname, quiet=False):
         if name == 'Units':
             units_dict = dict(group.attrs.items())
             arr_to_value(units_dict)
-        if name == 'HubbleConversions'
+        if name == 'HubbleConversions':
             hubble_conv_dict = dict(group.attrs.items())
             arr_to_value(hubble_conv_dict)
         group.visititems(visitfunc)
 
+    # Put the hubble conversions information inside the units dict for ease
+    units["HubbleConversions"] = hubble_conv_dict
+
     fin.close()
 
-    return units_dict, hubble_conv_dict
+    return units_dict
 
 
 def read_git_info(fname):
