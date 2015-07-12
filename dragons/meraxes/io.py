@@ -17,53 +17,6 @@ __version__ = '0.1.1'
 
 __meraxes_h = None
 
-__gal_props_h_scaling = {
-    "id_MBP": lambda x, h: x,
-    "ID": lambda x, h: x,
-    "Type": lambda x, h: x,
-    "CentralGal": lambda x, h: x,
-    "GhostFlag": lambda x, h: x,
-    "Len": lambda x, h: x,
-    "Pos": lambda x, h: x/h,
-    "Vel": lambda x, h: x,
-    "Spin": lambda x, h: x,
-    "Mvir": lambda x, h: x/h,
-    "FOFMvir": lambda x, h: x/h,
-    "Rvir": lambda x, h: x/h,
-    "Vvir": lambda x, h: x,
-    "Vmax": lambda x, h: x,
-    "HotGas": lambda x, h: x/h,
-    "MetalsHotGas": lambda x, h: x/h,
-    "ColdGas": lambda x, h: x/h,
-    "MetalsColdGas": lambda x, h: x/h,
-    "Mcool": lambda x, h: x/h,
-    "StellarMass": lambda x, h: x/h,
-    "GrossStellarMass": lambda x, h: x/h,
-    "NewStars": lambda x, h: x/h,
-    "MWMSA": lambda x, h: x/h,
-    "Sfr": lambda x, h: x,
-    "BlackHoleMass": lambda x, h: x/h,
-    "DiskScaleLength": lambda x, h: x/h,
-    "MetalsStellarMass": lambda x, h: x/h,
-    "EjectedGas": lambda x, h: x/h,
-    "MetalsEjectedGas": lambda x, h: x/h,
-    "Rcool": lambda x, h: x/h,
-    "Cos_Inc": lambda x, h: x,
-    "MergTime": lambda x, h: x/h,
-    "BaryonFracModifier": lambda x, h: x,
-    "Mag": lambda x, h: x+5.0*np.log10(h),
-    "MagDust": lambda x, h: x+5.0*np.log10(h),
-}
-
-__grids_h_scaling = {
-    "xH": lambda x, h: x,
-    "deltax": lambda x, h: x,
-    "z_at_ionization": lambda x, h: x,
-    "Mvir_crit": lambda x, h: x/h,
-    "StellarMass": lambda x, h: x/h,
-    "Sfr": lambda x, h: x,
-}
-
 
 def _check_pandas():
     try:
@@ -346,14 +299,18 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
 
 
 def read_units(fname, quiet=False):
-    """ Read in the units information from a Meraxes hdf5 output file.
+    """ Read in the units and hubble conversion information from a Meraxes hdf5
+    output file.
 
     *Args*:
         fname : str
             Full path to input hdf5 master file.
 
     *Returns*:
-        A dict containing all units.
+        units : dict
+            A dict containing all units.
+        hubble_conv : dict
+            A dict containing all hubble conversions.
     """
 
     def arr_to_value(d):
@@ -372,15 +329,20 @@ def read_units(fname, quiet=False):
     # Open the file for reading
     fin = h5.File(fname, 'r')
 
-    group = fin['Units']
-
-    units_dict = dict(group.attrs.items())
-    arr_to_value(units_dict)
-    group.visititems(visitfunc)
+    # Read the units
+    for name in ['Units', 'HubbleConversions']:
+        group = fin[name]
+        if name == 'Units':
+            units_dict = dict(group.attrs.items())
+            arr_to_value(units_dict)
+        if name == 'HubbleConversions'
+            hubble_conv_dict = dict(group.attrs.items())
+            arr_to_value(hubble_conv_dict)
+        group.visititems(visitfunc)
 
     fin.close()
 
-    return units_dict
+    return units_dict, hubble_conv_dict
 
 
 def read_git_info(fname):
