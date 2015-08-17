@@ -5,6 +5,7 @@
 
 from ..munge import ndarray_to_dataframe
 
+import re
 import numpy as np
 import h5py as h5
 from astropy import log
@@ -60,7 +61,7 @@ def set_little_h(h=None):
 
 
 def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
-              pandas=False, h=None, indices=None):
+              pandas=False, ndarray=False, h=None, indices=None):
 
     """Read in a Meraxes hdf5 output file.
 
@@ -86,6 +87,10 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
         pandas : bool
             Ouput a pandas dataframe instead of an astropy table.  (default =
+            False)
+
+        ndarray : bool
+            Output a numpy ndarray instead of an astropy table.  (default =
             False)
 
         h : float
@@ -115,6 +120,10 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
     if pandas:
         _check_pandas()
+
+    if pandas and ndarray:
+        log.error("Both `pandas` and `ndarray` specified.  Please choose one"
+                  " or the other.")
 
     # Grab the units and hubble conversions information
     units = read_units(fname, quiet=quiet)
@@ -211,15 +220,32 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             log.info("Scaling galaxy properties to h = %.3f" % h)
         for p in gal_dtype.names:
             try:
-                G[p] = eval(h_conv[p], globals=dict(v=G[p], h=h))
+                conversion = h_conv[p]
             except KeyError:
                 log.warn("Unrecognised galaxy property %s - assuming no "
                          "scaling with Hubble const!" % p)
+            if conversion.lower() != 'none':
+                try:
+                    G[p] = eval(h_conv[p], dict(v=G[p], h=h))
+                except:
+                    log.error("Failed to parse conversion string `%s` for unit"
+                              " %s" % (h_conv[p], p))
 
 
     # If requested convert the numpy array into a pandas dataframe
     if pandas:
         G = ndarray_to_dataframe(G)
+        regex = re.compile('_\d*$')
+        # attach the units to each column
+        for k in G.columns:
+            try:
+                G[k].unit = units[re.sub(regex, '', k, 1)]
+            except KeyError:
+                log.warn("Unrecognised galaxy property %s - assuming "
+                         "dimensionless quantitiy!" % k)
+    # else leave as an ndarray
+    elif ndarray:
+        pass
     # else convert to astropy table and attach units
     else:
         G = Table(G, copy=False)
@@ -228,7 +254,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
                 v.unit = units[k]
             except KeyError:
                 log.warn("Unrecognised galaxy property %s - assuming "
-                         "dimensionless quantitiy!" % p)
+                         "dimensionless quantitiy!" % k)
 
     # Set some run properties
     if sim_props:
@@ -350,7 +376,7 @@ def read_units(fname, quiet=False):
         group.visititems(visitfunc)
 
     # Put the hubble conversions information inside the units dict for ease
-    units["HubbleConversions"] = hubble_conv_dict
+    units_dict["HubbleConversions"] = hubble_conv_dict
 
     fin.close()
 
