@@ -73,15 +73,24 @@ def _check_pandas():
                           " pandas=True.")
 
 
-def set_little_h(h):
+def set_little_h(h=None):
 
     """ Set the value of little h to be used by all future meraxes.io calls
     where applicable.
 
     *Args*:
+        h : float or str
+            Little h value.  If a filename is passed as a string, then little h
+            will be set to the simulation value read from that file.
+            (default: None)
+
+    *Returns*:
         h : float
-            Little h value
+            Little h value.
     """
+
+    if type(h) is str:
+        h = read_input_params(h)['Hubble_h']
 
     global __meraxes_h
 
@@ -91,6 +100,8 @@ def set_little_h(h):
         h = None
 
     __meraxes_h = h
+
+    return h
 
 
 def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,

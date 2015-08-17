@@ -38,7 +38,7 @@ axes.facecolor      : eeeeee   # axes background color
 axes.edgecolor      : white   # axes edge color
 axes.grid           : True   # display grid or not
 axes.titlesize      : x-large   # fontsize of the axes title
-axes.labelsize      : x-large  # fontsize of the x any y labels
+axes.labelsize      : large  # fontsize of the x any y labels
 axes.axisbelow      : True   # whether axis gridlines and ticks are below
                               # the axes elements (lines, text, etc)
 axes.color_cycle    : 348ABD, A60628, 7A68A6, 467821,D55E00,  CC79A7, 56B4E9, 009E73, F0E442, 0072B2  # color cycle for plot lines
