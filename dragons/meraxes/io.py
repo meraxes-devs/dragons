@@ -61,7 +61,7 @@ def set_little_h(h=None):
 
 
 def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
-              pandas=False, ndarray=False, h=None, indices=None):
+              pandas=False, table=False, h=None, indices=None):
 
     """Read in a Meraxes hdf5 output file.
 
@@ -86,11 +86,11 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             Output some simulation properties as well.  (default = False)
 
         pandas : bool
-            Ouput a pandas dataframe instead of an astropy table.  (default =
+            Ouput a pandas DataFrame instead of an astropy table.  (default =
             False)
 
-        ndarray : bool
-            Output a numpy ndarray instead of an astropy table.  (default =
+        table : bool
+            Output an astropy Table instead of a numpy ndarray.  (default =
             False)
 
         h : float
@@ -103,7 +103,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             (default = None)
 
     *Returns*:
-        An astropy table with the requested galaxies and properties.
+        An ndarray with the requested galaxies and properties.
 
         If sim_props==True then output is a tuple of form (galaxies, sim_props)
     """
@@ -244,11 +244,8 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             except KeyError:
                 log.warn("Unrecognised galaxy property %s - assuming "
                          "dimensionless quantitiy!" % k)
-    # else leave as an ndarray
-    elif ndarray:
-        pass
     # else convert to astropy table and attach units
-    else:
+    elif table:
         log.info("Converting to astropy Table...")
         G = Table(G, copy=False)
         for k, v in G.columns.iteritems():
