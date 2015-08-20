@@ -121,8 +121,8 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
     if pandas:
         _check_pandas()
 
-    if pandas and ndarray:
-        log.error("Both `pandas` and `ndarray` specified.  Please choose one"
+    if pandas and table:
+        log.error("Both `pandas` and `table` specified.  Please choose one"
                   " or the other.")
 
     # Grab the units and hubble conversions information
@@ -226,7 +226,8 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
                          "scaling with Hubble const!" % p)
             if conversion.lower() != 'none':
                 try:
-                    G[p] = eval(h_conv[p], dict(v=G[p], h=h))
+                    G[p] = eval(conversion, dict(v=G[p], h=h, log10=np.log10,
+                                                __builtins__={}))
                 except:
                     log.error("Failed to parse conversion string `%s` for unit"
                               " %s" % (h_conv[p], p))
@@ -352,10 +353,23 @@ def read_units(fname, quiet=False):
             if v.size is 1:
                 d[k] = v[0]
 
-    def visitfunc(name, obj):
+    def visitunits(name, obj):
         if isinstance(obj, h5.Group):
             units_dict[name] = dict(obj.attrs.items())
             arr_to_value(units_dict[name])
+
+    def visitconv(name, obj):
+        if isinstance(obj, h5.Group):
+            hubble_conv_dict[name] = dict(obj.attrs.items())
+            arr_to_value(hubble_conv_dict[name])
+
+    def sanitize_dict_strings(d):
+        regex = re.compile('(\D\.\S*)|(__.*__)|(__)')
+        for k, v in d.iteritems():
+            if type(v) is dict:
+                sanitize_dict_strings(v)
+            else:
+                d[k] = re.sub(regex, '', v)
 
     if not quiet:
         log.info("Reading units...")
@@ -369,10 +383,14 @@ def read_units(fname, quiet=False):
         if name == 'Units':
             units_dict = dict(group.attrs.items())
             arr_to_value(units_dict)
+            group.visititems(visitunits)
         if name == 'HubbleConversions':
             hubble_conv_dict = dict(group.attrs.items())
             arr_to_value(hubble_conv_dict)
-        group.visititems(visitfunc)
+            group.visititems(visitconv)
+
+    # Sanitize the hubble conversions
+    sanitize_dict_strings(hubble_conv_dict)
 
     # Put the hubble conversions information inside the units dict for ease
     units_dict["HubbleConversions"] = hubble_conv_dict
@@ -781,14 +799,23 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
     # Apply any Hubble scalings
     if h is not None:
         h = float(h)
-        h_scaling.update(__grids_h_scaling)
+        units = read_units(fname, quiet=quiet)
+        h_conv = units['HubbleConversions']['Grids']
         if not quiet:
             log.info("Scaling grid to h = %.3f" % h)
         try:
-            grid = h_scaling[name](grid, h)
+            conversion = h_conv[name]
         except KeyError:
             log.warn("Unknown scaling for grid %s - assuming no "
                      "scaling with Hubble const!" % name)
+        if conversion.lower() != 'none':
+            try:
+                grid = eval(conversion, dict(v=grid, h=h, log10=np.log10,
+                                            __builtins__={}))
+            except:
+                log.error("Failed to parse conversion string `%s` for unit"
+                          " %s" % (h_conv[name], name))
+
 
     grid.shape = [HII_dim, ]*3
 
