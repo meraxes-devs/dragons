@@ -5,9 +5,12 @@
 
 from ..munge import ndarray_to_dataframe
 
+import re
 import numpy as np
 import h5py as h5
 from astropy import log
+from astropy import units as U
+from astropy.table import Table
 import pandas as pd
 
 __author__ = 'Simon Mutch'
@@ -16,53 +19,6 @@ __version__ = '0.1.1'
 
 
 __meraxes_h = None
-
-__gal_props_h_scaling = {
-    "id_MBP": lambda x, h: x,
-    "ID": lambda x, h: x,
-    "Type": lambda x, h: x,
-    "CentralGal": lambda x, h: x,
-    "GhostFlag": lambda x, h: x,
-    "Len": lambda x, h: x,
-    "Pos": lambda x, h: x/h,
-    "Vel": lambda x, h: x,
-    "Spin": lambda x, h: x,
-    "Mvir": lambda x, h: x/h,
-    "FOFMvir": lambda x, h: x/h,
-    "Rvir": lambda x, h: x/h,
-    "Vvir": lambda x, h: x,
-    "Vmax": lambda x, h: x,
-    "HotGas": lambda x, h: x/h,
-    "MetalsHotGas": lambda x, h: x/h,
-    "ColdGas": lambda x, h: x/h,
-    "MetalsColdGas": lambda x, h: x/h,
-    "Mcool": lambda x, h: x/h,
-    "StellarMass": lambda x, h: x/h,
-    "GrossStellarMass": lambda x, h: x/h,
-    "NewStars": lambda x, h: x/h,
-    "MWMSA": lambda x, h: x/h,
-    "Sfr": lambda x, h: x,
-    "BlackHoleMass": lambda x, h: x/h,
-    "DiskScaleLength": lambda x, h: x/h,
-    "MetalsStellarMass": lambda x, h: x/h,
-    "EjectedGas": lambda x, h: x/h,
-    "MetalsEjectedGas": lambda x, h: x/h,
-    "Rcool": lambda x, h: x/h,
-    "Cos_Inc": lambda x, h: x,
-    "MergTime": lambda x, h: x/h,
-    "BaryonFracModifier": lambda x, h: x,
-    "Mag": lambda x, h: x+5.0*np.log10(h),
-    "MagDust": lambda x, h: x+5.0*np.log10(h),
-}
-
-__grids_h_scaling = {
-    "xH": lambda x, h: x,
-    "deltax": lambda x, h: x,
-    "z_at_ionization": lambda x, h: x,
-    "Mvir_crit": lambda x, h: x/h,
-    "StellarMass": lambda x, h: x/h,
-    "Sfr": lambda x, h: x,
-}
 
 
 def _check_pandas():
@@ -105,7 +61,7 @@ def set_little_h(h=None):
 
 
 def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
-              pandas=False, h=None, h_scaling={}, indices=None):
+              pandas=False, table=False, h=None, indices=None):
 
     """Read in a Meraxes hdf5 output file.
 
@@ -130,7 +86,11 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             Output some simulation properties as well.  (default = False)
 
         pandas : bool
-            Ouput a pandas dataframe instead of a numpy array.  (default =
+            Ouput a pandas DataFrame instead of an astropy table.  (default =
+            False)
+
+        table : bool
+            Output an astropy Table instead of a numpy ndarray.  (default =
             False)
 
         h : float
@@ -138,17 +98,12 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             `None` then no scaling is made unless `set_little_h` was previously
             called.  (default = None)
 
-        h_scaling : dict
-            Dictionary of galaxy properties (keys) and associated Hubble
-            constant scalings (values) as lambda functions. e.g.
-            | h_scaling = {"MassLikeProp" : lambda x, h: x/h,}
-
         indices : list or array
             Indices of galaxies to be read.  If `None` then read all galaxies.
             (default = None)
 
     *Returns*:
-        Array with the requested galaxies and properties.
+        An ndarray with the requested galaxies and properties.
 
         If sim_props==True then output is a tuple of form (galaxies, sim_props)
     """
@@ -165,6 +120,13 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
     if pandas:
         _check_pandas()
+
+    if pandas and table:
+        log.error("Both `pandas` and `table` specified.  Please choose one"
+                  " or the other.")
+
+    # Grab the units and hubble conversions information
+    units = read_units(fname, quiet=quiet)
 
     # Open the file for reading
     fin = h5.File(fname, "r")
@@ -246,26 +208,53 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             if counter >= ngals:
                 break
 
-    # Apply any Hubble scalings
-    if h is not None:
-        h = float(h)
-        h_scaling.update(__gal_props_h_scaling)
-        if not quiet:
-            log.info("Scaling galaxy properties to h = %.3f" % h)
-        for p in gal_dtype.names:
-            try:
-                G[p] = h_scaling[p](G[p], h)
-            except KeyError:
-                log.warn("Unrecognised galaxy property %s - assuming no "
-                         "scaling with Hubble const!" % p)
-
     # Print some checking statistics
     if not quiet:
         log.info('Read in %d galaxies.' % len(G))
 
+    # Apply any Hubble scalings
+    if h is not None:
+        h = float(h)
+        h_conv = units['HubbleConversions']
+        if not quiet:
+            log.info("Scaling galaxy properties to h = %.3f" % h)
+        for p in gal_dtype.names:
+            try:
+                conversion = h_conv[p]
+            except KeyError:
+                log.warn("Unrecognised galaxy property %s - assuming no "
+                         "scaling with Hubble const!" % p)
+            if conversion.lower() != 'none':
+                try:
+                    G[p] = eval(conversion, dict(v=G[p], h=h, log10=np.log10,
+                                                __builtins__={}))
+                except:
+                    log.error("Failed to parse conversion string `%s` for unit"
+                              " %s" % (h_conv[p], p))
+
+
     # If requested convert the numpy array into a pandas dataframe
     if pandas:
+        log.info("Converting to pandas DataFrame...")
         G = ndarray_to_dataframe(G)
+        regex = re.compile('_\d*$')
+        # attach the units to each column
+        for k in G.columns:
+            try:
+                G[k].unit = units[re.sub(regex, '', k, 1)]
+            except KeyError:
+                log.warn("Unrecognised galaxy property %s - assuming "
+                         "dimensionless quantitiy!" % k)
+    # else convert to astropy table and attach units
+    elif table:
+        log.info("Converting to astropy Table...")
+        G = Table(G, copy=False)
+        for k, v in G.columns.iteritems():
+            try:
+                v.unit = units[k]
+            except KeyError:
+                log.warn("Unrecognised galaxy property %s - assuming "
+                         "dimensionless quantitiy!" % k)
 
     # Set some run properties
     if sim_props:
@@ -346,14 +335,17 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
 
 
 def read_units(fname, quiet=False):
-    """ Read in the units information from a Meraxes hdf5 output file.
+    """ Read in the units and hubble conversion information from a Meraxes hdf5
+    output file.
 
     *Args*:
         fname : str
             Full path to input hdf5 master file.
 
     *Returns*:
-        A dict containing all units.
+        units : dict
+            A dict containing all units (Hubble conversions are stored with key
+            `HubbleConversions`).
     """
 
     def arr_to_value(d):
@@ -361,10 +353,23 @@ def read_units(fname, quiet=False):
             if v.size is 1:
                 d[k] = v[0]
 
-    def visitfunc(name, obj):
+    def visitunits(name, obj):
         if isinstance(obj, h5.Group):
             units_dict[name] = dict(obj.attrs.items())
             arr_to_value(units_dict[name])
+
+    def visitconv(name, obj):
+        if isinstance(obj, h5.Group):
+            hubble_conv_dict[name] = dict(obj.attrs.items())
+            arr_to_value(hubble_conv_dict[name])
+
+    def sanitize_dict_strings(d):
+        regex = re.compile('(\D\.\S*)|(__.*__)|(__)')
+        for k, v in d.iteritems():
+            if type(v) is dict:
+                sanitize_dict_strings(v)
+            else:
+                d[k] = re.sub(regex, '', v)
 
     if not quiet:
         log.info("Reading units...")
@@ -372,11 +377,23 @@ def read_units(fname, quiet=False):
     # Open the file for reading
     fin = h5.File(fname, 'r')
 
-    group = fin['Units']
+    # Read the units
+    for name in ['Units', 'HubbleConversions']:
+        group = fin[name]
+        if name == 'Units':
+            units_dict = dict(group.attrs.items())
+            arr_to_value(units_dict)
+            group.visititems(visitunits)
+        if name == 'HubbleConversions':
+            hubble_conv_dict = dict(group.attrs.items())
+            arr_to_value(hubble_conv_dict)
+            group.visititems(visitconv)
 
-    units_dict = dict(group.attrs.items())
-    arr_to_value(units_dict)
-    group.visititems(visitfunc)
+    # Sanitize the hubble conversions
+    sanitize_dict_strings(hubble_conv_dict)
+
+    # Put the hubble conversions information inside the units dict for ease
+    units_dict["HubbleConversions"] = hubble_conv_dict
 
     fin.close()
 
@@ -782,14 +799,23 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
     # Apply any Hubble scalings
     if h is not None:
         h = float(h)
-        h_scaling.update(__grids_h_scaling)
+        units = read_units(fname, quiet=quiet)
+        h_conv = units['HubbleConversions']['Grids']
         if not quiet:
             log.info("Scaling grid to h = %.3f" % h)
         try:
-            grid = h_scaling[name](grid, h)
+            conversion = h_conv[name]
         except KeyError:
             log.warn("Unknown scaling for grid %s - assuming no "
                      "scaling with Hubble const!" % name)
+        if conversion.lower() != 'none':
+            try:
+                grid = eval(conversion, dict(v=grid, h=h, log10=np.log10,
+                                            __builtins__={}))
+            except:
+                log.error("Failed to parse conversion string `%s` for unit"
+                          " %s" % (h_conv[name], name))
+
 
     grid.shape = [HII_dim, ]*3
 
