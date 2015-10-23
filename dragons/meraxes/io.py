@@ -9,7 +9,6 @@ import re
 import numpy as np
 import h5py as h5
 from astropy import log
-from astropy import units as U
 from astropy.table import Table
 import pandas as pd
 
@@ -45,7 +44,7 @@ def set_little_h(h=None):
             Little h value.
     """
 
-    if type(h) is str:
+    if type(h) is str or type(h) is unicode:
         h = read_input_params(h)['Hubble_h']
 
     global __meraxes_h
@@ -227,11 +226,10 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
             if conversion.lower() != 'none':
                 try:
                     G[p] = eval(conversion, dict(v=G[p], h=h, log10=np.log10,
-                                                __builtins__={}))
+                                                 __builtins__={}))
                 except:
                     log.error("Failed to parse conversion string `%s` for unit"
                               " %s" % (h_conv[p], p))
-
 
     # If requested convert the numpy array into a pandas dataframe
     if pandas:
@@ -505,6 +503,46 @@ def check_for_redshift(fname, redshift, tol=0.1):
         raise KeyError("No redshifts within tolerance found.")
 
     return int(snaps[w]), z[w]
+
+
+def check_for_global_xH(fname, xH, tol=0.1):
+    """Check a Meraxes output file for the presence of a particular
+    global neutral fraction.
+
+    *Args*:
+        fname : str
+            Full path to input hdf5 master file
+
+        xH : float
+            Neutral fraction value
+
+    *Kwargs*:
+        tol : float
+            +- tolerance on neutral fraction value present.  An error will be
+            thrown of no redshift within this tollerance is found.
+
+    *Returns*:
+        snapshot : int
+            Closest snapshot
+
+        redshift : float
+            Closest corresponding redshift
+
+        xH : float
+            Closest corresponding redshift
+    """
+
+    snaps, z, lt_times = read_snaplist(fname)
+    xH_list = read_global_xH(fname, snaps, quiet=True)
+    xH_list[np.isnan(xH_list)] = -999
+    delta_xH = xH - xH_list
+
+    w = np.argmin(np.abs(delta_xH))
+
+    if np.abs(delta_xH[w]) > tol:
+        raise KeyError("No neutral fractions found within tolerance.")
+
+    return int(snaps[w]), z[w], xH_list[w]
 
 
 def grab_redshift(fname, snapshot):
@@ -794,7 +832,8 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
             grid = fin[ds_name][:]
         except KeyError:
             if not quiet:
-                log.error("No grid called %s found in file %s ." % (name, fname))
+                log.error("No grid called %s found in file %s ."
+                          % (name, fname))
 
     # Apply any Hubble scalings
     if h is not None:
@@ -811,11 +850,10 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
         if conversion.lower() != 'none':
             try:
                 grid = eval(conversion, dict(v=grid, h=h, log10=np.log10,
-                                            __builtins__={}))
+                                             __builtins__={}))
             except:
                 log.error("Failed to parse conversion string `%s` for unit"
                           " %s" % (h_conv[name], name))
-
 
     grid.shape = [HII_dim, ]*3
 
