@@ -229,7 +229,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
                                                  __builtins__={}))
                 except:
                     log.error("Failed to parse conversion string `%s` for unit"
-                              " %s" % (h_conv[p], p))
+                              " %s" % (conversion, p))
 
     # If requested convert the numpy array into a pandas dataframe
     if pandas:
@@ -367,6 +367,7 @@ def read_units(fname, quiet=False):
             if type(v) is dict:
                 sanitize_dict_strings(v)
             else:
+                v = v.decode('ascii')
                 d[k] = re.sub(regex, '', v)
 
     if not quiet:
@@ -840,6 +841,7 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
         h = float(h)
         units = read_units(fname, quiet=quiet)
         h_conv = units['HubbleConversions']['Grids']
+
         if not quiet:
             log.info("Scaling grid to h = %.3f" % h)
         try:
@@ -847,13 +849,15 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
         except KeyError:
             log.warn("Unknown scaling for grid %s - assuming no "
                      "scaling with Hubble const!" % name)
+            conversion = 'None'
+
         if conversion.lower() != 'none':
             try:
                 grid = eval(conversion, dict(v=grid, h=h, log10=np.log10,
                                              __builtins__={}))
             except:
                 log.error("Failed to parse conversion string `%s` for unit"
-                          " %s" % (h_conv[name], name))
+                          " %s" % (conversion, name))
 
     grid.shape = [HII_dim, ]*3
 

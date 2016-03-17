@@ -450,7 +450,7 @@ def density_contour(xdata, ydata, bins, ax, label=True,
     two_sigma = so.brentq(_find_confidence_interval, 0., 1., args=(pdf, 0.95))
     three_sigma = so.brentq(_find_confidence_interval, 0., 1.,
                             args=(pdf, 0.99))
-    levels = [one_sigma, two_sigma, three_sigma]
+    levels = [three_sigma, two_sigma, one_sigma]
 
     X, Y = 0.5*(xedges[1:]+xedges[:-1]), 0.5*(yedges[1:]+yedges[:-1])
     Z = pdf.T

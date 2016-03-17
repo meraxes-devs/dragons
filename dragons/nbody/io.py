@@ -55,7 +55,7 @@ def read_density_grid(fname):
         np.fromfile(fin, 'i4', 1)[0]  # ma_scheme
 
         # read in the identifier
-        ident = np.fromfile(fin, 'S32', 1)[0][:10]
+        ident = np.fromfile(fin, 'S32', 1)[0][:10].decode('ascii')
 
         # read in the grid
         grid = np.fromfile(fin, '<f4', n_cell.cumprod()[-1])
