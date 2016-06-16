@@ -10,6 +10,7 @@ from astroML.density_estimation import scotts_bin_width, freedman_bin_width,\
     knuth_bin_width, bayesian_blocks
 from pandas import DataFrame
 from scipy.stats import describe as sp_describe
+from .tophat_filter import tophat_filter
 
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
@@ -226,27 +227,24 @@ def describe(arr, **kwargs):
 
 
 def smooth_grid(grid, side_length, radius, filt="tophat"):
-
     """Smooth a grid by convolution with a filter.
 
-    *Args*:
-        grid : ndarray
-            The grid to be smoothed
+    Parameters
+    ----------
+    grid : ndarray
+        The grid to be smoothed
+    side_length : float
+        The side length of the grid (assumes all side lengths are equal)
+    radius : float
+        The radius of the smoothing filter
+    filt : string, optional
+        The name of the filter.  Currently only "tophat" (real space) is
+        implemented.  More filters will be added over time.
 
-        side_length : float
-            The side length of the grid (assumes all side lengths are equal)
-
-        radius : float
-            The radius of the smoothing filter
-
-    *Kwargs*:
-        filt : string
-            The name of the filter.  Currently only "tophat" (real space) is
-            implemented.  More filters will be added over time.
-
-    *Returns*:
-        smoothed_grid : ndarray
-            The smoothed grid
+    Returns
+    -------
+    smoothed_grid : ndarray
+        The smoothed grid.
     """
 
     # The tuple of implemented filters
@@ -261,26 +259,28 @@ def smooth_grid(grid, side_length, radius, filt="tophat"):
     # Do the forward fft
     grid = np.fft.rfftn(grid)
 
-    # Construct a grid of k*radius values
-    k = 2.0 * np.pi * np.fft.fftfreq(grid.shape[0],
-                                     1/float(grid.shape[0])) / side_length
-    k_r = 2.0 * np.pi * np.fft.rfftfreq(grid.shape[0],
-                                        1/float(grid.shape[0])) / side_length
-    k = np.meshgrid(k, k, k_r, sparse=True, indexing='ij')
-    kR = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)*radius
+    #  # Construct a grid of k*radius values
+    #  k = 2.0 * np.pi * np.fft.fftfreq(grid.shape[0],
+    #                                   1/float(grid.shape[0])) / side_length
+    #  k_r = 2.0 * np.pi * np.fft.rfftfreq(grid.shape[0],
+    #                                      1/float(grid.shape[0])) / side_length
+    #  k = np.meshgrid(k, k, k_r, sparse=True, indexing='ij')
+    #  kR = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)*radius
 
     # Evaluate the convolution
     if filt == "tophat":
-        fgrid = grid * 3.0 * (np.sin(kR)/kR**3 - np.cos(kR)/kR**2)
-    fgrid[kR == 0] = grid[kR == 0]
+        tophat_filter(grid, side_length, radius)
+        #  fgrid = grid * 3.0 * (np.sin(kR)/kR**3 - np.cos(kR)/kR**2)
+    #  fgrid[kR == 0] = grid[kR == 0]
 
     # Inverse transform back to real space
-    grid = np.fft.irfftn(fgrid).real
+    #  grid = np.fft.irfftn(fgrid).real
+    grid = np.fft.irfftn(grid).real
 
     # Make sure fgrid is marked available for garbage collection
-    del(fgrid)
-    del(k)
-    del(kR)
+    #  del(fgrid)
+    #  del(k)
+    #  del(kR)
 
     return grid
 
