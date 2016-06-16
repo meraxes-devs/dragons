@@ -233,7 +233,8 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
     # If requested convert the numpy array into a pandas dataframe
     if pandas:
-        log.info("Converting to pandas DataFrame...")
+        if not quiet:
+            log.info("Converting to pandas DataFrame...")
         G = ndarray_to_dataframe(G)
         regex = re.compile('_\d*$')
         # attach the units to each column
@@ -245,7 +246,8 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
                          "dimensionless quantitiy!" % k)
     # else convert to astropy table and attach units
     elif table:
-        log.info("Converting to astropy Table...")
+        if not quiet:
+            log.info("Converting to astropy Table...")
         G = Table(G, copy=False)
         for k, v in G.columns.iteritems():
             try:

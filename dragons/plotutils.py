@@ -464,7 +464,7 @@ def density_contour(xdata, ydata, bins, ax, label=True,
         lim = ax.axis()
 
         fmt = {}
-        strs = ['68%', '95%', '99.7%']
+        strs = ['39%', '86%', '99%'][::-1]
         for l, s in zip(contour.levels, strs):
             fmt[l] = s
 
