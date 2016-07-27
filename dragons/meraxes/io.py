@@ -294,7 +294,10 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
     def arr_to_value(d):
         for k, v in d.iteritems():
             if v.size is 1:
-                d[k] = v[0]
+                try:
+                    d[k] = v[0]
+                except IndexError:
+                    d[k] = v
 
     def visitfunc(name, obj):
         if isinstance(obj, h5.Group):
