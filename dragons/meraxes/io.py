@@ -353,7 +353,7 @@ def read_units(fname, quiet=False):
 
     def arr_to_value(d):
         for k, v in d.iteritems():
-            if v.size is 1:
+            if type(v) is np.ndarray and v.size is 1:
                 d[k] = v[0]
 
     def visitunits(name, obj):
