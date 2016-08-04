@@ -803,28 +803,30 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
 
     """ Read a grid from the Meraxes HDF5 file.
 
-    *Args*:
-        fname : str
-            Full path to input hdf5 master file
+    Parameters
+    ----------
+    fname : str
+        Full path to input hdf5 master file
 
-        snapshot : int
-            Snapshot from which the grid is to be read from.
+    snapshot : int
+        Snapshot from which the grid is to be read from.
 
-        name : str
-            Name of the requested grid
+    name : str
+        Name of the requested grid
 
-        h : float
-            Hubble constant (/100) to scale the galaxy properties to.  If
-            `None` then no scaling is made unless `set_little_h` was previously
-            called.  (default = None)
+    h : float
+        Hubble constant (/100) to scale the galaxy properties to.  If
+        `None` then no scaling is made unless `set_little_h` was previously
+        called.  (default = None)
 
-        h_scaling : dict
-            Dictionary of grid names (keys) and associated Hubble
-            constant scalings (values) as lambda functions. e.g.
-            | h_scaling = {"MassLikeGrid" : lambda x, h: x/h,}
+    h_scaling : dict
+        Dictionary of grid names (keys) and associated Hubble
+        constant scalings (values) as lambda functions. e.g.
+        | h_scaling = {"MassLikeGrid" : lambda x, h: x/h,}
 
-    *Returns*:
-        grid : array
+    Returns
+    -------
+        ndarray
             The requested grid
     """
 
