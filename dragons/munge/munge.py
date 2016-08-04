@@ -6,8 +6,6 @@
 import re
 import numpy as np
 from astropy import log
-from astroML.density_estimation import scotts_bin_width, freedman_bin_width,\
-    knuth_bin_width, bayesian_blocks
 from pandas import DataFrame
 from scipy.stats import describe as sp_describe
 from .tophat_filter import tophat_filter
@@ -80,71 +78,45 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
 
 def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
                   return_edges=False, **kwargs):
-
     """Generate a mass function.
 
-    *Args*:
-        mass : array
-            an array of 'masses'
+    Parameters
+    ----------
+    mass : ndarray
+        an array of 'masses'
 
-        volume : float
-            volume of simulation cube/subset
+    volume : float
+        volume of simulation cube/subset
 
-        bins : int or list or str
-            If bins is a string, then it must be one of:
-                | 'blocks'   : use bayesian blocks for dynamic bin widths
-                | 'knuth'    : use Knuth's rule to determine bins
-                | 'scott'    : use Scott's rule to determine bins
-                | 'freedman' : use the Freedman-diaconis rule to determine bins
+    bins : int or list or str
+        passed to numpy.histogram
 
-    *Kwargs*:
-        range : len=2 list or array
-            range of data to be used for mass function
+    range : len=2 list or array
+        range of data to be used for mass function
 
-        poisson_uncert : bool
-            return poisson uncertainties in output array (default: False)
+    poisson_uncert : bool
+        return poisson uncertainties in output array (default: False)
 
-        return_edges : bool
-            return the bin_edges (default: False)
+    return_edges : bool
+        return the bin_edges (default: False)
 
-        \*\*kwargs
-            passed to np.histogram call
+    \*\*kwargs
+        passed to numpy.histogram
 
-    *Returns*:
-        array of [bin centers, mass function vals]
-
+    Returns
+    -------
+    array
+        [bin centers, mass function vals]
         If poisson_uncert=True then array has 3rd column with uncertainties.
-
         If return_edges=True then the bin edges are also returned.
-
-    *Notes*:
-        The code to generate the bin_widths is taken from astroML.hist
-
     """
 
     if "normed" in kwargs:
         kwargs["normed"] = False
         log.warn("Turned off normed kwarg in mass_function()")
 
-    if (range is not None and (bins in ['blocks',
-                                        'knuth', 'knuths',
-                                        'scott', 'scotts',
-                                        'freedman', 'freedmans'])):
+    if range is not None and isinstance(bins, str):
         mass = mass[(mass >= range[0]) & (mass <= range[1])]
-
-    if isinstance(bins, str):
-        log.info("Calculating bin widths using `%s' method..." % bins)
-        if bins in ['blocks']:
-            bins = bayesian_blocks(mass)
-        elif bins in ['knuth', 'knuths']:
-            dm, bins = knuth_bin_width(mass, True)
-        elif bins in ['scott', 'scotts']:
-            dm, bins = scotts_bin_width(mass, True)
-        elif bins in ['freedman', 'freedmans']:
-            dm, bins = freedman_bin_width(mass, True)
-        else:
-            raise ValueError("unrecognized bin code: '%s'" % bins)
-        log.info("...done")
 
     vals, edges = np.histogram(mass, bins, range, **kwargs)
     width = edges[1]-edges[0]
