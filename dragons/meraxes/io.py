@@ -834,7 +834,10 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
         h = __meraxes_h
 
     with h5.File(fname, 'r') as fin:
-        grid_dim = fin["InputParams"].attrs["ReionGridDim"][0]
+        try:
+            grid_dim = fin["InputParams"].attrs["ReionGridDim"][0]
+        except KeyError:
+            grid_dim = fin["InputParams"].attrs["TOCF_HII_dim"][0]
         ds_name = "Snap{:03d}/Grids/{:s}".format(snapshot, name)
         try:
             grid = fin[ds_name][:]
