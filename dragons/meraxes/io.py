@@ -834,7 +834,7 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
         h = __meraxes_h
 
     with h5.File(fname, 'r') as fin:
-        HII_dim = fin["InputParams"].attrs["TOCF_HII_dim"][0]
+        grid_dim = fin["InputParams"].attrs["ReionGridDim"][0]
         ds_name = "Snap{:03d}/Grids/{:s}".format(snapshot, name)
         try:
             grid = fin[ds_name][:]
@@ -866,7 +866,7 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}, quiet=False):
                 log.error("Failed to parse conversion string `%s` for unit"
                           " %s" % (conversion, name))
 
-    grid.shape = [HII_dim, ]*3
+    grid.shape = [grid_dim, ]*3
 
     return grid
 
