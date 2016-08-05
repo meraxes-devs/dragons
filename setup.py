@@ -35,7 +35,7 @@ requirements = open('requirements.txt').readlines()[1:]
 
 setup(
     name='dragons',
-    version='0.1.1',
+    version='0.2.0',
     description='Python tools for dealing with simulations, semi-analytic models and associated post-processing.',
     long_description=readme + '\n\n' + history,
     author='Simon Mutch',
