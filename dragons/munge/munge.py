@@ -12,7 +12,7 @@ from .tophat_filter import tophat_filter
 
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 def pretty_print_dict(d, fmtlen=30):

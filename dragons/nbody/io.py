@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 __author__ = 'Simon Mutch'
 __email__ = 'smutch.astro@gmail.com'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 catalog_halo_dtype = np.dtype(dict(names=("id_MBP", "M_vir", "n_particles",
                                           "position_COM", "position_MBP",
