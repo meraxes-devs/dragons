@@ -12,13 +12,15 @@ def regrid(np.ndarray[np.float32_t, ndim=3] old_grid not None,
 
     """ Downgrade the resolution of a 3 dimensional grid.
 
-    *Args*:
-        old_grid (np.ndarray[float32, ndim=3]) :  Grid to be resampled
+    Parameters
+    ----------
+    old_grid (np.ndarray[float32, ndim=3]) :  Grid to be resampled
 
-        n_cell (int) :  n cells per dimension of new grid
+    n_cell (int) :  n cells per dimension of new grid
 
-    *Returns*:
-        New, degraded resolution grid.
+    Returns
+    -------
+    New, degraded resolution grid.
     """
 
     if n_cell > old_grid.shape[0]:

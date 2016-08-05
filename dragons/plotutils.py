@@ -34,30 +34,31 @@ def density_contour(xdata, ydata, bins, ax, label=True,
     Code modified from:
     https://gist.github.com/adrn/3993992#file-density_contour-py
 
-    *Args*:
-        xdata : ndarray
+    Parameters
+    ----------
+    xdata : ndarray
 
-        ydata : ndarray
+    ydata : ndarray
 
-        bins : int or list
-            Number of bins [nbins_x, nbins_y]. If int then
-            nbins_x=nbins_y=nbins.
+    bins : int or list
+        Number of bins [nbins_x, nbins_y]. If int then
+        nbins_x=nbins_y=nbins.
 
-        ax : matplotlib.axes.AxesSubplot
-            Axis to draw contours on
+    ax : matplotlib.axes.AxesSubplot
+        Axis to draw contours on
 
-    *Kwargs*:
-        label : bool
-            Draw labels on the contours? (default: True)
+    label : bool
+        Draw labels on the contours? (default: True)
 
-        clabel_kwargs : dict
-            kwargs to be passed to pyplot.clabel() (default: {})
+    clabel_kwargs : dict
+        kwargs to be passed to pyplot.clabel() (default: {})
 
-        \*\*contour_kwargs : dict
-            kwargs to be passed to pyplot.contour()
+    \*\*contour_kwargs : dict
+        kwargs to be passed to pyplot.contour()
 
-    *Returns*:
-        contour : matplotlib.contour.QuadContourSet
+    Returns
+    -------
+    contour : matplotlib.contour.QuadContourSet
     """
 
     if type(bins) is int:

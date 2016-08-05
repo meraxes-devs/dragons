@@ -19,12 +19,13 @@ def pretty_print_dict(d, fmtlen=30):
 
     """Pretty print a dictionary, dealing with recursion.
 
-    *Args*:
-        d : dict
-            the dictionary to print
+    Parameters
+    ----------
+    d : dict
+        the dictionary to print
 
-        fmtlen : int
-            maximum length of dictionary key for print formatting
+    fmtlen : int
+        maximum length of dictionary key for print formatting
     """
 
     fmtstr = "%%%ds :" % fmtlen
@@ -43,17 +44,18 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
     """Convert numpy ndarray to a pandas DataFrame, dealing with N(>1)
     dimensional datatypes.
 
-    *Args*:
-        arr : ndarray
-            Numpy ndarray
+    Parameters
+    ----------
+    arr : ndarray
+        Numpy ndarray
 
-    *Kwargs*:
-        drop_vectors : bool
-            only include single value datatypes in output DataFrame
+    drop_vectors : bool
+        only include single value datatypes in output DataFrame
 
-    *Returns*:
-        df : DataFrame
-            Pandas DataFrame
+    Returns
+    -------
+    df : DataFrame
+        Pandas DataFrame
     """
 
     # Get a list of all of the columns which are 1D
@@ -143,21 +145,21 @@ def edges_to_centers(edges, width=False):
 
     """Convert **evenly spaced** bin edges to centers.
 
-    *Args*:
-        edges : ndarray
-            bin edges
+    Parameters
+    ----------
+    edges : ndarray
+        bin edges
 
-    *Kwargs*:
-        width : bool
-            also return the bin width
+    width : bool
+        also return the bin width
 
-    *Returns*:
-        centers : ndarray
-            bin centers (size = edges.size-1)
+    Returns
+    -------
+    centers : ndarray
+        bin centers (size = edges.size-1)
 
-        bin_width : float
-            only returned if width = True
-
+    bin_width : float
+        only returned if width = True
     """
 
     bin_width = edges[1] - edges[0]
@@ -174,14 +176,16 @@ def describe(arr, **kwargs):
 
     """Run scipy.stats.describe and produce legible output.
 
-    *Args*:
-        arr : ndarray
-            Numpy ndarray
+    Parameters
+    ----------
+    arr : ndarray
+        Numpy ndarray
 
-    *Kwargs*:
+    \*\*kwargs
         passed to scipy.stats.describe
 
-    *Returns*:
+    Returns
+    -------
         output of scipy.stats.describe
     """
 
@@ -265,25 +269,27 @@ def power_spectrum(grid, side_length, n_bins):
 
        \Delta = \frac{k^3}{2\pi^2 V} <|\hat G|^2>
 
-    *Args*:
-        grid : ndarray
-            The grid from which to construct the power spectrum
+    Parameters
+    ----------
+    grid : ndarray
+        The grid from which to construct the power spectrum
 
-        side_length : float
-            The side length of the grid (assumes all side lengths are equal)
+    side_length : float
+        The side length of the grid (assumes all side lengths are equal)
 
-        n_bins : int
-            The number of k bins to use
+    n_bins : int
+        The number of k bins to use
 
-    *Returns*:
-        kmean : ndarray
-            The mean wavenumber of each bin
+    Returns
+    -------
+    kmean : ndarray
+        The mean wavenumber of each bin
 
-        power : ndarray
-            The dimensionless power (:math:`\Delta`)
+    power : ndarray
+        The dimensionless power (:math:`\Delta`)
 
-        uncert : ndarray
-            The standard deviation of the power within each k bin
+    uncert : ndarray
+        The standard deviation of the power within each k bin
     """
 
     volume = side_length**3
