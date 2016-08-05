@@ -9,10 +9,6 @@ from tqdm import tqdm
 
 import numpy as np
 
-__author__ = 'Simon Mutch'
-__email__ = 'smutch.astro@gmail.com'
-__version__ = '0.1.1'
-
 
 def galaxy_history(fname, gal_id, snapshot, future_snapshot=-1, pandas=False, props=None):
 

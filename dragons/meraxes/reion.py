@@ -12,10 +12,6 @@ from astropy import units as U
 from astropy import constants as C
 from .io import read_input_params, read_snaplist, read_global_xH, read_grid
 
-__author__ = 'Simon Mutch'
-__email__ = 'smutch.astro@gmail.com'
-__version__ = '0.1.1'
-
 
 def electron_optical_depth(fname, volume_weighted=False):
     """Calculate the electron Thomson scattering optical depth from a Meraxes +

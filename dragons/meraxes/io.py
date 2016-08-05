@@ -12,10 +12,6 @@ from astropy import log
 from astropy.table import Table
 import pandas as pd
 
-__author__ = 'Simon Mutch'
-__email__ = 'smutch.astro@gmail.com'
-__version__ = '0.1.1'
-
 
 __meraxes_h = None
 
