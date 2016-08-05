@@ -1,0 +1,5 @@
+Cython>=0.24.1
+bumpversion>=0.5.3
+Sphinx>=1.4.5
+sphinx-rtd-theme>=0.1.9
+numpydoc>=0.5
