@@ -22,24 +22,26 @@ def electron_optical_depth(fname, volume_weighted=False):
     21cmFAST run.  Note that this implementation assumes that the simulation
     volume is fully ionised before the final snapshot stored in the input file.
 
-    *Args*:
-        fname : str
-            Full path to input hdf5 master file
+    Parameters
+    ----------
+    fname : str
+        Full path to input hdf5 master file
 
-        volume_weighted : bool
-            This option is just for testing purposes as it can take a long time
-            to mass weight the neutral fraction depending on the grid size.
-            The optical depth obtained is often very similar to the correctly
-            mass weighted value, however, this should not be used to final
-            results.
+    volume_weighted : bool
+        This option is just for testing purposes as it can take a long time
+        to mass weight the neutral fraction depending on the grid size.
+        The optical depth obtained is often very similar to the correctly
+        mass weighted value, however, this should not be used to final
+        results.
 
-    *Returns*:
-        z_list : ndarray
-            Redshifts of each snapshot read in the input simulation.
+    Returns
+    -------
+    z_list : ndarray
+        Redshifts of each snapshot read in the input simulation.
 
-        scattering_depth : ndarray
-            Thomson scattering depth integrated between z=0 and each snapshot
-            of the input simulation.
+    scattering_depth : ndarray
+        Thomson scattering depth integrated between z=0 and each snapshot
+        of the input simulation.
     """
 
     # read in the model run parameters and set up the cosmology

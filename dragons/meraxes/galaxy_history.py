@@ -19,36 +19,37 @@ def galaxy_history(fname, gal_id, snapshot, future_snapshot=-1, pandas=False, pr
     """ Read in the full first progenitor history of a galaxy at a given final
     snapshot.
 
-    *Args*:
-        fname : str
-            Full path to input hdf5 master file.
+    Parameters
+    ----------
+    fname : str
+        Full path to input hdf5 master file.
 
-        gal_id : int
-            Unique ID of the target galaxy.
+    gal_id : int
+        Unique ID of the target galaxy.
 
-        snapshot : int
-            Snapshot at which the history is to be traced from.
+    snapshot : int
+        Snapshot at which the history is to be traced from.
 
-        props : list
-            A list of galaxy properties requested.  (default: All properties)
+    props : list
+        A list of galaxy properties requested.  (default: All properties)
 
-    *Kwargs*:
-        future_snapshot: int
-            Also read in the future of the galaxy object up to this snapshot.
-            (default: -1 [don't read in future])
+    future_snapshot: int
+        Also read in the future of the galaxy object up to this snapshot.
+        (default: -1 [don't read in future])
 
-        pandas : bool
-            Return panads dataframe.  (default = False)
+    pandas : bool
+        Return panads dataframe.  (default = False)
 
-    *Returns*:
-        history : ndarray or DataFrame
-            The requested first progenitor history.  If future=True then the
-            ndarray includes the future of this object.
+    Returns
+    -------
+    history : ndarray or DataFrame
+        The requested first progenitor history.  If future=True then the
+        ndarray includes the future of this object.
 
-        merged_snapshot : int
-            If `future_snapshot != -1` then the snapshot at which the galaxy
-            merged into another is also returned.  If `merged_snapshot = -1`
-            then the galaxy remains until `future_snapshot.`
+    merged_snapshot : int
+        If `future_snapshot != -1` then the snapshot at which the galaxy
+        merged into another is also returned.  If `merged_snapshot = -1`
+        then the galaxy remains until `future_snapshot.`
     """
 
     gals = read_gals(fname, snapshot=snapshot, props=props, pandas=False,
