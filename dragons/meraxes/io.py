@@ -995,7 +995,7 @@ def read_size_dist(fname, snapshot):
     return RdpdR[:, 0], RdpdR[:, 1]
 
 
-def read_global_xH(fname, snapshot, quiet=False):
+def read_global_xH(fname, snapshot, weight='volume', quiet=False):
 
     """ Read global xH from the Meraxes HDF5 file.
 
@@ -1008,6 +1008,10 @@ def read_global_xH(fname, snapshot, quiet=False):
         Snapshot(s) from which the global xH is to be read
         from.
 
+    weight : str
+        'volume' -> volume weighted
+        'mass' -> mass weighted
+
     Returns
     -------
     global_xH : float or ndarray
@@ -1017,6 +1021,13 @@ def read_global_xH(fname, snapshot, quiet=False):
     if not hasattr(snapshot, '__len__'):
         snapshot = [snapshot, ]
 
+    if weight == 'volume':
+        prop = 'volume_weighted_global_xH'
+    elif weight == 'mass':
+        prop = 'mass_weighted_global_xH'
+    else:
+        raise ValueError('Unrecognized weighting scheme: %s' % weight)
+
     snapshot = np.array(snapshot)
     global_xH = np.zeros(snapshot.size)
 
@@ -1024,7 +1035,7 @@ def read_global_xH(fname, snapshot, quiet=False):
         for ii, snap in enumerate(snapshot):
             ds_name = "Snap{:03d}/Grids/xH".format(snap)
             try:
-                global_xH[ii] = fin[ds_name].attrs["global_xH"][0]
+                global_xH[ii] = fin[ds_name].attrs[prop][0]
             except KeyError:
                 global_xH[ii] = np.nan
                 if not quiet:
