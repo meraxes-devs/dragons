@@ -257,13 +257,15 @@ def smooth_grid(grid, side_length, radius, filt="tophat"):
     return grid
 
 
-def power_spectrum(grid, side_length, n_bins):
+def power_spectrum(grid, side_length, n_bins, dimensional = False):
 
-    r"""Calculate the dimensionless power spectrum of a grid (G):
+    r"""Calculate the dimensionless and dimensional power spectra of a grid (G):
 
     .. math::
 
-       \Delta = \frac{k^3}{2\pi^2 V} <|\hat G|^2>
+       \Delta^2 (k) = \frac{k^3 V}{2\pi^2} <|\hat G|^2>_k
+
+       P(k) = <|\hat G|^2> V
 
     Parameters
     ----------
@@ -276,16 +278,26 @@ def power_spectrum(grid, side_length, n_bins):
     n_bins : int
         The number of k bins to use
 
+    dimensional : Boolean (optional)
+        Switch for calculating dimensional power spectrum
+        Default is False
+
     Returns
     -------
     kmean : ndarray
         The mean wavenumber of each bin
 
     power : ndarray
-        The dimensionless power (:math:`\Delta`)
+        The dimensionless power (:math:`\Delta^2 (k)`)
 
     uncert : ndarray
-        The standard deviation of the power within each k bin
+        The uncertainty of the dimensionless power within each k bin
+
+    power_dim : ndarray
+        The dimensional power (:math:`P(k)`)
+
+    uncert_dim : ndarray
+        The uncertainty of the dimensional power within each k bin
     """
 
     volume = side_length**3
@@ -310,14 +322,25 @@ def power_spectrum(grid, side_length, n_bins):
     # loop through each k magnitude bin and calculate the mean power, k and
     # uncert
     kmean = np.zeros(n_bins)
+    power_dim = np.zeros(n_bins)
+    uncert_dim = np.zeros(n_bins)
     power = np.zeros(n_bins)
     uncert = np.zeros(n_bins)
 
     for ii in xrange(n_bins):
-        sel = k_bin == ii
-        val = k[sel]**3 * np.abs(ft_grid[sel])**2 / (2.0 * np.pi**2) * volume
-        power[ii] = val.mean()
-        uncert[ii] = val.std()
-        kmean[ii] = k[sel].mean()
 
-    return kmean, power, uncert
+        sel = k_bin == ii
+        val_dim = np.abs(ft_grid[sel])**2 * volume
+        val = k[sel]**3 * np.abs(ft_grid[sel])**2 / (2.0 * np.pi**2) * volume
+
+        kmean[ii] = k[sel].mean()
+        power_dim[ii] = val_dim.mean()
+        uncert_dim[ii] = power_dim[ii] / np.sqrt(len(k[sel]))
+
+        power[ii] = val.mean()
+        uncert[ii] = power[ii] / np.sqrt(len(k[sel]))
+        
+    if dimensional:
+        return kmean, power, uncert, power_dim, uncert_dim
+    else:
+        return kmean, power, uncert
