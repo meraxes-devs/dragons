@@ -294,10 +294,10 @@ def power_spectrum(grid, side_length, n_bins, dimensional = False):
         The uncertainty of the dimensionless power within each k bin
 
     power_dim : ndarray
-        The dimensional power (:math:`P(k)`)
+        The dimensional power (returned iff dimensional = True) (:math:`P(k)`)
 
     uncert_dim : ndarray
-        The uncertainty of the dimensional power within each k bin
+        The uncertainty of the dimensional power within each k bin (returned iff dimensional = True)
     """
 
     volume = side_length**3
@@ -344,3 +344,7 @@ def power_spectrum(grid, side_length, n_bins, dimensional = False):
         return kmean, power, uncert, power_dim, uncert_dim
     else:
         return kmean, power, uncert
+
+
+
+
