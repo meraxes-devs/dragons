@@ -67,7 +67,7 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
         # Loop through each N(>1)D property and append each dimension as
         # its own column in the dataframe
         for k, v in arr.dtype.fields.iteritems():
-            if len(v[0].shape) != 0:
+            if len(v[0].shape) == 1:
                 for i in range(v[0].shape[0]):
                     df[k+'_%d' % i] = arr[k][:, i]
 
