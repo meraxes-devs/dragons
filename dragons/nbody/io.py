@@ -7,6 +7,7 @@ from os import path
 from os import listdir
 import numpy as np
 from astropy import log
+from astropy.utils.decorators import deprecated
 from tqdm import tqdm
 
 catalog_halo_dtype = np.dtype(dict(names=("id_MBP", "M_vir", "n_particles",
@@ -28,6 +29,7 @@ catalog_header_dtype = np.dtype(dict(names=("i_file", "N_files",
                                      formats=['i4', ]*4), align=True)
 
 
+@deprecated("0.2.1", alternative='dragons.nbody.io.read_grid')
 def read_density_grid(fname):
 
     """Read in a density grid produced by gbpCode.
@@ -41,31 +43,58 @@ def read_density_grid(fname):
             The density grid.
     """
 
-    log.info("Reading density grid from %s" % fname)
+    return read_grid(fname, "density")
+
+
+def read_grid(fname, grid_name):
+    """Read in a real space grid produced by gbpCode.
+
+    *Args*:
+        fname : str
+            Full path to input grid file.
+
+        grid_name : str
+            The name of the grid. Must be either `density`, `vx`, `vy`, or
+            `vz`.
+
+    *Returns*:
+        grid : ndarray
+            The requested grid.
+    """
+
+    name_to_ident = {
+        "density" : "rho_r_dark",
+        "vx" : "v_x_r_dark",
+        "vy" : "v_y_r_dark",
+        "vz" : "v_z_r_dark",
+    }
+
+    try:
+        ident = name_to_ident[grid_name]
+    except KeyError:
+        log.error("Unknown grid name. Must be either: "
+                  "'density', 'vx', 'vy', or 'vz'.")
+
+    log.info("Reading %s grid from %s" % (grid_name, fname))
 
     with open(fname, "rb") as fin:
         # read the header info
         n_cell = np.fromfile(fin, 'i4', 3)
+        n_cell_total = n_cell.cumprod()[-1]
         np.fromfile(fin, 'f8', 3)  # box_size_grid
         n_grids = np.fromfile(fin, 'i4', 1)[0]
         np.fromfile(fin, 'i4', 1)[0]  # ma_scheme
 
-        # read in the identifier
-        ident = np.fromfile(fin, 'S32', 1)[0][:10].decode('ascii')
+        skip = True
+        while skip:
+            # read in the identifier
+            read_ident = np.fromfile(fin, 'S32', 1)[0][:10].decode('ascii')
+            skip = (read_ident != ident)
+            if skip:
+                fin.seek(4*n_cell_total, 1)
 
         # read in the grid
-        grid = np.fromfile(fin, '<f4', n_cell.cumprod()[-1])
-
-        # keep reading grids until we get the density one
-        i_grid = 1
-        while((ident != 'rho_r_dark') and (i_grid < n_grids)):
-            print "Skipping grid '%s'" % ident
-            ident = np.fromfile(fin, 'S32', 1)[0]
-            grid = np.fromfile(fin, '<f4', n_cell.cumprod()[-1])
-            i_grid += 1
-
-        if (ident != 'rho_r_dark'):
-            raise KeyError("rho_r_dark grid does not exist in %s" % fname)
+        grid = np.fromfile(fin, '<f4', n_cell_total)
 
     grid.shape = n_cell
     return grid
