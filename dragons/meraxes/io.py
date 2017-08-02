@@ -1037,6 +1037,12 @@ def read_global_xH(fname, snapshot, weight='volume', quiet=False):
             try:
                 global_xH[ii] = fin[ds_name].attrs[prop][0]
             except KeyError:
+                if weight == 'volume':
+                    # This case deals with old style Meraxes file outputs
+                    try: global_xH[ii] = fin[ds_name].attrs['global_xH'][0]
+                    except KeyError: pass
+                    else: continue
+
                 global_xH[ii] = np.nan
                 if not quiet:
                     log.error("No global_xH found for snapshot %d in file %s ."
