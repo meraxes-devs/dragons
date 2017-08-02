@@ -64,14 +64,10 @@ Ready to contribute? Here's how to set up `dragons` for local development.
 
     $ git clone git@bitbucket.org:your_name_here/dragons.git
 
-3. Install your local copy into a virtualenv. Assuming you have
-   virtualenvwrapper installed, this is how you set up your fork for local
-   development::
+3. Install your local copy.  Remember to create a new virtualenv or conda env if you want to before issuing the following commands::
 
-    $ mkvirtualenv dragons
-    $ cd dragons/
+    $ cd dragons
     $ pip install -e .
-    $ mv regrid.so dragons/munge
 
 4. Create a branch for local development::
 
@@ -85,7 +81,7 @@ tests::
     $ flake8 dragons tests
     $ python setup.py test
   
-To get flake8, just pip install them into your virtualenv. 
+To get flake8, just pip install it. 
 
 6. Commit your changes and push your branch to BitBucket::
 
