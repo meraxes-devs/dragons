@@ -161,10 +161,18 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
         ngals = indices.shape[0]
 
     # Set the galaxy data type
-    if props is not None:
-        gal_dtype = snap_group['Core0/Galaxies'].value[list(props)[:]][0].dtype
-    else:
-        gal_dtype = snap_group['Core0/Galaxies'].dtype
+    gal_dtype = None
+    for i_core in xrange(n_cores):
+        try:
+            if props is not None:
+                gal_dtype = snap_group['Core%d/Galaxies' % i_core].value[list(props)[:]][0].dtype
+            else:
+                gal_dtype = snap_group['Core%d/Galaxies' % i_core].dtype
+        except IndexError:
+            pass
+        if gal_dtype is not None:
+            break
+
 
     # Create a dataset large enough to hold all of the requested galaxies
     G = np.empty(ngals, dtype=gal_dtype)
