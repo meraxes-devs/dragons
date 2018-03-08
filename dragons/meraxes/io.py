@@ -302,8 +302,10 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
         h = __meraxes_h
 
     def arr_to_value(d):
-        for k, v in d.iteritems():
-            if v.size is 1:
+        for k, v in d.items():
+            if isinstance(v, np.bytes_):
+                d[k] = str(v.astype(np.str_))
+            elif v.size is 1:
                 try:
                     d[k] = v[0]
                 except IndexError:
