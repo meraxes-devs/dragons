@@ -88,10 +88,7 @@ def electron_optical_depth(fname, volume_weighted=False):
         """This is d/dz scattering depth for redshifts covered by the run.
         """
         prefac = cosmo_factor(z)
-        if z <= 4:
-            return (prefac * (density_H*xHII + 2*density_He*xHII)).decompose()
-        else:
-            return (prefac * (density_H*xHII + density_He*xHII)).decompose()
+        return (prefac * (density_H*xHII + (1 + (z<=4))*density_He*xHII)).decompose()
         
     post_sim_contrib = integrate.quad(d_te_postsim, 0, z_list[0])[0]
 
