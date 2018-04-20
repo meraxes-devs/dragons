@@ -59,24 +59,14 @@ def electron_optical_depth(fname, volume_weighted=False):
 
     # read in the model run data
     snaps, z_list, _ = read_snaplist(fname)
-    xHII = 1.0 - read_global_xH(fname, snaps, quiet=True)
+    if not volume_weighted:        
+        xHII = 1.0 - read_global_xH(fname, snaps, weight='mass', quiet=True)
+    else:
+        xHII = 1.0 - read_global_xH(fname, snaps, weight='volume', quiet=True)
+        
     first_valid, last_valid = np.where(~np.isnan(xHII))[0][[0, -1]]
     xHII[:first_valid] = 0.0
     xHII[last_valid+1:] = 1.0
-
-    # reweight the ionised fraction by mass
-    if not volume_weighted:
-        sel = ~(np.isclose(xHII, 0) | np.isclose(xHII, 1))
-        for snap in tqdm(snaps[sel],
-                         desc='Calculating mass weighted neutral frac:',
-                         total=snaps[sel].size):
-            mass = read_grid(fname, snap, 'deltax', h=run_params['Hubble_h'],
-                             quiet=True) + 1
-            mass = mass / mass.sum()
-            xHII_grid = 1.0 - read_grid(fname, snap, 'xH',
-                                        h=run_params['Hubble_h'],
-                                        quiet=True)
-            xHII[snap] = np.average(xHII_grid, weights=mass)
 
     # reorder the run data from low z to high z for ease of integration
     xHII = xHII[::-1]
@@ -98,8 +88,11 @@ def electron_optical_depth(fname, volume_weighted=False):
         """This is d/dz scattering depth for redshifts covered by the run.
         """
         prefac = cosmo_factor(z)
-        return (prefac * (density_H*xHII + density_He*xHII)).decompose()
-
+        if z <= 4:
+            return (prefac * (density_H*xHII + 2*density_He*xHII)).decompose()
+        else:
+            return (prefac * (density_H*xHII + density_He*xHII)).decompose()
+        
     post_sim_contrib = integrate.quad(d_te_postsim, 0, z_list[0])[0]
 
     sim_contrib = np.zeros(z_list.size)
