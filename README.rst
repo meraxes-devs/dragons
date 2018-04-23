@@ -19,10 +19,18 @@ post-processing.
 
 * Documentation: http://www.ph.unimelb.edu.au/~smutch/docs/dragons .
 
+* Lead author: Simon Mutch (The University of Melbourne)
+
 Features
 --------
 
 * Common processing tasks for analysing simulation/model data (:ref:`munge`)
 * Functions for reading and parsing Meraxes output (:ref:`meraxes`)
 * Functions for reading and parsing nbody (gbpCode) output (:ref:`nbody`)
-* Tools for making nice looking plots with matplotlib (:ref:`plotutils`)
+
+Contributors
+------------
+
+* Simon Mutch (The University of Melbourne)
+* Paul Geil (The University of Melbourne)
+* James Davies (The University of Melbourne)
