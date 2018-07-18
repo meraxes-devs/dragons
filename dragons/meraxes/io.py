@@ -204,7 +204,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
                         dest_sel = np.s_[counter:read_ind.shape[0]+counter]
                         bool_sel = np.zeros(core_ngals, 'bool')
                         bool_sel[read_ind] = True
-                        G[dest_sel] = galaxies[bool_sel]
+                        G[dest_sel] = galaxies[G.dtype.names][bool_sel]
 
                         __apply_offsets(G, dest_sel, total_read)
                         counter += read_ind.shape[0]
