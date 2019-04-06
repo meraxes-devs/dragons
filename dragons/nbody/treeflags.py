@@ -44,7 +44,7 @@ class TreeFlags():
             The parsed flags separated by '|'.
         """
         match = []
-        for s, v in self.flags.items():
+        for s, v in list(self.flags.items()):
             if (num & v) == v:
                 match.append(s)
         return "|".join(match)

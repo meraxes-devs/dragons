@@ -4,7 +4,7 @@
 """Generate the full (first progenitor line) history of a galaxy."""
 
 from ..munge import ndarray_to_dataframe
-from io import read_gals, read_firstprogenitor_indices, read_descendant_indices
+from .io import read_gals, read_firstprogenitor_indices, read_descendant_indices
 from tqdm import tqdm
 
 import numpy as np
@@ -64,7 +64,7 @@ def galaxy_history(fname, gal_id, snapshot, future_snapshot=-1, pandas=False, pr
     if ind == -1:
         raise Warning("This galaxy has no progenitors!")
 
-    for snap in tqdm(range(snapshot-1, -1, -1)):
+    for snap in tqdm(list(range(snapshot-1, -1, -1))):
         history[snap] = read_gals(fname, snapshot=snap, pandas=False,
                                   quiet=True, props=props, indices=[ind])
         ind = read_firstprogenitor_indices(fname, snap)[ind]
@@ -73,7 +73,7 @@ def galaxy_history(fname, gal_id, snapshot, future_snapshot=-1, pandas=False, pr
 
     if future_snapshot != snapshot:
         ind = start_ind
-        for snap in tqdm(range(snapshot+1, future_snapshot+1)):
+        for snap in tqdm(list(range(snapshot+1, future_snapshot+1))):
             last_ind = ind
             ind = read_descendant_indices(fname, snap-1)[ind]
             if ind == -1:

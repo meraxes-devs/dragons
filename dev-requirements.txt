@@ -1,4 +1,4 @@
-Cython>=0.24.1
+Cython>=0.27.0
 bumpversion>=0.5.3
 Sphinx>=1.4.5
 sphinx-rtd-theme>=0.1.9

@@ -127,7 +127,7 @@ def read_halo_catalog(catalog_loc):
     n_halos = np.fromfile(catalog_loc[0], catalog_header_dtype,
                           1)[0]["N_halos_total"]
     halo = np.empty(n_halos, dtype=catalog_halo_dtype)
-    print "Reading in {:d} halos...".format(n_halos)
+    print("Reading in {:d} halos...".format(n_halos))
 
     n_halos = 0
     for f in tqdm(catalog_loc):

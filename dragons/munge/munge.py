@@ -27,12 +27,12 @@ def pretty_print_dict(d, fmtlen=30):
     fmtstr = "%%%ds :" % fmtlen
     fmtstr_title = "\n%%%ds\n%%%ds" % (fmtlen, fmtlen)
 
-    for k, v in d.iteritems():
+    for k, v in d.items():
         if isinstance(v, dict):
-            print fmtstr_title % (k.upper(), re.sub('\S', '-', k))
+            print(fmtstr_title % (k.upper(), re.sub('\S', '-', k)))
             pretty_print_dict(v)
         else:
-            print fmtstr % k, v
+            print(fmtstr % k, v)
 
 
 def ndarray_to_dataframe(arr, drop_vectors=False):
@@ -56,7 +56,7 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
 
     # Get a list of all of the columns which are 1D
     names = []
-    for k, v in arr.dtype.fields.iteritems():
+    for k, v in arr.dtype.fields.items():
         if len(v[0].shape) == 0:
             names.append(k)
 
@@ -66,7 +66,7 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
     if not drop_vectors:
         # Loop through each N(>1)D property and append each dimension as
         # its own column in the dataframe
-        for k, v in arr.dtype.fields.iteritems():
+        for k, v in arr.dtype.fields.items():
             if len(v[0].shape) == 1:
                 for i in range(v[0].shape[0]):
                     df[k+'_%d' % i] = arr[k][:, i]
@@ -187,13 +187,13 @@ def describe(arr, **kwargs):
 
     stats = sp_describe(arr)
 
-    print("{:15s} : {:g}".format("size", stats[0]))
-    print("{:15s} : {:g}".format("min", stats[1][0]))
-    print("{:15s} : {:g}".format("max", stats[1][1]))
-    print("{:15s} : {:g}".format("mean", stats[2]))
-    print("{:15s} : {:g}".format("unbiased var", stats[3]))
-    print("{:15s} : {:g}".format("biased skew", stats[4]))
-    print("{:15s} : {:g}".format("biased kurt", stats[5]))
+    print(("{:15s} : {:g}".format("size", stats[0])))
+    print(("{:15s} : {:g}".format("min", stats[1][0])))
+    print(("{:15s} : {:g}".format("max", stats[1][1])))
+    print(("{:15s} : {:g}".format("mean", stats[2])))
+    print(("{:15s} : {:g}".format("unbiased var", stats[3])))
+    print(("{:15s} : {:g}".format("biased skew", stats[4])))
+    print(("{:15s} : {:g}".format("biased kurt", stats[5])))
 
     return stats
 
@@ -327,7 +327,7 @@ def power_spectrum(grid, side_length, n_bins, dimensional = False):
     power = np.zeros(n_bins)
     uncert = np.zeros(n_bins)
 
-    for ii in xrange(n_bins):
+    for ii in range(n_bins):
 
         sel = k_bin == ii
         val_dim = np.abs(ft_grid[sel])**2 * volume

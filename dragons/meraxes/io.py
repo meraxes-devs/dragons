@@ -42,7 +42,7 @@ def set_little_h(h=None):
         Little h value.
     """
 
-    if type(h) is str or type(h) is unicode:
+    if type(h) is str or type(h) is str:
         h = read_input_params(h)['Hubble_h']
 
     global __meraxes_h
@@ -133,7 +133,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
     if snapshot is None:
         snapshot = -1
     if snapshot < 0:
-        present_snaps = np.asarray(fin.keys())
+        present_snaps = np.asarray(list(fin.keys()))
         selection = np.array([(p.find('Snap') == 0) for p in present_snaps])
         present_snaps = [int(p[4:]) for p in present_snaps[selection]]
         snapshot = sorted(present_snaps)[snapshot]
@@ -162,10 +162,10 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
 
     # Set the galaxy data type
     gal_dtype = None
-    for i_core in xrange(n_cores):
+    for i_core in range(n_cores):
         try:
             if props is not None:
-                gal_dtype = snap_group['Core%d/Galaxies' % i_core].value[list(props)[:]][0].dtype
+                gal_dtype = snap_group['Core%d/Galaxies' % i_core][tuple(props)][0].dtype
             else:
                 gal_dtype = snap_group['Core%d/Galaxies' % i_core].dtype
         except IndexError:
@@ -183,7 +183,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
     if ngals > 0:
         counter = 0
         total_read = 0
-        for i_core in xrange(n_cores):
+        for i_core in range(n_cores):
             galaxies = snap_group['Core%d/Galaxies' % i_core]
             core_ngals = galaxies.size
 
@@ -256,7 +256,7 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
         if not quiet:
             log.info("Converting to astropy Table...")
         G = Table(G, copy=False)
-        for k, v in G.columns.iteritems():
+        for k, v in G.columns.items():
             try:
                 v.unit = units[k]
             except KeyError:
@@ -302,7 +302,7 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
         h = __meraxes_h
 
     def arr_to_value(d):
-        for k, v in d.items():
+        for k, v in list(d.items()):
             if isinstance(v, np.bytes_):
                 d[k] = str(v.astype(np.str_))
             elif v.size is 1:
@@ -313,7 +313,7 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
 
     def visitfunc(name, obj):
         if isinstance(obj, h5.Group):
-            props_dict[name] = dict(obj.attrs.items())
+            props_dict[name] = dict(list(obj.attrs.items()))
             arr_to_value(props_dict[name])
 
     if not quiet:
@@ -324,7 +324,7 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
 
     group = fin['InputParams']
 
-    props_dict = dict(group.attrs.items())
+    props_dict = dict(list(group.attrs.items()))
     arr_to_value(props_dict)
     group.visititems(visitfunc)
 
@@ -366,23 +366,23 @@ def read_units(fname, quiet=False):
     """
 
     def arr_to_value(d):
-        for k, v in d.iteritems():
+        for k, v in d.items():
             if type(v) is np.ndarray and v.size is 1:
                 d[k] = v[0]
 
     def visitunits(name, obj):
         if isinstance(obj, h5.Group):
-            units_dict[name] = dict(obj.attrs.items())
+            units_dict[name] = dict(list(obj.attrs.items()))
             arr_to_value(units_dict[name])
 
     def visitconv(name, obj):
         if isinstance(obj, h5.Group):
-            hubble_conv_dict[name] = dict(obj.attrs.items())
+            hubble_conv_dict[name] = dict(list(obj.attrs.items()))
             arr_to_value(hubble_conv_dict[name])
 
     def sanitize_dict_strings(d):
         regex = re.compile('(\D\.\S*)|(__.*__)|(__)')
-        for k, v in d.iteritems():
+        for k, v in d.items():
             if type(v) is dict:
                 sanitize_dict_strings(v)
             else:
@@ -399,11 +399,11 @@ def read_units(fname, quiet=False):
     for name in ['Units', 'HubbleConversions']:
         group = fin[name]
         if name == 'Units':
-            units_dict = dict(group.attrs.items())
+            units_dict = dict(list(group.attrs.items()))
             arr_to_value(units_dict)
             group.visititems(visitunits)
         if name == 'HubbleConversions':
-            hubble_conv_dict = dict(group.attrs.items())
+            hubble_conv_dict = dict(list(group.attrs.items()))
             arr_to_value(hubble_conv_dict)
             group.visititems(visitconv)
 
@@ -436,7 +436,7 @@ def read_git_info(fname):
     """
 
     with h5.File(fname, 'r') as fin:
-        gitdiff = fin['gitdiff'].value
+        gitdiff = fin['gitdiff'][()]
         gitref = fin['gitdiff'].attrs['gitref'].copy()
 
     return gitref, gitdiff
@@ -476,7 +476,7 @@ def read_snaplist(fname, h=None):
     lt_times = []
 
     with h5.File(fname, 'r') as fin:
-        for snap in fin.keys():
+        for snap in list(fin.keys()):
             try:
                 zlist.append(fin[snap].attrs['Redshift'][0])
                 snaplist.append(int(snap[-3:]))
@@ -591,7 +591,7 @@ def grab_redshift(fname, snapshot):
 
     with h5.File(fname, 'r') as fin:
         if snapshot < 0:
-            present_snaps = np.asarray(fin.keys())
+            present_snaps = np.asarray(list(fin.keys()))
             selection = np.array([(p.find('Snap') == 0) for p in
                                   present_snaps])
             present_snaps = [int(p[4:]) for p in present_snaps[selection]]
@@ -673,7 +673,7 @@ def read_firstprogenitor_indices(fname, snapshot, pandas=False):
 
         # calculate the offsets for each core
         prev_core_counter[0] = 0
-        for i_core in xrange(n_cores-1):
+        for i_core in range(n_cores-1):
             prev_core_counter[i_core+1] = \
                 prev_snap_group["Core{:d}/Galaxies".format(i_core)].size
         prev_core_counter = np.cumsum(prev_core_counter)
@@ -683,7 +683,7 @@ def read_firstprogenitor_indices(fname, snapshot, pandas=False):
         # from the output of all cores. Also be sure *not* to update fp indices
         # that = -1.  This has special meaning!
         counter = 0
-        for i_core in xrange(n_cores):
+        for i_core in range(n_cores):
             ds = snap_group["Core{:d}/FirstProgenitorIndices".format(i_core)]
             core_nvals = ds.size
             if core_nvals > 0:
@@ -742,7 +742,7 @@ def read_nextprogenitor_indices(fname, snapshot, pandas=False):
         # from the output of all cores. Also be sure *not* to update np indices
         # that = -1.  This has special meaning!
         counter = 0
-        for i_core in xrange(n_cores):
+        for i_core in range(n_cores):
             ds = snap_group["Core{:d}/NextProgenitorIndices".format(i_core)]
             core_nvals = ds.size
             if core_nvals > 0:
@@ -802,7 +802,7 @@ def read_descendant_indices(fname, snapshot, pandas=False):
 
         # calculate the offsets for each core
         prev_core_counter[0] = 0
-        for i_core in xrange(n_cores-1):
+        for i_core in range(n_cores-1):
             prev_core_counter[i_core+1] = \
                 next_snap_group["Core{:d}/Galaxies".format(i_core)].size
         prev_core_counter = np.cumsum(prev_core_counter)
@@ -812,7 +812,7 @@ def read_descendant_indices(fname, snapshot, pandas=False):
         # the output of all cores. Also be sure *not* to update desc indices
         # that = -1.  This has special meaning!
         counter = 0
-        for i_core in xrange(n_cores):
+        for i_core in range(n_cores):
             ds = snap_group["Core{:d}/DescendantIndices".format(i_core)]
             core_nvals = ds.size
             if core_nvals > 0:
@@ -924,7 +924,7 @@ def list_grids(fname, snapshot):
     with h5.File(fname, 'r') as fin:
         group_name = "Snap{:03d}/Grids".format(snapshot)
         try:
-            grids = fin[group_name].keys()
+            grids = list(fin[group_name].keys())
         except KeyError:
             log.error("No grids found for snapshot %d in file %s ." %
                       (snapshot, fname))

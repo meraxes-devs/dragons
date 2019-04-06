@@ -3,7 +3,7 @@
 
 __version__ = '0.2.0'
 
-import munge
-import meraxes
-import nbody
-import plotutils
+from . import munge
+from . import meraxes
+from . import nbody
+from . import plotutils

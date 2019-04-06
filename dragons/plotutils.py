@@ -10,7 +10,7 @@ These can be combined as required.
 """
 
 
-from __future__ import division
+
 import numpy as np
 from matplotlib import style
 from pkg_resources import resource_filename

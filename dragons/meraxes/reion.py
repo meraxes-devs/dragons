@@ -98,7 +98,7 @@ def electron_optical_depth(fname, volume_weighted=False):
         sim_contrib = np.array([integrate.simps(d_te_sim(z_list[:ii+1],
                                                          xHII[:ii+1]),
                                                 z_list[:ii+1])
-                                for ii in xrange(z_list.size)])
+                                for ii in range(z_list.size)])
 
     scattering_depth = sim_contrib + post_sim_contrib
 
