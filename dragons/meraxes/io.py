@@ -173,6 +173,13 @@ def read_gals(fname, snapshot=None, props=None, quiet=False, sim_props=False,
         if gal_dtype is not None:
             break
 
+    # Newer versions of numpy will return a dtype with no fields if we have
+    # only requested one property.  We need to reconstructed a named dtype for
+    # the direct read below.
+    if gal_dtype.names is None:
+        assert len(props) == 1
+        gal_dtype = np.dtype(list(zip(props, [gal_dtype.type])))
+
 
     # Create a dataset large enough to hold all of the requested galaxies
     G = np.empty(ngals, dtype=gal_dtype)
