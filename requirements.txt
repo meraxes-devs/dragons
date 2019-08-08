@@ -6,4 +6,3 @@ astropy>=1.1.1
 pandas>=0.18.1
 tqdm>=4.7.6
 scipy>=0.17.1
-Cython>=0.29.3
