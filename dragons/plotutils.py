@@ -1,26 +1,5 @@
-"""Small plotting-related utility functions.
-
-Three new matplotlib styles are added to the user library upon import:
-
-- dragons
-- talk
-- white_background
-
-These can be combined as required.
-"""
-
-
-
 import numpy as np
-from matplotlib import style
-from pkg_resources import resource_filename
 from scipy import optimize as so
-
-
-# Add custom styles
-style.core.USER_LIBRARY_PATHS.append(resource_filename(__name__,
-                                                       'stylelib'))
-style.reload_library()
 
 
 def _find_confidence_interval(x, pdf, confidence_level):
