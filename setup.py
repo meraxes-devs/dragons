@@ -25,7 +25,6 @@ except ImportError:
     np_inc_dirs = ""
 
 readme = open('README.rst').read()
-history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 requirements = open('requirements.txt').readlines()
 
 
@@ -33,7 +32,7 @@ setup(
     name='dragons',
     version='0.2.2',
     description='Python tools for dealing with the Meraxes semi-analytic model output and associated processing.',
-    long_description=readme + '\n\n' + history,
+    long_description=readme,
     author='Simon Mutch',
     author_email='smutch.astro@gmail.com',
     url='https://github.com/smutch/dragons',
