@@ -15,7 +15,7 @@ DRAGONS Tools
 Python tools for dealing with Meraxes semi-analytic model output and associated
 post-processing.
 
-* Free software: BSD license
+* Free software: GNU General Public License v3 (GPLv3)
 
 * Documentation: http://www.ph.unimelb.edu.au/~smutch/docs/dragons .
 
@@ -24,9 +24,10 @@ post-processing.
 Features
 --------
 
-* Common processing tasks for analysing simulation/model data (:ref:`munge`)
 * Functions for reading and parsing Meraxes output (:ref:`meraxes`)
-* Functions for reading and parsing nbody (gbpCode) output (:ref:`nbody`)
+* Functions for reading and parsing gbpCode nbody output (:ref:`nbody`)
+* Common processing tasks for analysing simulation/model data (:ref:`munge`)
+* Tools for common plotting tasks (:ref:`plotutils`)
 
 Contributors
 ------------
