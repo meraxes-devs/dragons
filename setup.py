@@ -24,10 +24,6 @@ try:
 except ImportError:
     np_inc_dirs = ""
 
-# if sys.argv[-1] == 'publish':
-#     os.system('python setup.py sdist upload')
-#     sys.exit()
-
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 requirements = open('requirements.txt').readlines()
@@ -35,12 +31,12 @@ requirements = open('requirements.txt').readlines()
 
 setup(
     name='dragons',
-    version='0.2.1',
-    description='Python tools for dealing with simulations, semi-analytic models and associated post-processing.',
+    version='0.2.2',
+    description='Python tools for dealing with the Meraxes semi-analytic model output and associated processing.',
     long_description=readme + '\n\n' + history,
     author='Simon Mutch',
     author_email='smutch.astro@gmail.com',
-    url='https://bitbucket.org/dragons-astro/dragons',
+    url='https://github.com/smutch/dragons',
     packages=find_packages(),
     package_dir={'dragons': 'dragons'},
     package_data={'dragons': ['stylelib/*']},
@@ -53,17 +49,11 @@ setup(
     zip_safe=False,
     keywords='dragons',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    test_suite='tests',
 )
