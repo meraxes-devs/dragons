@@ -29,6 +29,14 @@ Features
 * Common processing tasks for analysing simulation/model data (:ref:`munge`)
 * Tools for common plotting tasks (:ref:`plotutils`)
 
+Tests
+-----
+
+Whilst all of the code in this package has been heavily tested in the field by
+a number of people, it is sorely lacking unit tests.  This is a high priority
+for this package.  Anyone who is interested or willing to help is encouraged to
+contact the authors.
+
 Contributors
 ------------
 
