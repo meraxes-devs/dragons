@@ -312,7 +312,7 @@ def read_input_params(fname, h=None, quiet=False, raw=False):
         for k, v in list(d.items()):
             if isinstance(v, np.bytes_):
                 d[k] = str(v.astype(np.str_))
-            elif v.size is 1:
+            elif v.size == 1:
                 try:
                     d[k] = v[0]
                 except IndexError:
@@ -374,7 +374,7 @@ def read_units(fname, quiet=False):
 
     def arr_to_value(d):
         for k, v in d.items():
-            if type(v) is np.ndarray and v.size is 1:
+            if type(v) is np.ndarray and v.size == 1:
                 d[k] = v[0]
 
     def visitunits(name, obj):

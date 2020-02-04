@@ -138,17 +138,23 @@ class MeraxesOutput:
             The matplotlib axis
         """
         snap_z5 = self.snaplist[np.argmin(np.abs(5.0 - self.zlist))]
-        xHI = pd.DataFrame(
-            dict(
-                snap=np.arange(snap_z5 + 1), redshift=self.zlist[: snap_z5 + 1], xHI=0.0
+        try:
+            xHI = pd.DataFrame(
+                dict(
+                    snap=np.arange(snap_z5 + 1), redshift=self.zlist[: snap_z5 + 1]
+                )
             )
-        )
-        xHI.xHI = read_global_xH(self.fname, xHI.snap, quiet=True)
+            xHI['xHI'] = read_global_xH(self.fname, xHI.snap, quiet=True)
+        except ValueError:
+            return None
+
+        if xHI.dropna().shape[0] == 0:
+            return None
 
         start = xHI.query("xHI == xHI.max()").index[0]
         end = xHI.query("xHI == xHI.min()").index[0]
         xHI.loc[:start, "xHI"] = 1.0
-        xHI.loc[end + 1 :] = 0.0
+        xHI.loc[end + 1:] = 0.0
 
         fig, ax = plt.subplots(1, 1, tight_layout=True)
         fig: plt.Figure
