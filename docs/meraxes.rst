@@ -26,3 +26,11 @@ meraxes.reion
     :members:
     :undoc-members:
     :show-inheritance:
+
+meraxes.plots
+-------------
+
+.. automodule:: dragons.meraxes.plots
+    :members:
+    :undoc-members:
+    :show-inheritance:
