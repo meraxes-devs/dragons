@@ -5,10 +5,14 @@
 
 import re
 import numpy as np
-from astropy import log
 from pandas import DataFrame
 from scipy.stats import describe as sp_describe
 from .tophat_filter import tophat_filter
+
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel('WARNING')
 
 
 def pretty_print_dict(d, fmtlen=30):
@@ -29,7 +33,7 @@ def pretty_print_dict(d, fmtlen=30):
 
     for k, v in d.items():
         if isinstance(v, dict):
-            print(fmtstr_title % (k.upper(), re.sub('\S', '-', k)))
+            print(fmtstr_title % (k.upper(), re.sub("\S", "-", k)))
             pretty_print_dict(v)
         else:
             print(fmtstr % k, v)
@@ -69,13 +73,12 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
         for k, v in arr.dtype.fields.items():
             if len(v[0].shape) == 1:
                 for i in range(v[0].shape[0]):
-                    df[k+'_%d' % i] = arr[k][:, i]
+                    df[k + "_%d" % i] = arr[k][:, i]
 
     return df
 
 
-def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
-                  return_edges=False, **kwargs):
+def mass_function(mass, volume, bins, range=None, poisson_uncert=False, return_edges=False, **kwargs):
     """Generate a mass function.
 
     Parameters
@@ -111,15 +114,15 @@ def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
 
     if "normed" in kwargs:
         kwargs["normed"] = False
-        log.warn("Turned off normed kwarg in mass_function()")
+        logger.warn("Turned off normed kwarg in mass_function()")
 
     if range is not None and isinstance(bins, str):
         mass = mass[(mass >= range[0]) & (mass <= range[1])]
 
     vals, edges = np.histogram(mass, bins, range, **kwargs)
-    width = edges[1]-edges[0]
-    radius = width/2.0
-    centers = edges[:-1]+radius
+    width = edges[1] - edges[0]
+    radius = width / 2.0
+    centers = edges[:-1] + radius
     if poisson_uncert:
         uncert = np.sqrt(vals.astype(float))
 
@@ -128,7 +131,7 @@ def mass_function(mass, volume, bins, range=None, poisson_uncert=False,
     if not poisson_uncert:
         mf = np.dstack((centers, vals)).squeeze()
     else:
-        uncert /= (volume * width)
+        uncert /= volume * width
         mf = np.dstack((centers, vals, uncert)).squeeze()
 
     if not return_edges:
@@ -257,7 +260,7 @@ def smooth_grid(grid, side_length, radius, filt="tophat"):
     return grid
 
 
-def power_spectrum(grid, side_length, n_bins, dimensional = False):
+def power_spectrum(grid, side_length, n_bins, dimensional=False):
 
     r"""Calculate the dimensionless and dimensional power spectra of a grid (G):
 
@@ -300,23 +303,21 @@ def power_spectrum(grid, side_length, n_bins, dimensional = False):
         The uncertainty of the dimensional power within each k bin (returned iff dimensional = True)
     """
 
-    volume = side_length**3
+    volume = side_length ** 3
 
     # do the FFT (note the normalising 1.0/N_cells factor)
     ft_grid = np.fft.rfftn(grid) / float(grid.size)
 
     # generate a grid of k magnitudes
-    k1d = 2.0*np.pi * np.fft.fftfreq(grid.shape[0],
-                                     1/float(grid.shape[0])) / side_length
-    k1d_r = 2.0*np.pi * np.fft.rfftfreq(grid.shape[0],
-                                        1/float(grid.shape[0])) / side_length
-    k = np.meshgrid(k1d, k1d, k1d_r, sparse=True, indexing='ij')
-    k = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)
+    k1d = 2.0 * np.pi * np.fft.fftfreq(grid.shape[0], 1 / float(grid.shape[0])) / side_length
+    k1d_r = 2.0 * np.pi * np.fft.rfftfreq(grid.shape[0], 1 / float(grid.shape[0])) / side_length
+    k = np.meshgrid(k1d, k1d, k1d_r, sparse=True, indexing="ij")
+    k = np.sqrt(k[0] ** 2 + k[1] ** 2 + k[2] ** 2)
 
     # bin up the k magnitudes
-    k_edges = np.logspace(np.log10(k1d_r[1]), np.log10(k1d_r[-1]), n_bins+1)
+    k_edges = np.logspace(np.log10(k1d_r[1]), np.log10(k1d_r[-1]), n_bins + 1)
     k_bin = np.digitize(k.flat, k_edges) - 1
-    np.clip(k_bin, 0, n_bins-1, k_bin)
+    np.clip(k_bin, 0, n_bins - 1, k_bin)
     k_bin.shape = k.shape
 
     # loop through each k magnitude bin and calculate the mean power, k and
@@ -330,8 +331,8 @@ def power_spectrum(grid, side_length, n_bins, dimensional = False):
     for ii in range(n_bins):
 
         sel = k_bin == ii
-        val_dim = np.abs(ft_grid[sel])**2 * volume
-        val = k[sel]**3 * np.abs(ft_grid[sel])**2 / (2.0 * np.pi**2) * volume
+        val_dim = np.abs(ft_grid[sel]) ** 2 * volume
+        val = k[sel] ** 3 * np.abs(ft_grid[sel]) ** 2 / (2.0 * np.pi ** 2) * volume
 
         kmean[ii] = k[sel].mean()
         power_dim[ii] = val_dim.mean()
@@ -339,12 +340,8 @@ def power_spectrum(grid, side_length, n_bins, dimensional = False):
 
         power[ii] = val.mean()
         uncert[ii] = power[ii] / np.sqrt(len(k[sel]))
-        
+
     if dimensional:
         return kmean, power, uncert, power_dim, uncert_dim
     else:
         return kmean, power, uncert
-
-
-
-
