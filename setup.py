@@ -26,7 +26,9 @@ except ImportError:
 
 readme = open('README.rst').read()
 requirements = open('requirements.txt').readlines()
-
+for ii, req in enumerate(requirements):
+    if 'egg=' in req:
+        requirements[ii] = req.split('egg=')[-1]
 
 setup(
     name='dragons',
