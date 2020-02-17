@@ -15,7 +15,7 @@ import logging
 
 __meraxes_h = None
 logger = logging.getLogger(__name__)
-logger.setLevel('WARNING')
+logger.setLevel("WARNING")
 
 
 def _check_pandas():
@@ -58,9 +58,7 @@ def set_little_h(h=None):
     return h
 
 
-def read_gals(
-    fname, snapshot=None, props=None, sim_props=False, pandas=False, table=False, h=None, indices=None
-):
+def read_gals(fname, snapshot=None, props=None, sim_props=False, pandas=False, table=False, h=None, indices=None):
 
     """Read in a Meraxes hdf5 output file.
 
@@ -930,52 +928,47 @@ def read_ps(fname, snapshot):
         error
     """
 
-    with h5.File(fname, "r") as fin:
-        ds_name = "Snap{:03d}/PowerSpectrum".format(snapshot)
-        try:
-            ps_nbins = fin[ds_name].attrs["nbins"][0]
-            ps = fin[ds_name][:]
-        except KeyError:
-            logger.error("No data called found in file %s ." % (fname))
+    with h5.File(fname, "r") as fp:
+        ps = fp[f"Snap{snapshot:03d}/Grids/PS_data"][:]
+        k = fp[f"Snap{snapshot:03d}/Grids/k_bins"][:]
+        pserr = fp[f"Snap{snapshot:03d}/Grids/PS_error"][:]
 
-    ps.shape = [ps_nbins, 3]
-
-    return ps[:, 0], ps[:, 1], ps[:, 2]
+    return k, ps, pserr
 
 
-def read_size_dist(fname, snapshot):
+#  def read_size_dist(fname, snapshot):
 
-    """ Read region size distribution from the Meraxes HDF5 file.
+#      """ Read region size distribution from the Meraxes HDF5 file.
 
-    Parameters
-    ----------
-    fname : str
-        Full path to input hdf5 master file
+#      Parameters
+#      ----------
+#      fname : str
+#          Full path to input hdf5 master file
 
-    snapshot : int
-        Snapshot from which the region size distribution is to be read
-        from.
+#      snapshot : int
+#          Snapshot from which the region size distribution is to be read
+#          from.
 
-    Returns
-    -------
-    Rval : array
-        R value
+#      Returns
+#      -------
+#      Rval : array
+#          R value
 
-    RdpdR : array
-        RdpdR value
-    """
+#      RdpdR : array
+#          RdpdR value
+#      """
 
-    with h5.File(fname, "r") as fin:
-        ds_name = "Snap{:03d}/RegionSizeDist".format(snapshot)
-        try:
-            R_nbins = fin[ds_name].attrs["nbins"][0]
-            RdpdR = fin[ds_name][:]
-        except KeyError:
-            logger.error("No RegionSizeDist found in file %s ." % (fname))
+#      with h5.File(fname, "r") as fin:
+#          ds_name = "Snap{:03d}/RegionSizeDist".format(snapshot)
+#          try:
+#              R_nbins = fin[ds_name].attrs["nbins"][0]
+#              RdpdR = fin[ds_name][:]
+#          except KeyError:
+#              logger.error("No RegionSizeDist found in file %s ." % (fname))
 
-    RdpdR.shape = [R_nbins, 2]
+#      RdpdR.shape = [R_nbins, 2]
 
-    return RdpdR[:, 0], RdpdR[:, 1]
+#      return RdpdR[:, 0], RdpdR[:, 1]
 
 
 def read_global_xH(fname, snapshot, weight="volume"):
