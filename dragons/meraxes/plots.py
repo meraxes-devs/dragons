@@ -246,7 +246,7 @@ class MeraxesOutput:
         return fig, ax
 
 
-def allplots(meraxes_fname: Union[str, Path], output_dir: Union[str, Path], save: bool = False):
+def allplots(meraxes_fname: Union[str, Path], output_dir: Union[str, Path] = './', save: bool = False):
     """Create all plots.
 
     Parameters
