@@ -11,6 +11,7 @@ import h5py as h5
 from astropy.table import Table
 import pandas as pd
 import logging
+from pathlib import PurePath
 
 
 __meraxes_h = None
@@ -43,12 +44,12 @@ def set_little_h(h=None):
         Little h value.
     """
 
-    if type(h) is str or type(h) is str:
+    if type(h) is str or isinstance(h, PurePath):
         h = read_input_params(h)["Hubble_h"]
 
     global __meraxes_h
 
-    logger.info("Setting little h to %.3f for future io calls." % h)
+    logger.info(f"Setting little h to {h} for future io calls.")
 
     if h == 1.0:
         h = None
