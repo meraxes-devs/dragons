@@ -897,7 +897,7 @@ def list_grids(fname, snapshot):
     with h5.File(fname, "r") as fin:
         group_name = "Snap{:03d}/Grids".format(snapshot)
         try:
-            grids = list(fin[group_name].keys())
+            grids = list(k for k, v in fin[group_name].items() if len(v.shape) == 3)
         except KeyError:
             logger.error("No grids found for snapshot %d in file %s ." % (snapshot, fname))
 
