@@ -19,7 +19,6 @@ import click
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel('WARNING')
 
 
 class MeraxesOutput:
@@ -59,10 +58,10 @@ class MeraxesOutput:
             The matplotlib axis
         """
 
-        logger.setLevel('INFO')
+        snap, z = check_for_redshift(self.fname, redshift)
+
         logger.info(f"Plotting z={redshift:.2f} SMF")
 
-        snap, z = check_for_redshift(self.fname, redshift)
         stellar = np.log10(read_gals(self.fname, snap, props=["StellarMass"])["StellarMass"]) + 10.0
         stellar = stellar[np.isfinite(stellar)]
         smf = munge.mass_function(stellar, self.params["Volume"], 30)
@@ -141,9 +140,11 @@ class MeraxesOutput:
             xHI = pd.DataFrame(dict(snap=np.arange(snap_z5 + 1), redshift=self.zlist[: snap_z5 + 1]))
             xHI["xHI"] = read_global_xH(self.fname, xHI.snap)
         except ValueError:
+            logger.warning(f"No xHI values in Meraxes output file")
             return []
 
         if xHI.dropna().shape[0] == 0:
+            logger.warning(f"No finite xHI values in Meraxes output file")
             return []
 
         start = xHI.query("xHI == xHI.max()").index[0]
@@ -182,9 +183,10 @@ class MeraxesOutput:
             The matplotlib axis
         """
 
+        snap, z = check_for_redshift(self.fname, redshift)
+
         logger.info(f"Plotting z={redshift:.2f} SFRF")
 
-        snap, z = check_for_redshift(self.fname, redshift)
         sfr = read_gals(self.fname, snap, props=["Sfr"])["Sfr"]
         sfr = np.log10(sfr[sfr > 0])
         sfrf = munge.mass_function(sfr, self.params["Volume"], 30)
@@ -245,8 +247,91 @@ class MeraxesOutput:
 
         return fig, ax
 
+    def plot_uvlf(self, redshift: float, mag_index: Union[int, None] = None):
+        """Plot the UV luminosity function.
 
-def allplots(meraxes_fname: Union[str, Path], output_dir: Union[str, Path] = './', save: bool = False):
+        Parameters
+        ----------
+        redshift: float
+            The redshift of interest
+
+        Returns
+        -------
+        fig : matplotlib.Figure
+            The matplotlib figure
+        ax : matplotlib.Axes
+            The matplotlib axis
+        """
+
+        snap, z = check_for_redshift(self.fname, redshift)
+
+        logger.info(f"Plotting z={redshift:.2f} UVLF")
+
+        if mag_index is None:
+            mag_index = -1
+            logger.warning(f"Assuming absolute UV mag to be {mag_index}")
+
+        mags = read_gals(self.fname, snap, props=["Mags"])["Mags"][:, mag_index]
+        mags = mags[mags < -10.0]
+        lf = munge.mass_function(mags, self.params["Volume"], 30)
+
+        obs = number_density(feature="GLF_UV", z_target=redshift, h=self.params["Hubble_h"], quiet=True)
+
+        fig, ax = plt.subplots(1, 1, tight_layout=True)
+        alpha = 0.6
+        props = cycler.cycler(marker=("o", "s", "H", "P", "*", "^", "v", "<", ">"))
+        for ii, prop in zip(range(obs.n_target_observation), props):
+            data = obs.target_observation["Data"][ii]
+            label = obs.target_observation.index[ii]
+            datatype = obs.target_observation["DataType"][ii]
+            data[:, 1:] = np.log10(data[:, 1:])
+            if datatype == "data":
+                ax.errorbar(
+                    data[:, 0],
+                    data[:, 1],
+                    yerr=[data[:, 1] - data[:, 3], data[:, 2] - data[:, 1]],
+                    label=label,
+                    ls="",
+                    mec="w",
+                    alpha=alpha,
+                    **prop,
+                )
+            elif datatype == "dataULimit":
+                ax.errorbar(
+                    data[:, 0],
+                    data[:, 1],
+                    yerr=-0.2 * data[:, 1],
+                    uplims=True,
+                    label=label,
+                    mec="w",
+                    alpha=alpha,
+                    **prop,
+                )
+            else:
+                ax.plot(data[:, 0], data[:, 1], label=label, lw=3, alpha=alpha)
+                ax.fill_between(data[:, 0], data[:, 2], data[:, 3], alpha=0.4)
+
+        ax.plot(lf[:, 0], np.log10(lf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run")
+
+        ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
+        ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
+
+        ax.set(
+            xlim=(-10, -25), ylim=(-7, 0), xlabel=r"$M_{\rm UV}$", ylabel=r"$\log_{10}(\phi\ [{\rm Mpc^{-1}}])$",
+        )
+
+        if self.save:
+            self.plot_dir.mkdir(exist_ok=True)
+            sns.despine(ax=ax)
+            fname = self.plot_dir / f"uvlf_z{redshift:.2f}.pdf"
+            plt.savefig(fname)
+
+        return fig, ax
+
+
+def allplots(
+    meraxes_fname: Union[str, Path], output_dir: Union[str, Path], uvindex: Union[int, None] = None, save: bool = False
+):
     """Create all plots.
 
     Parameters
@@ -273,6 +358,12 @@ def allplots(meraxes_fname: Union[str, Path], output_dir: Union[str, Path] = './
         except KeyError:
             pass
 
+    for redshift in (8, 7, 6, 5, 4):
+        try:
+            plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
+        except KeyError:
+            pass
+
     plots.append(meraxes_output.plot_xHI())
 
     return plots
@@ -281,18 +372,21 @@ def allplots(meraxes_fname: Union[str, Path], output_dir: Union[str, Path] = './
 @click.command()
 @click.argument("meraxes_fname", type=click.Path(exists=True))
 @click.option("--output_dir", "-o", type=click.Path(), default="plots")
-def main(meraxes_fname, output_dir="plots"):
+@click.option("--uvindex", type=click.INT)
+def main(meraxes_fname, output_dir="plots", uvindex=None):
     import warnings
-    logging.basicConfig(level='INFO', handlers=logging.getLogger('dragons').handlers)
-    logging.getLogger('dragons.meraxes.io').setLevel('ERROR')
+    import os
+
+    logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"), handlers=logging.getLogger("dragons").handlers)
+    logging.getLogger("dragons.meraxes.io").setLevel("ERROR")
 
     sns.set(
         "talk", "ticks", font_scale=1.2, rc={"lines.linewidth": 3, "figure.figsize": (12, 6)},
     )
 
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=RuntimeWarning, module=__name__)
-        allplots(meraxes_fname, output_dir, True)
+        warnings.filterwarnings("ignore", category=RuntimeWarning, module=__name__)
+        allplots(meraxes_fname, output_dir, uvindex, True)
 
 
 if __name__ == "__main__":
