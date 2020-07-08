@@ -17,6 +17,7 @@ from typing import Union
 import cycler
 import click
 import logging
+from textwrap import dedent
 
 logger = logging.getLogger(__name__)
 
@@ -341,10 +342,160 @@ class MeraxesOutput:
 
         return fig, ax
 
+    def plot_HImf(self, redshift: float):
+        """Plot the HI mass function.
+
+        Parameters
+        ----------
+        redshift: float
+            The redshift of interest
+
+        Returns
+        -------
+        fig : matplotlib.Figure
+            The matplotlib figure
+        ax : matplotlib.Axes
+            The matplotlib axis
+        """
+
+        snap, z = check_for_redshift(self.fname, redshift)
+        logger.info(f"Plotting z={redshift:.2f} HImf")
+
+        plot_obs = False
+        if not 0.0 <= redshift <= 0.05:
+            logger.warning(f"Currently only have HImf data for z=0.")
+        else:
+            plot_obs = True
+
+        fig, ax = plt.subplots(1, 1, tight_layout=True)
+        props = cycler.cycler(marker=("o", "s", "H", "P", "*", "^", "v", "<", ">"))()
+        alpha = 0.6
+
+        if plot_obs:
+            # ALFALFA-Martin et al. 2010 (h=0.7)
+            # Values provided by H. Kim.
+            obs_hubble = 0.7
+            _raw = dedent(
+                """\
+             6.3  -0.743   0.366
+             6.5  -0.839   0.259
+             6.7  -0.875   0.191
+             6.9  -0.935   0.153
+             7.1  -1.065   0.154
+             7.3  -1.130   0.114
+             7.5  -1.163   0.082
+             7.7  -1.224   0.070
+             7.9  -1.363   0.061
+             8.1  -1.460   0.054
+             8.3  -1.493   0.046
+             8.5  -1.573   0.043
+             8.7  -1.664   0.038
+             8.9  -1.689   0.029
+             9.1  -1.673   0.023
+             9.3  -1.740   0.021
+             9.5  -1.893   0.021
+             9.7  -2.061   0.018
+             9.9  -2.288   0.017
+            10.1  -2.596   0.017
+            10.3  -3.006   0.024
+            10.5  -3.641   0.057
+            10.7  -4.428   0.131
+            10.9  -5.320   0.376
+            """
+            )
+            data = np.fromstring(_raw, sep=" ").reshape(-1, 3)
+            data[:, 0] -= 2 * np.log10(self.params["Hubble_h"] / obs_hubble)
+            data[:, 1] += 3 * np.log10(self.params["Hubble_h"] / obs_hubble)
+
+            ax.errorbar(
+                data[:, 0],
+                data[:, 1],
+                yerr=data[:, 2],
+                label="Martin et al. (2010)",
+                ls="",
+                mec="w",
+                alpha=alpha,
+                **next(props),
+            )
+
+            # HIPASS-Zwaan et al. 2005 (h=0.75)
+            # Values provided by H. Kim.
+            obs_hubble = 0.75
+            _raw = dedent(
+                """\
+            7.186 -0.733 0.397 0.2039
+            7.3345 -0.8838 0.3179 0.1816
+            7.483 -1.1 0.301 0.1761
+            7.6315 -1.056 0.1955 0.1343
+            7.78 -1.207 0.1992 0.136
+            7.9285 -1.35 0.1374 0.1042
+            8.077 -1.315 0.08988 0.07443
+            8.2255 -1.331 0.07159 0.06144
+            8.374 -1.308 0.05789 0.05108
+            8.5225 -1.31 0.04438 0.04027
+            8.671 -1.455 0.04284 0.03899
+            8.8195 -1.555 0.03725 0.03431
+            8.968 -1.55 0.03187 0.02969
+            9.1165 -1.69 0.03179 0.02962
+            9.265 -1.735 0.02666 0.02512
+            9.4135 -1.843 0.02456 0.02324
+            9.562 -1.974 0.02352 0.02231
+            9.7105 -2.166 0.02506 0.0237
+            9.859 -2.401 0.02768 0.02602
+            10.0075 -2.785 0.03275 0.03045
+            10.156 -3.013 0.03628 0.03348
+            10.3045 -3.417 0.05028 0.04506
+            10.453 -4.044 0.07708 0.06544
+            10.6015 -4.83 0.1562 0.1147
+            10.75 -5.451 0.2567 0.1602
+            """
+            )
+            data = np.fromstring(_raw, sep=" ").reshape(-1, 4)
+            data[:, 0] -= 2 * np.log10(self.params["Hubble_h"] / obs_hubble)
+            data[:, 1] += 3 * np.log10(self.params["Hubble_h"] / obs_hubble)
+
+            ax.errorbar(
+                data[:, 0],
+                data[:, 1],
+                yerr=[data[:, 2], data[:, 3]],
+                label="Zwaan et al. (2005)",
+                ls="",
+                mec="w",
+                alpha=alpha,
+                **next(props),
+            )
+
+        HImass = np.log10(read_gals(self.fname, snap, props=["HIMass"])["HIMass"]) + 10.0
+        HImass = HImass[np.isfinite(HImass)]
+        mf = munge.mass_function(HImass, self.params["Volume"], 30)
+
+        ax.plot(mf[:, 0], np.log10(mf[:, 1]), ls="-", color="k", lw=4, zorder=10, label="Meraxes run")
+
+        ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
+        ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
+
+        ax.set(
+            xlim=(7, 11),
+            ylim=(-6, 0),
+            xlabel=r"$\log_{10}(M_{\rm HI}\ [{\rm M_{\odot}}])$",
+            ylabel=r"$\log_{10}(\phi\ [{\rm Mpc^{-1}}])$",
+        )
+
+        if self.save:
+            self.plot_dir.mkdir(exist_ok=True)
+            sns.despine(ax=ax)
+            fname = self.plot_dir / f"HImf_z{redshift:.2f}.pdf"
+            plt.savefig(fname)
+
+        return fig, ax
+
 
 def allplots(
-    meraxes_fname: Union[str, Path], output_dir: Union[str, Path], uvindex: Union[int, None] = None, save: bool = False,
-    imfscaling: float = 1.0
+    meraxes_fname: Union[str, Path],
+    output_dir: Union[str, Path],
+    uvindex: Union[int, None] = None,
+    save: bool = False,
+    imfscaling: float = 1.0,
 ):
     """Create all plots.
 
@@ -382,6 +533,11 @@ def allplots(
 
     plots.append(meraxes_output.plot_xHI())
 
+    try:
+        plots.append(meraxes_output.plot_HImf(0))
+    except KeyError:
+        pass
+
     return plots
 
 
@@ -393,7 +549,7 @@ def allplots(
     "--imfscaling",
     type=click.FLOAT,
     help="Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling).",
-    default=1.0
+    default=1.0,
 )
 def main(meraxes_fname, output_dir="plots", uvindex=None, imfscaling=1.0):
     import warnings
