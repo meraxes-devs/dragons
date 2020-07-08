@@ -42,13 +42,15 @@ class MeraxesOutput:
         self.snaplist, self.zlist, self.lbtimes = read_snaplist(fname)
         self.params = read_input_params(fname)
 
-    def plot_smf(self, redshift: float):
+    def plot_smf(self, redshift: float, imfscaling: float = 1.0):
         """Plot the stellar mass function for a given redshift.
 
         Parameters
         ----------
         redshift : float
             The requested redshift to plot.
+        imfscaling : float
+            Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling) (default: 1.0)
 
         Returns
         -------
@@ -58,6 +60,7 @@ class MeraxesOutput:
             The matplotlib axis
         """
 
+        imfscaling = np.log10(imfscaling)
         snap, z = check_for_redshift(self.fname, redshift)
 
         logger.info(f"Plotting z={redshift:.2f} SMF")
@@ -73,6 +76,7 @@ class MeraxesOutput:
         props = cycler.cycler(marker=("o", "s", "H", "P", "*", "^", "v", "<", ">"))
         for ii, prop in zip(range(obs.n_target_observation), props):
             data = obs.target_observation["Data"][ii]
+            data[:, 0] += imfscaling
             label = obs.target_observation.index[ii]
             datatype = obs.target_observation["DataType"][ii]
             data[:, 1:] = np.log10(data[:, 1:])
@@ -167,13 +171,15 @@ class MeraxesOutput:
 
         return fig, ax
 
-    def plot_sfrf(self, redshift: float):
+    def plot_sfrf(self, redshift: float, imfscaling: float = 1.0):
         """Plot the star formation rate function.
 
         Parameters
         ----------
         redshift: float
             The redshift of interest
+        imfscaling : float
+            Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling) (default: 1.0)
 
         Returns
         -------
@@ -183,6 +189,7 @@ class MeraxesOutput:
             The matplotlib axis
         """
 
+        imfscaling = np.log10(imfscaling)
         snap, z = check_for_redshift(self.fname, redshift)
 
         logger.info(f"Plotting z={redshift:.2f} SFRF")
@@ -198,6 +205,7 @@ class MeraxesOutput:
         props = cycler.cycler(marker=("o", "s", "H", "P", "*", "^", "v", "<", ">"))
         for ii, prop in zip(range(obs.n_target_observation), props):
             data = obs.target_observation["Data"][ii]
+            data[:, 0] += imfscaling
             label = obs.target_observation.index[ii]
             datatype = obs.target_observation["DataType"][ii]
             data[:, 1:] = np.log10(data[:, 1:])
@@ -271,7 +279,12 @@ class MeraxesOutput:
             mag_index = -1
             logger.warning(f"Assuming absolute UV mag to be {mag_index}")
 
-        mags = read_gals(self.fname, snap, props=["Mags"])["Mags"][:, mag_index]
+        try:
+            mags = read_gals(self.fname, snap, props=["Mags"])["Mags"][:, mag_index]
+        except ValueError:
+            logger.warning(f"No Mags values in Meraxes output file")
+            return []
+
         mags = mags[mags < -10.0]
         lf = munge.mass_function(mags, self.params["Volume"], 30)
 
@@ -330,7 +343,8 @@ class MeraxesOutput:
 
 
 def allplots(
-    meraxes_fname: Union[str, Path], output_dir: Union[str, Path], uvindex: Union[int, None] = None, save: bool = False
+    meraxes_fname: Union[str, Path], output_dir: Union[str, Path], uvindex: Union[int, None] = None, save: bool = False,
+    imfscaling: float = 1.0
 ):
     """Create all plots.
 
@@ -342,6 +356,8 @@ def allplots(
         The directory where plots should be stored. (default: `./plots`)
     save : bool
         Set to `True` to save output. (default: False)
+    imfscaling : float
+        Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling) (default: 1.0)
 
     Returns
     -------
@@ -353,8 +369,8 @@ def allplots(
     plots = []
     for redshift in (8, 7, 6, 5, 4, 3, 2, 1, 0.5, 0):
         try:
-            plots.append(meraxes_output.plot_smf(redshift))
-            plots.append(meraxes_output.plot_sfrf(redshift))
+            plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling))
+            plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling))
         except KeyError:
             pass
 
@@ -373,7 +389,13 @@ def allplots(
 @click.argument("meraxes_fname", type=click.Path(exists=True))
 @click.option("--output_dir", "-o", type=click.Path(), default="plots")
 @click.option("--uvindex", type=click.INT)
-def main(meraxes_fname, output_dir="plots", uvindex=None):
+@click.option(
+    "--imfscaling",
+    type=click.FLOAT,
+    help="Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling).",
+    default=1.0
+)
+def main(meraxes_fname, output_dir="plots", uvindex=None, imfscaling=1.0):
     import warnings
     import os
 
@@ -386,7 +408,7 @@ def main(meraxes_fname, output_dir="plots", uvindex=None):
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning, module=__name__)
-        allplots(meraxes_fname, output_dir, uvindex, True)
+        allplots(meraxes_fname, output_dir, uvindex, True, imfscaling=imfscaling)
 
 
 if __name__ == "__main__":
