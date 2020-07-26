@@ -10,6 +10,7 @@ from . import (
     read_gals,
     check_for_redshift,
     read_global_xH,
+    bh_bolometric_mags,
 )
 from .. import munge
 from pathlib import Path
@@ -489,6 +490,76 @@ class MeraxesOutput:
 
         return fig, ax
 
+    def bolometric_qlf(self, redshift: float):
+        snap, z = check_for_redshift(self.fname, redshift)
+
+        logger.info(f"Plotting z={redshift:.2f} bolometric quasar luminosity function.")
+
+        required_props = ["BlackHoleMass", "BlackHoleAccretedHotMass", "BlackHoleAccretedColdMass", "dt"]
+        try:
+            gals = read_gals(self.fname, snap, props=required_props)
+        except ValueError:
+            logger.warning(f"Unable to read required properties: {required_props}")
+            return []
+
+        mags = bh_bolometric_mags(gals, self.params)
+        lf = munge.mass_function(mags, self.params["Volume"], 30)
+
+        obs = number_density(feature="QLF_bolometric", z_target=redshift, h=self.params["Hubble_h"], quiet=True)
+
+        fig, ax = plt.subplots(1, 1, tight_layout=True)
+        alpha = 0.6
+        props = cycler.cycler(marker=("o", "s", "H", "P", "*", "^", "v", "<", ">"))
+        for ii, prop in zip(range(obs.n_target_observation), props):
+            data = obs.target_observation["Data"][ii]
+            label = obs.target_observation.index[ii]
+            datatype = obs.target_observation["DataType"][ii]
+            data[:, 1:] = np.log10(data[:, 1:])
+            if datatype == "data":
+                ax.errorbar(
+                    data[:, 0],
+                    data[:, 1],
+                    yerr=[data[:, 1] - data[:, 3], data[:, 2] - data[:, 1]],
+                    label=label,
+                    ls="",
+                    mec="w",
+                    alpha=alpha,
+                    **prop,
+                )
+            elif datatype == "dataULimit":
+                ax.errorbar(
+                    data[:, 0],
+                    data[:, 1],
+                    yerr=-0.2 * data[:, 1],
+                    uplims=True,
+                    label=label,
+                    mec="w",
+                    alpha=alpha,
+                    **prop,
+                )
+            else:
+                ax.plot(data[:, 0], data[:, 1], label=label, lw=3, alpha=alpha)
+                ax.fill_between(data[:, 0], data[:, 2], data[:, 3], alpha=0.4)
+
+        ax.plot(lf[:, 0], np.log10(lf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run")
+
+        ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
+        ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
+
+        ax.set(
+            #  xlim=(-10, -25), ylim=(-7, 0),
+            xlabel=r"$M_{\rm bol}$",
+            ylabel=r"$\log_{10}(\phi\ [{\rm Mpc^{-1}}])$",
+        )
+
+        if self.save:
+            self.plot_dir.mkdir(exist_ok=True)
+            sns.despine(ax=ax)
+            fname = self.plot_dir / f"bolometric_qlf_z{redshift:.2f}.pdf"
+            plt.savefig(fname)
+
+        return fig, ax
+
 
 def allplots(
     meraxes_fname: Union[str, Path],
@@ -521,7 +592,16 @@ def allplots(
     for redshift in (8, 7, 6, 5, 4, 3, 2, 1, 0.5, 0):
         try:
             plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling))
+        except KeyError:
+            pass
+
+        try:
             plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling))
+        except KeyError:
+            pass
+
+        try:
+            plots.append(meraxes_output.plot_bolometric_qlf(redshift))
         except KeyError:
             pass
 
