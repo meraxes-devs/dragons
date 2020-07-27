@@ -590,35 +590,34 @@ def allplots(
     meraxes_output = MeraxesOutput(meraxes_fname, output_dir, save)
 
     plots = []
-    #  for redshift in (8, 7, 6, 5, 4, 3, 2, 1, 0.5, 0):
-    for redshift in (3,):
-        #  try:
-            #  plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling))
-        #  except KeyError:
-            #  pass
+    for redshift in (8, 7, 6, 5, 4, 3, 2, 1, 0.5, 0):
+        try:
+            plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling))
+        except KeyError:
+            pass
 
-        #  try:
-            #  plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling))
-        #  except KeyError:
-            #  pass
+        try:
+            plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling))
+        except KeyError:
+            pass
 
         try:
             plots.append(meraxes_output.plot_bolometric_qlf(redshift))
         except KeyError:
             pass
 
-    #  for redshift in (8, 7, 6, 5, 4):
-        #  try:
-            #  plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
-        #  except KeyError:
-            #  pass
+    for redshift in (8, 7, 6, 5, 4):
+        try:
+            plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
+        except KeyError:
+            pass
 
-    #  plots.append(meraxes_output.plot_xHI())
+    plots.append(meraxes_output.plot_xHI())
 
-    #  try:
-        #  plots.append(meraxes_output.plot_HImf(0))
-    #  except KeyError:
-        #  pass
+    try:
+        plots.append(meraxes_output.plot_HImf(0))
+    except KeyError:
+        pass
 
     return plots
 
