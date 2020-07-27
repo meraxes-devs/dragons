@@ -490,10 +490,10 @@ class MeraxesOutput:
 
         return fig, ax
 
-    def bolometric_qlf(self, redshift: float):
+    def plot_bolometric_qlf(self, redshift: float):
         snap, z = check_for_redshift(self.fname, redshift)
 
-        logger.info(f"Plotting z={redshift:.2f} bolometric quasar luminosity function.")
+        logger.info(f"Plotting z={redshift:.2f} bolometric QLF.")
 
         required_props = ["BlackHoleMass", "BlackHoleAccretedHotMass", "BlackHoleAccretedColdMass", "dt"]
         try:
@@ -503,7 +503,8 @@ class MeraxesOutput:
             return []
 
         mags = bh_bolometric_mags(gals, self.params)
-        lf = munge.mass_function(mags, self.params["Volume"], 30)
+        lum = (4.74 - mags[np.isfinite(mags)]) / 2.5
+        lf = munge.mass_function(lum, self.params["Volume"], 30)
 
         obs = number_density(feature="QLF_bolometric", z_target=redshift, h=self.params["Hubble_h"], quiet=True)
 
@@ -547,8 +548,8 @@ class MeraxesOutput:
         ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
 
         ax.set(
-            #  xlim=(-10, -25), ylim=(-7, 0),
-            xlabel=r"$M_{\rm bol}$",
+            xlim=(8, 18), ylim=(-1, -13),
+            xlabel=r"$\log_{10}(L/{\rm L_{\odot}})$",
             ylabel=r"$\log_{10}(\phi\ [{\rm Mpc^{-1}}])$",
         )
 
@@ -589,34 +590,35 @@ def allplots(
     meraxes_output = MeraxesOutput(meraxes_fname, output_dir, save)
 
     plots = []
-    for redshift in (8, 7, 6, 5, 4, 3, 2, 1, 0.5, 0):
-        try:
-            plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling))
-        except KeyError:
-            pass
+    #  for redshift in (8, 7, 6, 5, 4, 3, 2, 1, 0.5, 0):
+    for redshift in (3,):
+        #  try:
+            #  plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling))
+        #  except KeyError:
+            #  pass
 
-        try:
-            plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling))
-        except KeyError:
-            pass
+        #  try:
+            #  plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling))
+        #  except KeyError:
+            #  pass
 
         try:
             plots.append(meraxes_output.plot_bolometric_qlf(redshift))
         except KeyError:
             pass
 
-    for redshift in (8, 7, 6, 5, 4):
-        try:
-            plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
-        except KeyError:
-            pass
+    #  for redshift in (8, 7, 6, 5, 4):
+        #  try:
+            #  plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
+        #  except KeyError:
+            #  pass
 
-    plots.append(meraxes_output.plot_xHI())
+    #  plots.append(meraxes_output.plot_xHI())
 
-    try:
-        plots.append(meraxes_output.plot_HImf(0))
-    except KeyError:
-        pass
+    #  try:
+        #  plots.append(meraxes_output.plot_HImf(0))
+    #  except KeyError:
+        #  pass
 
     return plots
 

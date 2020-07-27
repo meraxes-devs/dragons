@@ -1,8 +1,7 @@
 import logging
+import numpy as np
 
 logging.getLogger(__name__)  # noqa
-
-import numpy as np
 
 
 def bh_bolometric_mags(gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScaling=0.0, seed=None):
@@ -66,7 +65,7 @@ def bh_bolometric_mags(gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScal
         solid_angle *= (
             m0 * np.exp(EddingtonRatio * glow_time / eta / 450.0) / 1e8
         ) ** quasarVoLScaling  # if quasarVoL depends on the mass
-    solid_angle[solid_angle > 1] = 1.0
+        solid_angle[solid_angle > 1] = 1.0
     flag_undetected = angle > solid_angle  # flag_undetected=True means we cannot see this quasar
 
     # quasar mode
@@ -86,5 +85,7 @@ def bh_bolometric_mags(gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScal
     # quasar mode accretion time to represent the duty cycle!!!!!
     Lbol = QuasarLuminosity + AGNLuminosity * accretion_timeq / delta_t
     Lbol[flag_undetected] = 0.0
+    with np.errstate(divide='ignore'):
+        Mbol = 4.74 - 2.5 * np.log10(Lbol)
 
-    return 4.74 - 2.5 * np.log10(Lbol)
+    return Mbol
