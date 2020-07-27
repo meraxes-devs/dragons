@@ -44,7 +44,7 @@ class MeraxesOutput:
         self.snaplist, self.zlist, self.lbtimes = read_snaplist(fname)
         self.params = read_input_params(fname)
 
-    def plot_smf(self, redshift: float, imfscaling: float = 1.0):
+    def plot_smf(self, redshift: float, imfscaling: float = 1.0, gals: np.ndarray = None):
         """Plot the stellar mass function for a given redshift.
 
         Parameters
@@ -53,6 +53,9 @@ class MeraxesOutput:
             The requested redshift to plot.
         imfscaling : float
             Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling) (default: 1.0)
+        gals : np.ndarray, optional
+            The galaxies (already read in with correct Hubble corrections applied). If not supplied, the necessary
+            galaxy properties will be read in.
 
         Returns
         -------
@@ -67,7 +70,11 @@ class MeraxesOutput:
 
         logger.info(f"Plotting z={redshift:.2f} SMF")
 
-        stellar = np.log10(read_gals(self.fname, snap, props=["StellarMass"])["StellarMass"]) + 10.0
+        if gals is None:
+            stellar = np.log10(read_gals(self.fname, snap, props=["StellarMass"])["StellarMass"]) + 10.0
+        else:
+            stellar = np.log10(gals["StellarMass"]) + 10.0
+
         stellar = stellar[np.isfinite(stellar)]
         smf = munge.mass_function(stellar, self.params["Volume"], 30)
 
@@ -173,7 +180,7 @@ class MeraxesOutput:
 
         return fig, ax
 
-    def plot_sfrf(self, redshift: float, imfscaling: float = 1.0):
+    def plot_sfrf(self, redshift: float, imfscaling: float = 1.0, gals: np.ndarray = None):
         """Plot the star formation rate function.
 
         Parameters
@@ -182,6 +189,9 @@ class MeraxesOutput:
             The redshift of interest
         imfscaling : float
             Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling) (default: 1.0)
+        gals : np.ndarray, optional
+            The galaxies (already read in with correct Hubble corrections applied). If not supplied, the necessary
+            galaxy properties will be read in.
 
         Returns
         -------
@@ -196,7 +206,11 @@ class MeraxesOutput:
 
         logger.info(f"Plotting z={redshift:.2f} SFRF")
 
-        sfr = read_gals(self.fname, snap, props=["Sfr"])["Sfr"]
+        if gals is None:
+            sfr = read_gals(self.fname, snap, props=["Sfr"])["Sfr"]
+        else:
+            sfr = gals["Sfr"][:]
+
         sfr = np.log10(sfr[sfr > 0])
         sfrf = munge.mass_function(sfr, self.params["Volume"], 30)
 
@@ -257,13 +271,16 @@ class MeraxesOutput:
 
         return fig, ax
 
-    def plot_uvlf(self, redshift: float, mag_index: Union[int, None] = None):
+    def plot_uvlf(self, redshift: float, mag_index: Union[int, None] = None, gals: np.ndarray = None):
         """Plot the UV luminosity function.
 
         Parameters
         ----------
         redshift: float
             The redshift of interest
+        gals : np.ndarray, optional
+            The galaxies (already read in with correct Hubble corrections applied). If not supplied, the necessary
+            galaxy properties will be read in.
 
         Returns
         -------
@@ -281,11 +298,14 @@ class MeraxesOutput:
             mag_index = -1
             logger.warning(f"Assuming absolute UV mag to be {mag_index}")
 
-        try:
-            mags = read_gals(self.fname, snap, props=["Mags"])["Mags"][:, mag_index]
-        except ValueError:
-            logger.warning(f"No Mags values in Meraxes output file")
-            return []
+            try:
+                if gals is None:
+                    mags = read_gals(self.fname, snap, props=["Mags"])["Mags"][:, mag_index]
+                else:
+                    mags = gals["Mags"][:, mag_index][:]
+            except ValueError:
+                logger.warning(f"No Mags values in Meraxes output file")
+                return []
 
         mags = mags[mags < -10.0]
         lf = munge.mass_function(mags, self.params["Volume"], 30)
@@ -343,13 +363,16 @@ class MeraxesOutput:
 
         return fig, ax
 
-    def plot_HImf(self, redshift: float):
+    def plot_HImf(self, redshift: float, gals: np.ndarray = None):
         """Plot the HI mass function.
 
         Parameters
         ----------
         redshift: float
             The redshift of interest
+        gals : np.ndarray, optional
+            The galaxies (already read in with correct Hubble corrections applied). If not supplied, the necessary
+            galaxy properties will be read in.
 
         Returns
         -------
@@ -466,7 +489,10 @@ class MeraxesOutput:
                 **next(props),
             )
 
-        HImass = np.log10(read_gals(self.fname, snap, props=["HIMass"])["HIMass"]) + 10.0
+        if gals is None:
+            HImass = np.log10(read_gals(self.fname, snap, props=["HIMass"])["HIMass"]) + 10.0
+        else:
+            HImass = np.log10(gals["HIMass"]) + 10.0
         HImass = HImass[np.isfinite(HImass)]
         mf = munge.mass_function(HImass, self.params["Volume"], 30)
 
@@ -490,17 +516,22 @@ class MeraxesOutput:
 
         return fig, ax
 
-    def plot_bolometric_qlf(self, redshift: float):
+    def plot_bolometric_qlf(self, redshift: float, gals: np.ndarray = None):
         snap, z = check_for_redshift(self.fname, redshift)
 
         logger.info(f"Plotting z={redshift:.2f} bolometric QLF.")
 
         required_props = ["BlackHoleMass", "BlackHoleAccretedHotMass", "BlackHoleAccretedColdMass", "dt"]
-        try:
-            gals = read_gals(self.fname, snap, props=required_props)
-        except ValueError:
-            logger.warning(f"Unable to read required properties: {required_props}")
-            return []
+        if gals is None:
+            try:
+                gals = read_gals(self.fname, snap, props=required_props)
+            except ValueError:
+                logger.warning(f"Unable to read required properties: {required_props}")
+                return []
+        else:
+            if not all([prop in gals.dtype.names for prop in required_props]):
+                logger.warning(f"Unable to read required properties: {required_props}")
+                return []
 
         mags = bh_bolometric_mags(gals, self.params)
         lum = (4.74 - mags[np.isfinite(mags)]) / 2.5
@@ -548,7 +579,8 @@ class MeraxesOutput:
         ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
 
         ax.set(
-            xlim=(8, 18), ylim=(-1, -13),
+            xlim=(8, 18),
+            ylim=(-1, -13),
             xlabel=r"$\log_{10}(L/{\rm L_{\odot}})$",
             ylabel=r"$\log_{10}(\phi\ [{\rm Mpc^{-1}}])$",
         )
@@ -591,33 +623,37 @@ def allplots(
 
     plots = []
     for redshift in (8, 7, 6, 5, 4, 3, 2, 1, 0.5, 0):
+        gals = None
         try:
-            plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling))
+            snap, _ = check_for_redshift(meraxes_fname, redshift)
+            gals = read_gals(
+                meraxes_fname,
+                snap,
+                props=[
+                    "StellarMass",
+                    "Sfr",
+                    "HIMass",
+                    "BlackHoleMass",
+                    "BlackHoleAccretedHotMass",
+                    "BlackHoleAccretedColdMass",
+                    "dt",
+                ],
+            )
         except KeyError:
-            pass
+            continue
 
-        try:
-            plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling))
-        except KeyError:
-            pass
+        plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling, gals=gals))
+        plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling, gals=gals))
+        plots.append(meraxes_output.plot_bolometric_qlf(redshift, gals=gals))
 
-        try:
-            plots.append(meraxes_output.plot_bolometric_qlf(redshift))
-        except KeyError:
-            pass
+        if redshift == 0:
+            plots.append(meraxes_output.plot_HImf(redshift, gals=gals))
 
-    for redshift in (8, 7, 6, 5, 4):
-        try:
+        if redshift <= 4:
+            # we don't pass gals here as the presence of mags is not guaranteed
             plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
-        except KeyError:
-            pass
 
     plots.append(meraxes_output.plot_xHI())
-
-    try:
-        plots.append(meraxes_output.plot_HImf(0))
-    except KeyError:
-        pass
 
     return plots
 
