@@ -517,6 +517,23 @@ class MeraxesOutput:
         return fig, ax
 
     def plot_bolometric_qlf(self, redshift: float, gals: np.ndarray = None):
+        """Plot the bolometric quasar luminosity function.
+
+        Parameters
+        ----------
+        redshift: float
+            The redshift of interest
+        gals : np.ndarray, optional
+            The galaxies (already read in with correct Hubble corrections applied). If not supplied, the necessary
+            galaxy properties will be read in.
+
+        Returns
+        -------
+        fig : matplotlib.Figure
+            The matplotlib figure
+        ax : matplotlib.Axes
+            The matplotlib axis
+        """
         snap, z = check_for_redshift(self.fname, redshift)
 
         logger.info(f"Plotting z={redshift:.2f} bolometric QLF.")
@@ -536,6 +553,8 @@ class MeraxesOutput:
         mags = bh_bolometric_mags(gals, self.params)
         lum = (4.74 - mags[np.isfinite(mags)]) / 2.5
         lf = munge.mass_function(lum, self.params["Volume"], 30)
+
+        #  lf[:, 0] *= 1.0 - np.cos(np.deg2rad(self.params['quasar_open_angle']) / 2.0)  # normalized to 2pi
 
         obs = number_density(feature="QLF_bolometric", z_target=redshift, h=self.params["Hubble_h"], quiet=True)
 
@@ -580,7 +599,7 @@ class MeraxesOutput:
 
         ax.set(
             xlim=(8, 18),
-            ylim=(-1, -13),
+            ylim=(-14, -1),
             xlabel=r"$\log_{10}(L/{\rm L_{\odot}})$",
             ylabel=r"$\log_{10}(\phi\ [{\rm Mpc^{-1}}])$",
         )
@@ -612,7 +631,7 @@ def allplots(
     save : bool
         Set to `True` to save output. (default: False)
     imfscaling : float
-        Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling) (default: 1.0)
+        Scaling for IMF from Salpeter (Mstar[model] = Mstar[Salpeter] * imfscaling) (default: 1.0)
 
     Returns
     -------
@@ -642,18 +661,18 @@ def allplots(
         except KeyError:
             continue
 
-        plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling, gals=gals))
-        plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling, gals=gals))
+        #  plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling, gals=gals))
+        #  plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling, gals=gals))
         plots.append(meraxes_output.plot_bolometric_qlf(redshift, gals=gals))
 
-        if redshift == 0:
-            plots.append(meraxes_output.plot_HImf(redshift, gals=gals))
+    #      if redshift == 0:
+    #          plots.append(meraxes_output.plot_HImf(redshift, gals=gals))
 
-        if redshift <= 4:
-            # we don't pass gals here as the presence of mags is not guaranteed
-            plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
+    #      if redshift <= 4:
+    #          # we don't pass gals here as the presence of mags is not guaranteed
+    #          plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
 
-    plots.append(meraxes_output.plot_xHI())
+    #  plots.append(meraxes_output.plot_xHI())
 
     return plots
 
