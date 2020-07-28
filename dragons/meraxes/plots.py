@@ -612,6 +612,93 @@ class MeraxesOutput:
 
         return fig, ax
 
+    def plot_bhmf(self, redshift: float, gals: np.ndarray = None):
+        """Plot the black hole mass function for a given redshift.
+
+        Parameters
+        ----------
+        redshift : float
+            The requested redshift to plot.
+        gals : np.ndarray, optional
+            The galaxies (already read in with correct Hubble corrections applied). If not supplied, the necessary
+            galaxy properties will be read in.
+
+        Returns
+        -------
+        fig : matplotlib.Figure
+            The matplotlib figure
+        ax : matplotlib.Axes
+            The matplotlib axis
+        """
+
+        snap, z = check_for_redshift(self.fname, redshift)
+
+        logger.info(f"Plotting z={redshift:.2f} BHMF")
+
+        if gals is None:
+            bhm = read_gals(self.fname, snap, props=["BlackHoleMass"])["BlackHoleMass"]
+        else:
+            bhm = gals["BlackHoleMass"]
+
+        bhm = np.log10(bhm[bhm > 0]) + 10.0
+        bhmf = munge.mass_function(bhm, self.params["Volume"], 30)
+
+        obs = number_density(feature="BHMF", z_target=z, h=self.params["Hubble_h"], quiet=True)
+
+        fig, ax = plt.subplots(1, 1, tight_layout=True)
+        alpha = 0.6
+        props = cycler.cycler(marker=("o", "s", "H", "P", "*", "^", "v", "<", ">"))
+        for ii, prop in zip(range(obs.n_target_observation), props):
+            data = obs.target_observation["Data"][ii]
+            label = obs.target_observation.index[ii]
+            datatype = obs.target_observation["DataType"][ii]
+            data[:, 1:] = np.log10(data[:, 1:])
+            if datatype == "data":
+                ax.errorbar(
+                    data[:, 0],
+                    data[:, 1],
+                    yerr=[data[:, 1] - data[:, 3], data[:, 2] - data[:, 1]],
+                    label=label,
+                    ls="",
+                    mec="w",
+                    alpha=alpha,
+                    **prop,
+                )
+            elif datatype == "dataULimit":
+                ax.errorbar(
+                    data[:, 0],
+                    data[:, 1],
+                    yerr=-0.2 * data[:, 1],
+                    uplims=True,
+                    label=label,
+                    mec="w",
+                    alpha=alpha,
+                    **prop,
+                )
+            else:
+                ax.plot(data[:, 0], data[:, 1], label=label, lw=3, alpha=alpha)
+                ax.fill_between(data[:, 0], data[:, 2], data[:, 3], alpha=0.4)
+
+        ax.plot(bhmf[:, 0], np.log10(bhmf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run")
+
+        ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
+        ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
+
+        ax.set(
+            xlim=(4, 11),
+            ylim=(-9, -1),
+            xlabel=r"$\log_{10}(M_{\bullet} [{\rm M_{\odot}}])$",
+            ylabel=r"$\log_{10}(\phi\ [{\rm Mpc^{-1}}])$",
+        )
+
+        if self.save:
+            self.plot_dir.mkdir(exist_ok=True)
+            sns.despine(ax=ax)
+            fname = self.plot_dir / f"bhmf_z{redshift:.2f}.pdf"
+            plt.savefig(fname)
+
+        return fig, ax
+
 
 def allplots(
     meraxes_fname: Union[str, Path],
@@ -661,18 +748,19 @@ def allplots(
         except KeyError:
             continue
 
-        #  plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling, gals=gals))
-        #  plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling, gals=gals))
+        plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling, gals=gals))
+        plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling, gals=gals))
+        plots.append(meraxes_output.plot_bhmf(redshift, gals=gals))
         plots.append(meraxes_output.plot_bolometric_qlf(redshift, gals=gals))
 
-    #      if redshift == 0:
-    #          plots.append(meraxes_output.plot_HImf(redshift, gals=gals))
+        if redshift == 0:
+            plots.append(meraxes_output.plot_HImf(redshift, gals=gals))
 
-    #      if redshift <= 4:
-    #          # we don't pass gals here as the presence of mags is not guaranteed
-    #          plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
+        if redshift <= 4:
+            # we don't pass gals here as the presence of mags is not guaranteed
+            plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
 
-    #  plots.append(meraxes_output.plot_xHI())
+    plots.append(meraxes_output.plot_xHI())
 
     return plots
 
