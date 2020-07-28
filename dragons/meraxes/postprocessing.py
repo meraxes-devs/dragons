@@ -4,7 +4,8 @@ import numpy as np
 logging.getLogger(__name__)  # noqa
 
 
-def bh_bolometric_mags(gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScaling=0.0, seed=None):
+def bh_bolometric_mags(gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScaling=0.0, seed=None,
+                       consider_opening_angle=False):
     """Calculate the black hole bolometric magnitude for a set of galaxies.
 
     Parameters
@@ -21,10 +22,17 @@ def bh_bolometric_mags(gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScal
         ignore!
     seed: int, optional
         Numpy RNG seed.
+    consider_opening_angle : bool, optional (default: False)
+        Should we consider a random orientation for each QSO and decide if we can observe it based on the opening angle?
+        Note that `consider_opening_angle = True` by default if `quasarVoLScaling > 0.0`. See also the note below.
 
     Note
     ----
-    Original code provided by Y. Qin (SNS Pisa). Modified by S. Mutch (The University of Melbourne).
+    - Original code provided by Y. Qin (SNS Pisa). Modified by S. Mutch (The University of Melbourne).
+
+    - If `consider_opening_angle = False` and `quasarVoLScaling == 0.0` then the opening angle can still be taken in to
+    account when generating a luminoisty function by scaling the ɸ values by
+    (1.0 - np.cos(np.deg2rad(simprops['quasar_open_angle']) / 2.0)).
     """
 
     #  BHM:              blackhole mass in the end (solar mass)
@@ -56,17 +64,20 @@ def bh_bolometric_mags(gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScal
     # however, if glow_time is larger than the total time of accretion, accretion_time, we cannot see it
     glow_time = np.random.random(BHM.size) * delta_t
 
+    m0 = BHM - (1.0 - eta) * accretedColdBHM  # get initial mass before accretion
+
     # similarly, we assume quasar radiation is limited within a small angel, quasarVoL
     # we can only observe it if the view of line is within quasarVoL
-    angle = np.random.random(BHM.size)
-    solid_angle = 1.0 - np.cos(np.deg2rad(quasarVoL) / 2.0)  # normalized to 2pi
-    m0 = BHM - (1.0 - eta) * accretedColdBHM  # get initial mass before accretion
-    if quasarVoLScaling != 0:
-        solid_angle *= (
-            m0 * np.exp(EddingtonRatio * glow_time / eta / 450.0) / 1e8
-        ) ** quasarVoLScaling  # if quasarVoL depends on the mass
-        solid_angle[solid_angle > 1] = 1.0
-    flag_undetected = angle > solid_angle  # flag_undetected=True means we cannot see this quasar
+    flag_undetected = np.zeros(BHM.size, bool)
+    if consider_opening_angle or quasarVoLScaling > 0.0:
+        angle = np.random.random(BHM.size)
+        solid_angle = 1.0 - np.cos(np.deg2rad(quasarVoL) / 2.0)  # normalized to 2pi
+        if quasarVoLScaling != 0:
+            solid_angle *= (
+                m0 * np.exp(EddingtonRatio * glow_time / eta / 450.0) / 1e8
+            ) ** quasarVoLScaling  # if quasarVoL depends on the mass
+            solid_angle[solid_angle > 1] = 1.0
+        flag_undetected = angle > solid_angle  # flag_undetected=True means we cannot see this quasar
 
     # quasar mode
     accretion_timeq = np.log(accretedColdBHM / m0 + 1.0) * eta * 450.0 / EddingtonRatio  # get the accretion time
