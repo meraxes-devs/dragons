@@ -12,7 +12,7 @@ from .tophat_filter import tophat_filter
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel('WARNING')
+logger.setLevel("WARNING")
 
 
 def pretty_print_dict(d, fmtlen=30):
@@ -78,7 +78,9 @@ def ndarray_to_dataframe(arr, drop_vectors=False):
     return df
 
 
-def mass_function(mass, volume, bins, range=None, poisson_uncert=False, return_edges=False, **kwargs):
+def mass_function(
+    mass, volume, bins, range=None, poisson_uncert=False, return_edges=False, **kwargs
+):
     """Generate a mass function.
 
     Parameters
@@ -309,8 +311,18 @@ def power_spectrum(grid, side_length, n_bins, dimensional=False):
     ft_grid = np.fft.rfftn(grid) / float(grid.size)
 
     # generate a grid of k magnitudes
-    k1d = 2.0 * np.pi * np.fft.fftfreq(grid.shape[0], 1 / float(grid.shape[0])) / side_length
-    k1d_r = 2.0 * np.pi * np.fft.rfftfreq(grid.shape[0], 1 / float(grid.shape[0])) / side_length
+    k1d = (
+        2.0
+        * np.pi
+        * np.fft.fftfreq(grid.shape[0], 1 / float(grid.shape[0]))
+        / side_length
+    )
+    k1d_r = (
+        2.0
+        * np.pi
+        * np.fft.rfftfreq(grid.shape[0], 1 / float(grid.shape[0]))
+        / side_length
+    )
     k = np.meshgrid(k1d, k1d, k1d_r, sparse=True, indexing="ij")
     k = np.sqrt(k[0] ** 2 + k[1] ** 2 + k[2] ** 2)
 

@@ -11,6 +11,10 @@ DRAGONS Tools
 .. .. image:: https://pypip.in/d/dragons/badge.png
         :target: https://crate.io/packages/dragons?version=latest
 
+.. image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
+   :target: https://github.com/pre-commit/pre-commit
+   :alt: pre-commit
+
 
 Python tools for dealing with Meraxes semi-analytic model output and associated
 post-processing.

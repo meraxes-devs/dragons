@@ -36,7 +36,12 @@ class MeraxesOutput:
         Set to `True` to save output. (default: False)
     """
 
-    def __init__(self, fname: Union[str, Path], plot_dir: Union[str, Path] = "./plots", save: bool = False):
+    def __init__(
+        self,
+        fname: Union[str, Path],
+        plot_dir: Union[str, Path] = "./plots",
+        save: bool = False,
+    ):
         self.fname = Path(fname)
         self.plot_dir = Path(plot_dir)
         self.save = save
@@ -44,7 +49,9 @@ class MeraxesOutput:
         self.snaplist, self.zlist, self.lbtimes = read_snaplist(fname)
         self.params = read_input_params(fname)
 
-    def plot_smf(self, redshift: float, imfscaling: float = 1.0, gals: np.ndarray = None):
+    def plot_smf(
+        self, redshift: float, imfscaling: float = 1.0, gals: np.ndarray = None
+    ):
         """Plot the stellar mass function for a given redshift.
 
         Parameters
@@ -71,14 +78,21 @@ class MeraxesOutput:
         logger.info(f"Plotting z={redshift:.2f} SMF")
 
         if gals is None:
-            stellar = np.log10(read_gals(self.fname, snap, props=["StellarMass"])["StellarMass"]) + 10.0
+            stellar = (
+                np.log10(
+                    read_gals(self.fname, snap, props=["StellarMass"])["StellarMass"]
+                )
+                + 10.0
+            )
         else:
             stellar = np.log10(gals["StellarMass"]) + 10.0
 
         stellar = stellar[np.isfinite(stellar)]
         smf = munge.mass_function(stellar, self.params["Volume"], 30)
 
-        obs = number_density(feature="GSMF", z_target=z, h=self.params["Hubble_h"], quiet=True)
+        obs = number_density(
+            feature="GSMF", z_target=z, h=self.params["Hubble_h"], quiet=True
+        )
 
         fig, ax = plt.subplots(1, 1, tight_layout=True)
         alpha = 0.6
@@ -115,7 +129,9 @@ class MeraxesOutput:
                 ax.plot(data[:, 0], data[:, 1], label=label, lw=3, alpha=alpha)
                 ax.fill_between(data[:, 0], data[:, 2], data[:, 3], alpha=0.4)
 
-        ax.plot(smf[:, 0], np.log10(smf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run")
+        ax.plot(
+            smf[:, 0], np.log10(smf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run"
+        )
 
         ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
         ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
@@ -150,7 +166,9 @@ class MeraxesOutput:
 
         snap_z5 = self.snaplist[np.argmin(np.abs(5.0 - self.zlist))]
         try:
-            xHI = pd.DataFrame(dict(snap=np.arange(snap_z5 + 1), redshift=self.zlist[: snap_z5 + 1]))
+            xHI = pd.DataFrame(
+                dict(snap=np.arange(snap_z5 + 1), redshift=self.zlist[: snap_z5 + 1])
+            )
             xHI["xHI"] = read_global_xH(self.fname, xHI.snap)
         except ValueError:
             logger.warning(f"No xHI values in Meraxes output file")
@@ -167,7 +185,14 @@ class MeraxesOutput:
 
         fig, ax = plt.subplots(1, 1, tight_layout=True)
         xHI.plot(
-            "redshift", "xHI", ls="-", label="Meraxes run", lw=4, color="k", ax=ax, legend=None,
+            "redshift",
+            "xHI",
+            ls="-",
+            label="Meraxes run",
+            lw=4,
+            color="k",
+            ax=ax,
+            legend=None,
         )
 
         ax.set(ylim=(0, 1), xlim=(15, 5), ylabel=r"$x_{\rm HI}$", xlabel="redshift")
@@ -180,7 +205,9 @@ class MeraxesOutput:
 
         return fig, ax
 
-    def plot_sfrf(self, redshift: float, imfscaling: float = 1.0, gals: np.ndarray = None):
+    def plot_sfrf(
+        self, redshift: float, imfscaling: float = 1.0, gals: np.ndarray = None
+    ):
         """Plot the star formation rate function.
 
         Parameters
@@ -214,7 +241,9 @@ class MeraxesOutput:
         sfr = np.log10(sfr[sfr > 0])
         sfrf = munge.mass_function(sfr, self.params["Volume"], 30)
 
-        obs = number_density(feature="SFRF", z_target=redshift, h=self.params["Hubble_h"], quiet=True)
+        obs = number_density(
+            feature="SFRF", z_target=redshift, h=self.params["Hubble_h"], quiet=True
+        )
 
         fig, ax = plt.subplots(1, 1, tight_layout=True)
         alpha = 0.6
@@ -251,7 +280,14 @@ class MeraxesOutput:
                 ax.plot(data[:, 0], data[:, 1], label=label, lw=3, alpha=alpha)
                 ax.fill_between(data[:, 0], data[:, 2], data[:, 3], alpha=0.4)
 
-        ax.plot(sfrf[:, 0], np.log10(sfrf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run")
+        ax.plot(
+            sfrf[:, 0],
+            np.log10(sfrf[:, 1]),
+            ls="-",
+            color="k",
+            lw=4,
+            label="Meraxes run",
+        )
 
         ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
         ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
@@ -271,7 +307,12 @@ class MeraxesOutput:
 
         return fig, ax
 
-    def plot_uvlf(self, redshift: float, mag_index: Union[int, None] = None, gals: np.ndarray = None):
+    def plot_uvlf(
+        self,
+        redshift: float,
+        mag_index: Union[int, None] = None,
+        gals: np.ndarray = None,
+    ):
         """Plot the UV luminosity function.
 
         Parameters
@@ -300,7 +341,9 @@ class MeraxesOutput:
 
             try:
                 if gals is None:
-                    mags = read_gals(self.fname, snap, props=["Mags"])["Mags"][:, mag_index]
+                    mags = read_gals(self.fname, snap, props=["Mags"])["Mags"][
+                        :, mag_index
+                    ]
                 else:
                     mags = gals["Mags"][:, mag_index][:]
             except ValueError:
@@ -310,7 +353,9 @@ class MeraxesOutput:
         mags = mags[mags < -10.0]
         lf = munge.mass_function(mags, self.params["Volume"], 30)
 
-        obs = number_density(feature="GLF_UV", z_target=redshift, h=self.params["Hubble_h"], quiet=True)
+        obs = number_density(
+            feature="GLF_UV", z_target=redshift, h=self.params["Hubble_h"], quiet=True
+        )
 
         fig, ax = plt.subplots(1, 1, tight_layout=True)
         alpha = 0.6
@@ -346,13 +391,18 @@ class MeraxesOutput:
                 ax.plot(data[:, 0], data[:, 1], label=label, lw=3, alpha=alpha)
                 ax.fill_between(data[:, 0], data[:, 2], data[:, 3], alpha=0.4)
 
-        ax.plot(lf[:, 0], np.log10(lf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run")
+        ax.plot(
+            lf[:, 0], np.log10(lf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run"
+        )
 
         ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
         ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
 
         ax.set(
-            xlim=(-10, -25), ylim=(-7, 0), xlabel=r"$M_{\rm UV}$", ylabel=r"$\log_{10}(\phi\ [{\rm Mpc^{-1}}])$",
+            xlim=(-10, -25),
+            ylim=(-7, 0),
+            xlabel=r"$M_{\rm UV}$",
+            ylabel=r"$\log_{10}(\phi\ [{\rm Mpc^{-1}}])$",
         )
 
         if self.save:
@@ -490,13 +540,23 @@ class MeraxesOutput:
             )
 
         if gals is None:
-            HImass = np.log10(read_gals(self.fname, snap, props=["HIMass"])["HIMass"]) + 10.0
+            HImass = (
+                np.log10(read_gals(self.fname, snap, props=["HIMass"])["HIMass"]) + 10.0
+            )
         else:
             HImass = np.log10(gals["HIMass"]) + 10.0
         HImass = HImass[np.isfinite(HImass)]
         mf = munge.mass_function(HImass, self.params["Volume"], 30)
 
-        ax.plot(mf[:, 0], np.log10(mf[:, 1]), ls="-", color="k", lw=4, zorder=10, label="Meraxes run")
+        ax.plot(
+            mf[:, 0],
+            np.log10(mf[:, 1]),
+            ls="-",
+            color="k",
+            lw=4,
+            zorder=10,
+            label="Meraxes run",
+        )
 
         ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
         ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
@@ -537,9 +597,16 @@ class MeraxesOutput:
         snap, z = check_for_redshift(self.fname, redshift)
 
         logger.info(f"Plotting z={redshift:.2f} bolometric QLF.")
-        logger.warning("This plotting routine is under construction and should not be trusted!")
+        logger.warning(
+            "This plotting routine is under construction and should not be trusted!"
+        )
 
-        required_props = ["BlackHoleMass", "BlackHoleAccretedHotMass", "BlackHoleAccretedColdMass", "dt"]
+        required_props = [
+            "BlackHoleMass",
+            "BlackHoleAccretedHotMass",
+            "BlackHoleAccretedColdMass",
+            "dt",
+        ]
         if gals is None:
             try:
                 gals = read_gals(self.fname, snap, props=required_props)
@@ -557,7 +624,12 @@ class MeraxesOutput:
 
         #  lf[:, 0] *= 1.0 - np.cos(np.deg2rad(self.params['quasar_open_angle']) / 2.0)  # normalized to 2pi
 
-        obs = number_density(feature="QLF_bolometric", z_target=redshift, h=self.params["Hubble_h"], quiet=True)
+        obs = number_density(
+            feature="QLF_bolometric",
+            z_target=redshift,
+            h=self.params["Hubble_h"],
+            quiet=True,
+        )
 
         fig, ax = plt.subplots(1, 1, tight_layout=True)
         alpha = 0.6
@@ -593,7 +665,9 @@ class MeraxesOutput:
                 ax.plot(data[:, 0], data[:, 1], label=label, lw=3, alpha=alpha)
                 ax.fill_between(data[:, 0], data[:, 2], data[:, 3], alpha=0.4)
 
-        ax.plot(lf[:, 0], np.log10(lf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run")
+        ax.plot(
+            lf[:, 0], np.log10(lf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run"
+        )
 
         ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
         ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
@@ -644,7 +718,9 @@ class MeraxesOutput:
         bhm = np.log10(bhm[bhm > 0]) + 10.0
         bhmf = munge.mass_function(bhm, self.params["Volume"], 30)
 
-        obs = number_density(feature="BHMF", z_target=z, h=self.params["Hubble_h"], quiet=True)
+        obs = number_density(
+            feature="BHMF", z_target=z, h=self.params["Hubble_h"], quiet=True
+        )
 
         fig, ax = plt.subplots(1, 1, tight_layout=True)
         alpha = 0.6
@@ -680,7 +756,14 @@ class MeraxesOutput:
                 ax.plot(data[:, 0], data[:, 1], label=label, lw=3, alpha=alpha)
                 ax.fill_between(data[:, 0], data[:, 2], data[:, 3], alpha=0.4)
 
-        ax.plot(bhmf[:, 0], np.log10(bhmf[:, 1]), ls="-", color="k", lw=4, label="Meraxes run")
+        ax.plot(
+            bhmf[:, 0],
+            np.log10(bhmf[:, 1]),
+            ls="-",
+            color="k",
+            lw=4,
+            label="Meraxes run",
+        )
 
         ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
         ax.text(0.95, 0.95, f"z={z:.2f}", ha="right", va="top", transform=ax.transAxes)
@@ -749,8 +832,12 @@ def allplots(
         except KeyError:
             continue
 
-        plots.append(meraxes_output.plot_smf(redshift, imfscaling=imfscaling, gals=gals))
-        plots.append(meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling, gals=gals))
+        plots.append(
+            meraxes_output.plot_smf(redshift, imfscaling=imfscaling, gals=gals)
+        )
+        plots.append(
+            meraxes_output.plot_sfrf(redshift, imfscaling=imfscaling, gals=gals)
+        )
         plots.append(meraxes_output.plot_bhmf(redshift, gals=gals))
         plots.append(meraxes_output.plot_bolometric_qlf(redshift, gals=gals))
 
@@ -780,11 +867,17 @@ def main(meraxes_fname, output_dir="plots", uvindex=None, imfscaling=1.0):
     import warnings
     import os
 
-    logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"), handlers=logging.getLogger("dragons").handlers)
+    logging.basicConfig(
+        level=os.getenv("LOG_LEVEL", "INFO"),
+        handlers=logging.getLogger("dragons").handlers,
+    )
     logging.getLogger("dragons.meraxes.io").setLevel("ERROR")
 
     sns.set(
-        "talk", "ticks", font_scale=1.2, rc={"lines.linewidth": 3, "figure.figsize": (12, 6)},
+        "talk",
+        "ticks",
+        font_scale=1.2,
+        rc={"lines.linewidth": 3, "figure.figsize": (12, 6)},
     )
 
     with warnings.catch_warnings():
