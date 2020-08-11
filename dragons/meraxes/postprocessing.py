@@ -104,6 +104,10 @@ def bh_bolometric_mags(gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScal
 
 
 def bh_radio_lum(gals: np.ndarray):
+    """
+    TODO: Document this function.
+    TODO: Allow SPIN to be claculated from efficiencies.
+    """
     ARADIO = 8.0e-5
     AQSO = 5.0e-2
     SPIN = 0.083  # NB This corresponds to ε=0.06
