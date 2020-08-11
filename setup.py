@@ -18,44 +18,48 @@ except ImportError:
             if ispkg:
                 yield name
 
+
 try:
     import numpy
+
     np_inc_dirs = numpy.get_include()
 except ImportError:
     np_inc_dirs = ""
 
-readme = open('README.rst').read()
-requirements = open('requirements.txt').readlines()
+readme = open("README.rst").read()
+requirements = open("requirements.txt").readlines()
 for ii, req in enumerate(requirements):
-    if 'egg=' in req:
-        requirements[ii] = req.split('egg=')[-1]
+    if "egg=" in req:
+        requirements[ii] = req.split("egg=")[-1]
 
 setup(
-    name='dragons',
-    version='0.2.2',
-    description='Python tools for dealing with the Meraxes semi-analytic model output and associated processing.',
+    name="dragons",
+    version="0.2.2",
+    description="Python tools for dealing with the Meraxes semi-analytic model output and associated processing.",
     long_description=readme,
-    author='Simon Mutch',
-    author_email='smutch.astro@gmail.com',
-    url='https://github.com/smutch/dragons',
+    author="Simon Mutch",
+    author_email="smutch.astro@gmail.com",
+    url="https://github.com/smutch/dragons",
     packages=find_packages(),
-    package_dir={'dragons': 'dragons'},
-    package_data={'dragons': ['stylelib/*']},
+    package_dir={"dragons": "dragons"},
+    package_data={"dragons": ["stylelib/*"]},
     include_package_data=True,
     install_requires=requirements,
     setup_requires=["Cython"],
     include_dirs=[np_inc_dirs],
-    ext_modules=[Extension("dragons.munge.regrid", ["dragons/munge/regrid.c"]),
-                 Extension("dragons.munge.tophat_filter", ["dragons/munge/tophat_filter.c"])],
+    ext_modules=[
+        Extension("dragons.munge.regrid", ["dragons/munge/regrid.c"]),
+        Extension("dragons.munge.tophat_filter", ["dragons/munge/tophat_filter.c"]),
+    ],
     license="BSD",
     zip_safe=False,
-    keywords='dragons',
+    keywords="dragons",
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
 )

@@ -6,8 +6,9 @@ def _find_confidence_interval(x, pdf, confidence_level):
     return pdf[pdf > x].sum() - confidence_level
 
 
-def density_contour(xdata, ydata, bins, ax, label=True,
-                    clabel_kwargs={}, **contour_kwargs):
+def density_contour(
+    xdata, ydata, bins, ax, label=True, clabel_kwargs={}, **contour_kwargs
+):
     """ Create a density contour plot.
 
     Code modified from:
@@ -46,32 +47,29 @@ def density_contour(xdata, ydata, bins, ax, label=True,
         nbins_x = bins[0]
         nbins_y = bins[1]
 
-    H, xedges, yedges = np.histogram2d(xdata, ydata, bins=bins,
-                                       normed=True)
+    H, xedges, yedges = np.histogram2d(xdata, ydata, bins=bins, normed=True)
     x_bin_sizes = (xedges[1:] - xedges[:-1]).reshape((1, nbins_x))
     y_bin_sizes = (yedges[1:] - yedges[:-1]).reshape((nbins_y, 1))
 
-    pdf = (H*(x_bin_sizes*y_bin_sizes))
+    pdf = H * (x_bin_sizes * y_bin_sizes)
 
-    one_sigma = so.brentq(_find_confidence_interval, 0., 1.,
-                          args=(pdf, 0.39346934))
-    two_sigma = so.brentq(_find_confidence_interval, 0., 1.,
-                          args=(pdf, 0.864664717))
-    three_sigma = so.brentq(_find_confidence_interval, 0., 1.,
-                            args=(pdf, 0.988891003))
+    one_sigma = so.brentq(_find_confidence_interval, 0.0, 1.0, args=(pdf, 0.39346934))
+    two_sigma = so.brentq(_find_confidence_interval, 0.0, 1.0, args=(pdf, 0.864664717))
+    three_sigma = so.brentq(
+        _find_confidence_interval, 0.0, 1.0, args=(pdf, 0.988891003)
+    )
     levels = [three_sigma, two_sigma, one_sigma]
 
-    X, Y = 0.5*(xedges[1:]+xedges[:-1]), 0.5*(yedges[1:]+yedges[:-1])
+    X, Y = 0.5 * (xedges[1:] + xedges[:-1]), 0.5 * (yedges[1:] + yedges[:-1])
     Z = pdf.T
 
-    contour = ax.contour(X, Y, Z, levels=levels, origin="lower",
-                         **contour_kwargs)
+    contour = ax.contour(X, Y, Z, levels=levels, origin="lower", **contour_kwargs)
 
     if label:
         lim = ax.axis()
 
         fmt = {}
-        strs = ['39%', '86%', '99%'][::-1]
+        strs = ["39%", "86%", "99%"][::-1]
         for l, s in zip(contour.levels, strs):
             fmt[l] = s
 
