@@ -1,5 +1,6 @@
 import logging
 import numpy as np
+from astropy import units as U, constants as C
 
 logging.getLogger(__name__)  # noqa
 
@@ -94,9 +95,31 @@ def bh_bolometric_mags(gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScal
     # included as weights when calculating the LFs
     # !!! INCONSISTENCE of the accretion time, now since AGN luminosity is actually not used, so always use
     # quasar mode accretion time to represent the duty cycle!!!!!
-    Lbol = QuasarLuminosity + AGNLuminosity * accretion_timeq / delta_t
+    Lbol = (QuasarLuminosity + AGNLuminosity) * accretion_timeq / delta_t
     Lbol[flag_undetected] = 0.0
     with np.errstate(divide='ignore'):
         Mbol = 4.74 - 2.5 * np.log10(Lbol)
 
     return Mbol
+
+
+def bh_radio_lum(gals: np.ndarray):
+    ARADIO = 8.0e-5
+    AQSO = 5.0e-2
+    SPIN = 0.083  # NB This corresponds to ε=0.06
+    FREQ = 1.4e9  # Hz
+
+    m_bh = gals["BlackHoleMass"] * 10.  # 1e9 Msun
+    mdot_acc_hot = gals["BlackHoleAccretedHotMass"] * 10 / gals["dt"]  # 1e9 Msun / Myr
+    mdot_edd = (m_bh * 1e9 * U.Msun * 4. * np.pi * U.G * C.m_p * C.c / C.sigma_T).to("1e9 Msun Myr-1").value
+    mdot_ratio = mdot_acc_hot / mdot_edd  # unitless
+
+    Ljet_radio = 2.0e45 * m_bh * (mdot_ratio / 0.01) * SPIN**2  # erg s-1
+    νL_radio = ARADIO * (m_bh * (mdot_ratio / 0.01))**0.42 * Ljet_radio  # W
+    νL_qso = AQSO * m_bh**1.42 * 2.5e43 * SPIN**2  # W
+
+    L_tot = (νL_radio + νL_qso) / FREQ  # W Hz-1
+    with np.errstate(divide='ignore'):
+        L_tot = np.log10()
+
+    return L_tot
