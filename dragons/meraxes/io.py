@@ -60,14 +60,7 @@ def set_little_h(h=None):
 
 
 def read_gals(
-    fname,
-    snapshot=None,
-    props=None,
-    sim_props=False,
-    pandas=False,
-    table=False,
-    h=None,
-    indices=None,
+    fname, snapshot=None, props=None, sim_props=False, pandas=False, table=False, h=None, indices=None,
 ):
 
     """Read in a Meraxes hdf5 output file.
@@ -127,9 +120,7 @@ def read_gals(
         _check_pandas()
 
     if pandas and table:
-        logger.error(
-            "Both `pandas` and `table` specified.  Please choose one" " or the other."
-        )
+        logger.error("Both `pandas` and `table` specified.  Please choose one" " or the other.")
 
     # Grab the units and hubble conversions information
     units = read_units(fname)
@@ -171,9 +162,7 @@ def read_gals(
     for i_core in range(n_cores):
         try:
             if props is not None:
-                gal_dtype = snap_group["Core%d/Galaxies" % i_core][tuple(props)][
-                    0
-                ].dtype
+                gal_dtype = snap_group["Core%d/Galaxies" % i_core][tuple(props)][0].dtype
             else:
                 gal_dtype = snap_group["Core%d/Galaxies" % i_core].dtype
         except IndexError:
@@ -210,11 +199,7 @@ def read_gals(
 
                 else:
                     read_ind = (
-                        np.compress(
-                            (indices >= total_read)
-                            & (indices < total_read + core_ngals),
-                            indices,
-                        )
+                        np.compress((indices >= total_read) & (indices < total_read + core_ngals), indices,)
                         - total_read
                     )
 
@@ -244,20 +229,12 @@ def read_gals(
             try:
                 conversion = h_conv[p]
             except KeyError:
-                logger.warn(
-                    "Unrecognised galaxy property %s - assuming no "
-                    "scaling with Hubble const!" % p
-                )
+                logger.warn("Unrecognised galaxy property %s - assuming no " "scaling with Hubble const!" % p)
             if conversion.lower() != "none":
                 try:
-                    G[p] = eval(
-                        conversion, dict(v=G[p], h=h, log10=np.log10, __builtins__={})
-                    )
+                    G[p] = eval(conversion, dict(v=G[p], h=h, log10=np.log10, __builtins__={}))
                 except:
-                    logger.error(
-                        "Failed to parse conversion string `%s` for unit"
-                        " %s" % (conversion, p)
-                    )
+                    logger.error("Failed to parse conversion string `%s` for unit" " %s" % (conversion, p))
 
     # If requested convert the numpy array into a pandas dataframe
     if pandas:
@@ -269,10 +246,7 @@ def read_gals(
             try:
                 G[k].unit = units[re.sub(regex, "", k, 1)]
             except KeyError:
-                logger.warn(
-                    "Unrecognised galaxy property %s - assuming "
-                    "dimensionless quantitiy!" % k
-                )
+                logger.warn("Unrecognised galaxy property %s - assuming " "dimensionless quantitiy!" % k)
     # else convert to astropy table and attach units
     elif table:
         logger.info("Converting to astropy Table...")
@@ -281,10 +255,7 @@ def read_gals(
             try:
                 v.unit = units[k]
             except KeyError:
-                logger.warn(
-                    "Unrecognised galaxy property %s - assuming "
-                    "dimensionless quantitiy!" % k
-                )
+                logger.warn("Unrecognised galaxy property %s - assuming " "dimensionless quantitiy!" % k)
 
     # Set some run properties
     if sim_props:
@@ -689,9 +660,7 @@ def read_firstprogenitor_indices(fname, snapshot, pandas=False):
         # calculate the offsets for each core
         prev_core_counter[0] = 0
         for i_core in range(n_cores - 1):
-            prev_core_counter[i_core + 1] = prev_snap_group[
-                "Core{:d}/Galaxies".format(i_core)
-            ].size
+            prev_core_counter[i_core + 1] = prev_snap_group["Core{:d}/Galaxies".format(i_core)].size
         prev_core_counter = np.cumsum(prev_core_counter)
 
         # loop through and read in the FirstProgenitorIndices for each core. Be
@@ -818,9 +787,7 @@ def read_descendant_indices(fname, snapshot, pandas=False):
         # calculate the offsets for each core
         prev_core_counter[0] = 0
         for i_core in range(n_cores - 1):
-            prev_core_counter[i_core + 1] = next_snap_group[
-                "Core{:d}/Galaxies".format(i_core)
-            ].size
+            prev_core_counter[i_core + 1] = next_snap_group["Core{:d}/Galaxies".format(i_core)].size
         prev_core_counter = np.cumsum(prev_core_counter)
 
         # loop through and read in the DescendantIndices for each core. Be sure
@@ -898,22 +865,14 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}):
         try:
             conversion = h_conv[name]
         except KeyError:
-            logger.warn(
-                "Unknown scaling for grid %s - assuming no "
-                "scaling with Hubble const!" % name
-            )
+            logger.warn("Unknown scaling for grid %s - assuming no " "scaling with Hubble const!" % name)
             conversion = "None"
 
         if conversion.lower() != "none":
             try:
-                grid = eval(
-                    conversion, dict(v=grid, h=h, log10=np.log10, __builtins__={})
-                )
+                grid = eval(conversion, dict(v=grid, h=h, log10=np.log10, __builtins__={}))
             except:
-                logger.error(
-                    "Failed to parse conversion string `%s` for unit"
-                    " %s" % (conversion, name)
-                )
+                logger.error("Failed to parse conversion string `%s` for unit" " %s" % (conversion, name))
 
     grid.shape = [grid_dim,] * 3
 
@@ -943,9 +902,7 @@ def list_grids(fname, snapshot):
         try:
             grids = list(k for k, v in fin[group_name].items() if len(v.shape) == 3)
         except KeyError:
-            logger.error(
-                "No grids found for snapshot %d in file %s ." % (snapshot, fname)
-            )
+            logger.error("No grids found for snapshot %d in file %s ." % (snapshot, fname))
 
     return grids
 
@@ -1072,9 +1029,7 @@ def read_global_xH(fname, snapshot, weight="volume"):
                         continue
 
                 global_xH[ii] = np.nan
-                logger.warning(
-                    "No global_xH found for snapshot %d in file %s" % (snap, fname)
-                )
+                logger.warning("No global_xH found for snapshot %d in file %s" % (snap, fname))
 
     if snapshot.size == 1:
         return global_xH[0]

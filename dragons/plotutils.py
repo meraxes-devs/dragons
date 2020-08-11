@@ -6,9 +6,7 @@ def _find_confidence_interval(x, pdf, confidence_level):
     return pdf[pdf > x].sum() - confidence_level
 
 
-def density_contour(
-    xdata, ydata, bins, ax, label=True, clabel_kwargs={}, **contour_kwargs
-):
+def density_contour(xdata, ydata, bins, ax, label=True, clabel_kwargs={}, **contour_kwargs):
     """ Create a density contour plot.
 
     Code modified from:
@@ -55,9 +53,7 @@ def density_contour(
 
     one_sigma = so.brentq(_find_confidence_interval, 0.0, 1.0, args=(pdf, 0.39346934))
     two_sigma = so.brentq(_find_confidence_interval, 0.0, 1.0, args=(pdf, 0.864664717))
-    three_sigma = so.brentq(
-        _find_confidence_interval, 0.0, 1.0, args=(pdf, 0.988891003)
-    )
+    three_sigma = so.brentq(_find_confidence_interval, 0.0, 1.0, args=(pdf, 0.988891003))
     levels = [three_sigma, two_sigma, one_sigma]
 
     X, Y = 0.5 * (xedges[1:] + xedges[:-1]), 0.5 * (yedges[1:] + yedges[:-1])

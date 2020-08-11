@@ -6,12 +6,7 @@ logging.getLogger(__name__)  # noqa
 
 
 def bh_bolometric_mags(
-    gals: np.ndarray,
-    simprops: dict,
-    eta=0.06,
-    quasarVoLScaling=0.0,
-    seed=None,
-    consider_opening_angle=False,
+    gals: np.ndarray, simprops: dict, eta=0.06, quasarVoLScaling=0.0, seed=None, consider_opening_angle=False,
 ):
     """Calculate the black hole bolometric magnitude for a set of galaxies.
 
@@ -84,32 +79,18 @@ def bh_bolometric_mags(
                 m0 * np.exp(EddingtonRatio * glow_time / eta / 450.0) / 1e8
             ) ** quasarVoLScaling  # if quasarVoL depends on the mass
             solid_angle[solid_angle > 1] = 1.0
-        flag_undetected = (
-            angle > solid_angle
-        )  # flag_undetected=True means we cannot see this quasar
+        flag_undetected = angle > solid_angle  # flag_undetected=True means we cannot see this quasar
 
     # quasar mode
-    accretion_timeq = (
-        np.log(accretedColdBHM / m0 + 1.0) * eta * 450.0 / EddingtonRatio
-    )  # get the accretion time
+    accretion_timeq = np.log(accretedColdBHM / m0 + 1.0) * eta * 450.0 / EddingtonRatio  # get the accretion time
     QuasarLuminosity = (
-        SOLARM2L
-        * EddingtonRatio
-        * m0
-        * np.exp(EddingtonRatio * glow_time / eta / 450.0)
-        / 450.0
+        SOLARM2L * EddingtonRatio * m0 * np.exp(EddingtonRatio * glow_time / eta / 450.0) / 450.0
     )  # get the luminosity at glow_time
 
     # radio mode
     # do the same for radio mode, this is not significant at high-z
     m0 -= (1.0 - eta) * accretedHotBHM
-    AGNLuminosity = (
-        SOLARM2L
-        * EddingtonRatio
-        * m0
-        * np.exp(EddingtonRatio * glow_time / eta / 450.0)
-        / 450.0
-    )
+    AGNLuminosity = SOLARM2L * EddingtonRatio * m0 * np.exp(EddingtonRatio * glow_time / eta / 450.0) / 450.0
 
     # we can also return luminosity of all black holes as well as the duty cycle factors, which can be
     # included as weights when calculating the LFs
@@ -135,11 +116,7 @@ def bh_radio_lum(gals: np.ndarray):
 
     m_bh = gals["BlackHoleMass"] * 10.0  # 1e9 Msun
     mdot_acc_hot = gals["BlackHoleAccretedHotMass"] * 10 / gals["dt"]  # 1e9 Msun / Myr
-    mdot_edd = (
-        (m_bh * 1e9 * U.Msun * 4.0 * np.pi * U.G * C.m_p * C.c / C.sigma_T)
-        .to("1e9 Msun Myr-1")
-        .value
-    )
+    mdot_edd = (m_bh * 1e9 * U.Msun * 4.0 * np.pi * U.G * C.m_p * C.c / C.sigma_T).to("1e9 Msun Myr-1").value
     mdot_ratio = mdot_acc_hot / mdot_edd  # unitless
 
     Ljet_radio = 2.0e45 * m_bh * (mdot_ratio / 0.01) * SPIN ** 2  # erg s-1

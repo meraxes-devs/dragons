@@ -12,6 +12,5 @@ import logging
 import coloredlogs
 
 coloredlogs.install(
-    logger=logging.getLogger("dragons"),
-    fmt="%(asctime)s,%(msecs)03d %(hostname)s %(name)s %(levelname)s %(message)s",
+    logger=logging.getLogger("dragons"), fmt="%(asctime)s,%(msecs)03d %(hostname)s %(name)s %(levelname)s %(message)s",
 )

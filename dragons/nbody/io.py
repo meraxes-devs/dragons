@@ -58,11 +58,7 @@ catalog_halo_dtype = np.dtype(
 )
 
 catalog_header_dtype = np.dtype(
-    dict(
-        names=("i_file", "N_files", "N_halos_file", "N_halos_total"),
-        formats=["i4",] * 4,
-    ),
-    align=True,
+    dict(names=("i_file", "N_files", "N_halos_file", "N_halos_total"), formats=["i4",] * 4,), align=True,
 )
 
 
@@ -109,9 +105,7 @@ def read_grid(fname, grid_name):
     try:
         ident = name_to_ident[grid_name]
     except KeyError:
-        logger.error(
-            "Unknown grid name. Must be either: " "'density', 'vx', 'vy', or 'vz'."
-        )
+        logger.error("Unknown grid name. Must be either: " "'density', 'vx', 'vy', or 'vz'.")
 
     logger.info("Reading %s grid from %s" % (grid_name, fname))
 
@@ -172,9 +166,7 @@ def read_halo_catalog(catalog_loc):
     for f in tqdm(catalog_loc):
         with open(f, "rb") as fd:
             n_halos_file = np.fromfile(fd, catalog_header_dtype, 1)[0]["N_halos_file"]
-            halo[n_halos : n_halos + n_halos_file] = np.fromfile(
-                fd, catalog_halo_dtype, n_halos_file
-            )
+            halo[n_halos : n_halos + n_halos_file] = np.fromfile(fd, catalog_halo_dtype, n_halos_file)
         n_halos += n_halos_file
 
     return halo[list(catalog_halo_dtype.names[:-1])]

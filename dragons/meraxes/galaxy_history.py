@@ -10,9 +10,7 @@ from tqdm import tqdm
 import numpy as np
 
 
-def galaxy_history(
-    fname, gal_id, snapshot, future_snapshot=-1, pandas=False, props=None
-):
+def galaxy_history(fname, gal_id, snapshot, future_snapshot=-1, pandas=False, props=None):
 
     """ Read in the full first progenitor history of a galaxy at a given final
     snapshot.
@@ -66,9 +64,7 @@ def galaxy_history(
         raise Warning("This galaxy has no progenitors!")
 
     for snap in tqdm(list(range(snapshot - 1, -1, -1))):
-        history[snap] = read_gals(
-            fname, snapshot=snap, pandas=False, props=props, indices=[ind]
-        )
+        history[snap] = read_gals(fname, snapshot=snap, pandas=False, props=props, indices=[ind])
         ind = read_firstprogenitor_indices(fname, snap)[ind]
         if ind == -1:
             break
@@ -86,9 +82,7 @@ def galaxy_history(
                 if fp != last_ind and merged_snapshot == -1:
                     merged_snapshot = snap
 
-            history[snap] = read_gals(
-                fname, snapshot=snap, pandas=False, props=props, indices=[ind]
-            )
+            history[snap] = read_gals(fname, snapshot=snap, pandas=False, props=props, indices=[ind])
 
     if pandas:
         history = ndarray_to_dataframe(history)
