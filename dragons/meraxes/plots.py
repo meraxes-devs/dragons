@@ -304,14 +304,14 @@ class MeraxesOutput:
             mag_index = -1
             logger.warning(f"Assuming absolute UV mag to be {mag_index}")
 
-            try:
-                if gals is None:
-                    mags = read_gals(self.fname, snap, props=["Mags"])["Mags"][:, mag_index]
-                else:
-                    mags = gals["Mags"][:, mag_index][:]
-            except ValueError:
-                logger.warning(f"No Mags values in Meraxes output file")
-                return []
+        try:
+            if gals is None:
+                mags = read_gals(self.fname, snap, props=["DustyMags"])["DustyMags"][:, mag_index]
+            else:
+                mags = gals["DustyMags"][:, mag_index][:]
+        except ValueError:
+            logger.warning(f"No Mags values in Meraxes output file")
+            return []
 
         mags = mags[mags < -10.0]
         lf = munge.mass_function(mags, self.params["Volume"], 30)
