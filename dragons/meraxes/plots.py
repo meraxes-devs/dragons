@@ -537,6 +537,7 @@ class MeraxesOutput:
         snap, z = check_for_redshift(self.fname, redshift)
 
         logger.info(f"Plotting z={redshift:.2f} bolometric QLF.")
+        logger.warning("This plotting routine is under construction and should not be trusted!")
 
         required_props = ["BlackHoleMass", "BlackHoleAccretedHotMass", "BlackHoleAccretedColdMass", "dt"]
         if gals is None:
@@ -756,7 +757,7 @@ def allplots(
         if redshift == 0:
             plots.append(meraxes_output.plot_HImf(redshift, gals=gals))
 
-        if redshift <= 4:
+        if redshift >= 4:
             # we don't pass gals here as the presence of mags is not guaranteed
             plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
 
