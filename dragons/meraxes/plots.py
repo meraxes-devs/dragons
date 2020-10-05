@@ -22,6 +22,13 @@ from textwrap import dedent
 
 logger = logging.getLogger(__name__)
 
+"""
+TODO
+----
+
+- 21cm PS plots
+"""
+
 
 class MeraxesOutput:
     """A class for dealing with Meraxes output.
@@ -715,6 +722,61 @@ class MeraxesOutput:
 
         return fig, ax
 
+    def plot_sfr_evo(self, imfscaling: float = 1.0, sfr_evo: np.ndarray = None):
+        """Plot the star formation rate evolution (Madau-Lilly plot).
+
+        Parameters
+        ----------
+        imfscaling : float
+            Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling) (default: 1.0)
+        sfr_evo : np.ndarray, optional
+            The total star formation rate for each snapshot (already read in with correct Hubble corrections applied). If not supplied, the necessary
+            galaxy properties will be read in.
+
+        Returns
+        -------
+        fig : matplotlib.Figure
+            The matplotlib figure
+        ax : matplotlib.Axes
+            The matplotlib axis
+        """
+
+        imfscaling = np.log10(imfscaling)
+
+        logger.info(f"Plotting SFR evo")
+
+        if sfr_evo is None:
+            sfr_evo = np.zeros(self.snaplist.size)
+            for ii, snap in enumerate(self.snaplist):
+                try:
+                    sfr_evo[ii] = read_gals(self.fname, snap, props=["Sfr"])["Sfr"].sum()
+                except IndexError:
+                    pass
+
+        sfrf = np.log10(sfr_evo / self.params["Volume"])
+
+        fig, ax = plt.subplots(1, 1, tight_layout=True)
+        ax.plot(
+            self.zlist, sfrf, ls="-", color="k", lw=4, label="Meraxes run",
+        )
+
+        ax.legend(loc="lower left", fontsize="xx-small", ncol=2)
+
+        ax.set(
+            xlim=(0, 8),
+            ylim=(-2.6, -0.2),
+            ylabel=r"$\log_{10}(\psi\ [{\rm M_{\odot}\,yr^{-1}\,Mpc^{-1}}])$",
+            xlabel=r"redshift",
+        )
+
+        if self.save:
+            self.plot_dir.mkdir(exist_ok=True)
+            sns.despine(ax=ax)
+            fname = self.plot_dir / f"sfr_evo.pdf"
+            plt.savefig(fname)
+
+        return fig, ax
+
 
 def allplots(
     meraxes_fname: Union[str, Path],
@@ -777,6 +839,7 @@ def allplots(
             plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
 
     plots.append(meraxes_output.plot_xHI())
+    plots.append(meraxes_output.plot_sfr_evo())
 
     return plots
 
