@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import pandas as pd
 from astrodatapy.number_density import number_density
 import seaborn as sns
@@ -11,6 +12,7 @@ from . import (
     check_for_redshift,
     read_global_xH,
     bh_bolometric_mags,
+    read_ps,
 )
 from .. import munge
 from pathlib import Path
@@ -21,13 +23,6 @@ import logging
 from textwrap import dedent
 
 logger = logging.getLogger(__name__)
-
-"""
-TODO
-----
-
-- 21cm PS plots
-"""
 
 
 class MeraxesOutput:
@@ -185,6 +180,70 @@ class MeraxesOutput:
             self.plot_dir.mkdir(exist_ok=True)
             sns.despine(ax=ax)
             fname = self.plot_dir / "xHI.pdf"
+            plt.savefig(fname)
+
+        return fig, ax
+
+    def plot_21cmPS(self):
+        """Plot the 21cm power spectrum.
+
+        Returns
+        -------
+        fig : matplotlib.Figure
+            The matplotlib figure
+        ax : matplotlib.Axes
+            The matplotlib axis
+        """
+
+        logger.info(f"Plotting 21cm power spectrum.")
+
+        fig, ax = plt.subplots(1, 1, tight_layout=True)
+
+        ind_z5 = np.argmin(np.abs(5.0 - self.zlist))
+
+        _flag_found = False
+        ps = {}
+        n_snaps = 0
+        for snap, redshift in zip(self.snaplist[:ind_z5], self.zlist[:ind_z5]):
+            try:
+                ps[redshift] = read_ps(self.fname, snap)
+            except KeyError:
+                continue
+            n_snaps += 1
+            _flag_found = True
+
+        if not _flag_found:
+            logger.warning(f"No PS values in Meraxes output file")
+            return []
+
+        mod_snaps = int(np.ceil(n_snaps / 20))
+        palette = "flare"
+        n_colors = int(np.ceil(n_snaps / mod_snaps))
+        colors = sns.color_palette(palette, n_colors)
+        _i_color = 0
+        for ii, (redshift, vals) in enumerate(ps.items()):
+            if ii % mod_snaps != 0:
+                continue
+            ax.plot(
+                np.log10(vals[0]), np.log10(vals[1]), ls="-", lw=2, color=colors[_i_color], label=f"z={redshift:.2f}",
+            )
+            _i_color += 1
+
+        redshifts = np.array(list(ps.keys()))[::mod_snaps]
+        s_map = plt.cm.ScalarMappable(
+            norm=plt.Normalize(vmin=redshifts.min(), vmax=redshifts.max()),
+            cmap=sns.color_palette(palette, as_cmap=True),
+        )
+        s_map.set_array(redshifts)
+        cbar = plt.colorbar(s_map, ticks=redshifts[::2], format="%.2f")
+        cbar.set_label("redshift")
+
+        ax.set(ylabel=r"$\Delta^2(k)$", xlabel=r"$\log_{10}\left( k / {\rm Mpc^{-1}}\right)$")
+
+        if self.save:
+            self.plot_dir.mkdir(exist_ok=True)
+            sns.despine(ax=ax)
+            fname = self.plot_dir / "21cm_ps.pdf"
             plt.savefig(fname)
 
         return fig, ax
@@ -722,15 +781,13 @@ class MeraxesOutput:
 
         return fig, ax
 
-    def plot_sfr_evo(self, imfscaling: float = 1.0, sfr_evo: np.ndarray = None):
+    def plot_sfr_evo(self, sfr_evo: np.ndarray = None):
         """Plot the star formation rate evolution (Madau-Lilly plot).
 
         Parameters
         ----------
-        imfscaling : float
-            Scaling for IMF from Salpeter (Mstar[IMF] = Mstar[Salpeter] * imfscaling) (default: 1.0)
         sfr_evo : np.ndarray, optional
-            The total star formation rate for each snapshot (already read in with correct Hubble corrections applied). If not supplied, the necessary
+            The total star formation rate for each snapshot (already read in). If not supplied, the necessary
             galaxy properties will be read in.
 
         Returns
@@ -740,8 +797,6 @@ class MeraxesOutput:
         ax : matplotlib.Axes
             The matplotlib axis
         """
-
-        imfscaling = np.log10(imfscaling)
 
         logger.info(f"Plotting SFR evo")
 
@@ -838,8 +893,9 @@ def allplots(
             # we don't pass gals here as the presence of mags is not guaranteed
             plots.append(meraxes_output.plot_uvlf(redshift, uvindex))
 
-    plots.append(meraxes_output.plot_xHI())
     plots.append(meraxes_output.plot_sfr_evo())
+    plots.append(meraxes_output.plot_xHI())
+    plots.append(meraxes_output.plot_21cmPS())
 
     return plots
 
