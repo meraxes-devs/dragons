@@ -1035,3 +1035,77 @@ def read_global_xH(fname, snapshot, weight="volume"):
         return global_xH[0]
     else:
         return global_xH
+
+
+def read_global_J_21(fname, snapshot):
+
+    """ Read the volume weighted global J_21 from the Meraxes output.
+
+    Parameters
+    ----------
+    fname : str
+        Full path to input hdf5 master file
+
+    snapshot : int or list
+        Snapshot(s) from which the global J_21 is to be read
+        from.
+
+    Returns
+    -------
+    global_J_21 : float or ndarray
+        Global J_21 value(s)
+    """
+
+    if not hasattr(snapshot, "__len__"):
+        snapshot = [
+            snapshot,
+        ]
+
+    snapshot = np.array(snapshot)
+    global_J_21 = np.zeros(snapshot.size)
+
+    # Older versions of the Meraxes output won't have the global J_21 attribute, so we will need to calculate it
+    # ourselves in that case...
+    global_val_exists = False
+    with h5.File(fname, "r") as fin:
+        for k, v in fin.items():
+            if (
+                k.startswith("Snap")
+                and "Grids" in v.keys()
+                and "J_21" in v["Grids"].keys()
+                and "volume_weighted_global_J_21" in v["Grids/J_21"].attrs
+            ):
+                global_val_exists = True
+                break
+
+    if global_val_exists:
+        # The global value has been precalculated. Thanks goodness!
+        with h5.File(fname, "r") as fin:
+            for ii, snap in enumerate(snapshot):
+                ds_name = "Snap{:03d}/Grids/J_21".format(snap)
+                try:
+                    global_J_21[ii] = fin[ds_name].attrs["volume_weighted_global_J_21"][0]
+                except KeyError:
+                    global_J_21[ii] = np.nan
+                    logger.warning("No global_J_21 found for snapshot %d in file %s" % (snap, fname))
+    else:
+        # The global value hasn't been precalculated. We'll need to calculate it ourselves from the grid. Since the grid
+        # may be large we will need to sort the values before summing to try and beat down as much floating point error
+        # as possible. This will be slow for large grids!
+        logger.warning(
+            "No volume_weighted_global_J_21 values found in Meraxes file. Calculating manually (this may "
+            "be slower than expected)..."
+        )
+        with h5.File(fname, "r") as fin:
+            for ii, snap in enumerate(snapshot):
+                ds_name = "Snap{:03d}/Grids/J_21".format(snap)
+                try:
+                    global_J_21[ii] = np.sort(fin[ds_name][:].astype(np.float64)).sum() / float(fin[ds_name].size)
+                except KeyError:
+                    global_J_21[ii] = np.nan
+                    logger.warning("No J_21 grid found for snapshot %d in file %s" % (snap, fname))
+
+    if snapshot.size == 1:
+        return global_J_21[0]
+    else:
+        return global_J_21
