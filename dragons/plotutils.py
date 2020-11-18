@@ -1,12 +1,13 @@
 import numpy as np
 from scipy import optimize as so
+from scipy.ndimage.filters import gaussian_filter
 
 
 def _find_confidence_interval(x, pdf, confidence_level):
     return pdf[pdf > x].sum() - confidence_level
 
 
-def density_contour(xdata, ydata, bins, ax, label=True, clabel_kwargs={}, **contour_kwargs):
+def density_contour(xdata, ydata, bins, ax, label=True, smooth=0.0, clabel_kwargs={}, **contour_kwargs):
     """ Create a density contour plot.
 
     Code modified from:
@@ -27,6 +28,9 @@ def density_contour(xdata, ydata, bins, ax, label=True, clabel_kwargs={}, **cont
 
     label : bool
         Draw labels on the contours? (default: True)
+
+    smooth : float
+        Smooth the contours by a gaussian filter with given standard deviation (default: 0.0)
 
     clabel_kwargs : dict
         kwargs to be passed to pyplot.clabel() (default: {})
@@ -50,6 +54,9 @@ def density_contour(xdata, ydata, bins, ax, label=True, clabel_kwargs={}, **cont
     y_bin_sizes = (yedges[1:] - yedges[:-1]).reshape((nbins_y, 1))
 
     pdf = H * (x_bin_sizes * y_bin_sizes)
+
+    if smooth > 0:
+        pdf = gaussian_filter(pdf, smooth)
 
     one_sigma = so.brentq(_find_confidence_interval, 0.0, 1.0, args=(pdf, 0.39346934))
     two_sigma = so.brentq(_find_confidence_interval, 0.0, 1.0, args=(pdf, 0.864664717))
