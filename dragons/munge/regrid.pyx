@@ -1,12 +1,16 @@
 #cython: boundscheck=False
 #cython: wraparound=False
+#cython: language_level=3
 
 from __future__ import division
+
 import numpy as np
 from tqdm import tqdm
+
 cimport numpy as np
 
 import logging
+
 logger = logging.getLogger(__name__)
 logger.setLevel('WARNING')
 

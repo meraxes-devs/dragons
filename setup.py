@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-
 try:
-    from setuptools import setup, find_packages, Extension
+    from setuptools import Extension, find_packages, setup
 except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
@@ -19,12 +16,9 @@ except ImportError:
                 yield name
 
 
-try:
-    import numpy
+import numpy
 
-    np_inc_dirs = numpy.get_include()
-except ImportError:
-    np_inc_dirs = ""
+np_inc_dirs = numpy.get_include()
 
 readme = open("README.rst").read()
 requirements = open("requirements.txt").readlines()
@@ -42,10 +36,8 @@ setup(
     url="https://github.com/smutch/dragons",
     packages=find_packages(),
     package_dir={"dragons": "dragons"},
-    package_data={"dragons": ["stylelib/*"]},
-    include_package_data=True,
     install_requires=requirements,
-    setup_requires=["Cython"],
+    setup_requires=["Cython", "numpy"],
     include_dirs=[np_inc_dirs],
     ext_modules=[
         Extension("dragons.munge.regrid", ["dragons/munge/regrid.c"]),
@@ -61,5 +53,7 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
 )

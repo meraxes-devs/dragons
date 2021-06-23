@@ -1,7 +1,13 @@
+#cython: language_level=3
+
 import cython
-from libc.math cimport sin, cos, sqrt
+
+from libc.math cimport cos, sin, sqrt
+
 import numpy as np
+
 cimport numpy as np
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
