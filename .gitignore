@@ -1,3 +1,4 @@
+dragons/_version.py
 *.py[cod]
 
 # C extensions
