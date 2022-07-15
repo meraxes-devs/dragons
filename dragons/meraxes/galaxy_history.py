@@ -58,36 +58,38 @@ def galaxy_history(fname, gal_id, snapshot, future_snapshot=-1, pandas=False, pr
     history = np.zeros(future_snapshot + 1, dtype=gals.dtype)
 
     history[snapshot] = gals[start_ind]
-    ind = read_firstprogenitor_indices(fname, snapshot)[start_ind]
+    
+    if snap>0:
+        ind = read_firstprogenitor_indices(fname, snapshot)[start_ind]
 
-    if ind == -1:
-        raise Warning("This galaxy has no progenitors!")
-
-    for snap in tqdm(list(range(snapshot - 1, -1, -1))):
-        history[snap] = read_gals(fname, snapshot=snap, pandas=False, props=props, indices=[ind])
-        ind = read_firstprogenitor_indices(fname, snap)[ind]
         if ind == -1:
-            break
+            raise Warning("This galaxy has no progenitors!")
 
-    if future_snapshot != snapshot:
-        ind = start_ind
-        for snap in tqdm(list(range(snapshot + 1, future_snapshot + 1))):
-            last_ind = ind
-            ind = read_descendant_indices(fname, snap - 1)[ind]
+        for snap in tqdm(list(range(snapshot - 1, -1, -1))):
+            history[snap] = read_gals(fname, snapshot=snap, pandas=False, props=props, indices=[ind])
+            ind = read_firstprogenitor_indices(fname, snap)[ind]
             if ind == -1:
                 break
 
-            if snap < future_snapshot:
-                fp = read_firstprogenitor_indices(fname, snap)[ind]
-                if fp != last_ind and merged_snapshot == -1:
-                    merged_snapshot = snap
+        if future_snapshot != snapshot:
+            ind = start_ind
+            for snap in tqdm(list(range(snapshot + 1, future_snapshot + 1))):
+                last_ind = ind
+                ind = read_descendant_indices(fname, snap - 1)[ind]
+                if ind == -1:
+                    break
 
-            history[snap] = read_gals(fname, snapshot=snap, pandas=False, props=props, indices=[ind])
+                if snap < future_snapshot:
+                    fp = read_firstprogenitor_indices(fname, snap)[ind]
+                    if fp != last_ind and merged_snapshot == -1:
+                        merged_snapshot = snap
 
-    if pandas:
-        history = ndarray_to_dataframe(history)
+                history[snap] = read_gals(fname, snapshot=snap, pandas=False, props=props, indices=[ind])
 
-    if future_snapshot == snapshot:
-        return history
-    else:
-        return history, merged_snapshot
+        if pandas:
+            history = ndarray_to_dataframe(history)
+
+        if future_snapshot == snapshot:
+            return history
+        else:
+            return history, merged_snapshot
