@@ -810,6 +810,57 @@ def read_descendant_indices(fname, snapshot, pandas=False):
     return desc_ind
 
 
+def read_metal_grid(fname, snapshot, prop_name, h=None, h_scaling = ()):
+    if (h is None) and (__meraxes_h is not None):
+        h = __meraxes_h
+
+    with h5.File(fname, "r") as fin:
+        try:
+            grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
+        except KeyError:
+            grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
+        ds_name = "Snap{:03d}/MetalGrids/{:s}".format(snapshot, prop_name)
+        try:
+            grid = fin[ds_name][:]
+        except KeyError:
+            logger.error("No grid called %s found in file %s ." % (prop_name, fname))
+
+    # Apply any Hubble scalings
+    if h is not None:
+        h = float(h)
+        units = read_units(fname)
+        h_conv = units["HubbleConversions"]["Grids"]
+
+        logger.info("Scaling grid to h = %.3f" % h)
+        try:
+            conversion = h_conv[prop_name]
+        except KeyError:
+            logger.warn("Unknown scaling for grid %s - assuming no " "scaling with Hubble const!" % prop_name)
+            conversion = "None"
+
+        if conversion.lower() != "none":
+            try:
+                grid = eval(conversion, dict(v=grid, h=h, log10=np.log10, __builtins__={}))
+            except:
+                logger.error("Failed to parse conversion string `%s` for unit" " %s" % (conversion, prop_name))
+
+    grid.shape = [grid_dim,] * 3
+
+    return grid
+
+def list_Metalgrids(fname, snapshot):
+
+    with h5.File(fname, 'r') as fin:
+        group_name = "Snap{:03d}/MetalGrids".format(snapshot)
+        try:
+            grids = list(fin[group_name].keys())
+        except KeyError:
+            log.error("No grids found for snapshot %d in file %s ." %
+                      (snapshot, fname))
+
+    return grids
+
+
 def read_grid(fname, snapshot, name, h=None, h_scaling={}):
 
     """ Read a grid from the Meraxes HDF5 file.
