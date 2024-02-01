@@ -810,63 +810,17 @@ def read_descendant_indices(fname, snapshot, pandas=False):
     return desc_ind
 
 
-def read_metal_grid(fname, snapshot, prop_name, h=None, h_scaling = ()):
-    if (h is None) and (__meraxes_h is not None):
-        h = __meraxes_h
-
-    with h5.File(fname, "r") as fin:
-        try:
-            grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
-        except KeyError:
-            grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
-        ds_name = "Snap{:03d}/MetalGrids/{:s}".format(snapshot, prop_name)
-        try:
-            grid = fin[ds_name][:]
-        except KeyError:
-            logger.error("No grid called %s found in file %s ." % (prop_name, fname))
-
-    # Apply any Hubble scalings
-    if h is not None:
-        h = float(h)
-        units = read_units(fname)
-        h_conv = units["HubbleConversions"]["Grids"]
-
-        logger.info("Scaling grid to h = %.3f" % h)
-        try:
-            conversion = h_conv[prop_name]
-        except KeyError:
-            logger.warn("Unknown scaling for grid %s - assuming no " "scaling with Hubble const!" % prop_name)
-            conversion = "None"
-
-        if conversion.lower() != "none":
-            try:
-                grid = eval(conversion, dict(v=grid, h=h, log10=np.log10, __builtins__={}))
-            except:
-                logger.error("Failed to parse conversion string `%s` for unit" " %s" % (conversion, prop_name))
-
-    grid.shape = [grid_dim,] * 3
-
-    return grid
-
-def list_Metalgrids(fname, snapshot):
-
-    with h5.File(fname, 'r') as fin:
-        group_name = "Snap{:03d}/MetalGrids".format(snapshot)
-        try:
-            grids = list(fin[group_name].keys())
-        except KeyError:
-            log.error("No grids found for snapshot %d in file %s ." %
-                      (snapshot, fname))
-
-    return grids
-
-
-def read_grid(fname, snapshot, name, h=None, h_scaling={}):
+def read_grid(spec, fname, snapshot, name, h=None, h_scaling={}):
 
     """ Read a grid from the Meraxes HDF5 file.
 
     Parameters
     ----------
+    spec : int
+        Specify the grid you want to read.
+        0 -> Reionization grid
+        1 -> Metal grid
+    
     fname : str
         Full path to input hdf5 master file
 
@@ -896,11 +850,18 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}):
         h = __meraxes_h
 
     with h5.File(fname, "r") as fin:
-        try:
-            grid_dim = fin["InputParams"].attrs["ReionGridDim"][0]
-        except KeyError:
-            grid_dim = fin["InputParams"].attrs["TOCF_HII_dim"][0]
-        ds_name = "Snap{:03d}/Grids/{:s}".format(snapshot, name)
+    	if spec == 0:
+            try:
+            	grid_dim = fin["InputParams"].attrs["ReionGridDim"][0]
+            except KeyError:
+            	grid_dim = fin["InputParams"].attrs["TOCF_HII_dim"][0]
+            ds_name = "Snap{:03d}/Grids/{:s}".format(snapshot, name)
+        elif spec == 1:
+            try:
+            	grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
+            except KeyError:
+            	grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
+            ds_name = "Snap{:03d}/MetalGrids/{:s}".format(snapshot, prop_name)
         try:
             grid = fin[ds_name][:]
         except KeyError:
@@ -930,12 +891,17 @@ def read_grid(fname, snapshot, name, h=None, h_scaling={}):
     return grid
 
 
-def list_grids(fname, snapshot):
+def list_grids(spec, fname, snapshot):
 
     """ List the available grids from a Meraxes HDF5 output file.
 
     Parameters
     ----------
+    spec : int
+        Specify the grid you want to read.
+        0 -> Reionization grid
+        1 -> Metal grid
+    
     fname : str
         Full path to input hdf5 master file
 
@@ -949,7 +915,10 @@ def list_grids(fname, snapshot):
     """
 
     with h5.File(fname, "r") as fin:
-        group_name = "Snap{:03d}/Grids".format(snapshot)
+    	if spec == 0:
+            group_name = "Snap{:03d}/Grids".format(snapshot)
+        elif spec == 1:
+            group_name = "Snap{:03d}/MetalGrids".format(snapshot)
         try:
             grids = list(k for k, v in fin[group_name].items() if len(v.shape) == 3)
         except KeyError:
@@ -989,42 +958,6 @@ def read_ps(fname, snapshot):
         pserr = fp[f"Snap{snapshot:03d}/Grids/PS_error"][:]
 
     return k, ps, pserr
-
-
-#  def read_size_dist(fname, snapshot):
-
-#      """ Read region size distribution from the Meraxes HDF5 file.
-
-#      Parameters
-#      ----------
-#      fname : str
-#          Full path to input hdf5 master file
-
-#      snapshot : int
-#          Snapshot from which the region size distribution is to be read
-#          from.
-
-#      Returns
-#      -------
-#      Rval : array
-#          R value
-
-#      RdpdR : array
-#          RdpdR value
-#      """
-
-#      with h5.File(fname, "r") as fin:
-#          ds_name = "Snap{:03d}/RegionSizeDist".format(snapshot)
-#          try:
-#              R_nbins = fin[ds_name].attrs["nbins"][0]
-#              RdpdR = fin[ds_name][:]
-#          except KeyError:
-#              logger.error("No RegionSizeDist found in file %s ." % (fname))
-
-#      RdpdR.shape = [R_nbins, 2]
-
-#      return RdpdR[:, 0], RdpdR[:, 1]
-
 
 def read_global_xH(fname, snapshot, weight="volume"):
 
