@@ -848,7 +848,10 @@ def read_grid(spec, fname, snapshot, name, h=None, h_scaling={}):
 
     if (h is None) and (__meraxes_h is not None):
         h = __meraxes_h
-
+    
+    if (spec != 0) and (spec != 1):
+    	raise Exception(f"spec should be either 0 (reio) or 1 (metal)")    
+        
     with h5.File(fname, "r") as fin:
     	if spec == 0:
             try:
@@ -857,10 +860,7 @@ def read_grid(spec, fname, snapshot, name, h=None, h_scaling={}):
             	grid_dim = fin["InputParams"].attrs["TOCF_HII_dim"][0]
             ds_name = "Snap{:03d}/Grids/{:s}".format(snapshot, name)
         elif spec == 1:
-            try:
-            	grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
-            except KeyError:
-            	grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
+            grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
             ds_name = "Snap{:03d}/MetalGrids/{:s}".format(snapshot, prop_name)
         try:
             grid = fin[ds_name][:]
@@ -913,7 +913,9 @@ def list_grids(spec, fname, snapshot):
     grids : list
         A list of the available grids
     """
-
+    if (spec != 0) and (spec != 1):
+    	raise Exception(f"spec should be either 0 (reio) or 1 (metal)") 
+    	
     with h5.File(fname, "r") as fin:
     	if spec == 0:
             group_name = "Snap{:03d}/Grids".format(snapshot)
