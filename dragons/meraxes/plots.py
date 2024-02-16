@@ -1,26 +1,27 @@
-import numpy as np
+import logging
+from pathlib import Path
+from textwrap import dedent
+from typing import Union
+
+import click
+import cycler
 import matplotlib.pyplot as plt
-import matplotlib as mpl
+import numpy as np
 import pandas as pd
-from astrodatapy.number_density import number_density
 import seaborn as sns
+from astrodatapy.number_density import number_density
+
+from .. import munge
 from . import (
+    bh_bolometric_mags,
+    check_for_redshift,
+    read_gals,
+    read_global_xH,
+    read_input_params,
+    read_ps,
     read_snaplist,
     set_little_h,
-    read_input_params,
-    read_gals,
-    check_for_redshift,
-    read_global_xH,
-    bh_bolometric_mags,
-    read_ps,
 )
-from .. import munge
-from pathlib import Path
-from typing import Union
-import cycler
-import click
-import logging
-from textwrap import dedent
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class MeraxesOutput:
         self.snaplist, self.zlist, self.lbtimes = read_snaplist(fname)
         self.params = read_input_params(fname)
 
-    def plot_smf(self, redshift: float, imfscaling: float = 1.0, gals: np.ndarray = None):
+    def plot_smf(self, redshift: float, imfscaling: float = 1.0, gals: np.ndarray | None = None):
         """Plot the stellar mass function for a given redshift.
 
         Parameters
@@ -150,18 +151,18 @@ class MeraxesOutput:
             The matplotlib axis
         """
 
-        logger.info(f"Plotting xHI evolution")
+        logger.info("Plotting xHI evolution")
 
         snap_z5 = self.snaplist[np.argmin(np.abs(5.0 - self.zlist))]
         try:
             xHI = pd.DataFrame(dict(snap=np.arange(snap_z5 + 1), redshift=self.zlist[: snap_z5 + 1]))
             xHI["xHI"] = read_global_xH(self.fname, xHI.snap)
         except ValueError:
-            logger.warning(f"No xHI values in Meraxes output file")
+            logger.warning("No xHI values in Meraxes output file")
             return []
 
         if xHI.dropna().shape[0] == 0:
-            logger.warning(f"No finite xHI values in Meraxes output file")
+            logger.warning("No finite xHI values in Meraxes output file")
             return []
 
         start = xHI.query("xHI == xHI.max()").index[0]
@@ -195,7 +196,7 @@ class MeraxesOutput:
             The matplotlib axis
         """
 
-        logger.info(f"Plotting 21cm power spectrum.")
+        logger.info("Plotting 21cm power spectrum.")
 
         fig, ax = plt.subplots(1, 1, tight_layout=True)
 
@@ -213,7 +214,7 @@ class MeraxesOutput:
             _flag_found = True
 
         if not _flag_found:
-            logger.warning(f"No PS values in Meraxes output file")
+            logger.warning("No PS values in Meraxes output file")
             return []
 
         mod_snaps = int(np.ceil(n_snaps / 20))
@@ -376,7 +377,7 @@ class MeraxesOutput:
             else:
                 mags = gals["DustyMags"][:, mag_index][:]
         except ValueError:
-            logger.warning(f"No Mags values in Meraxes output file")
+            logger.warning("No Mags values in Meraxes output file")
             return []
 
         mags = mags[mags < -10.0]
@@ -459,7 +460,7 @@ class MeraxesOutput:
 
         plot_obs = False
         if not 0.0 <= redshift <= 0.05:
-            logger.warning(f"Currently only have HImf data for z=0.")
+            logger.warning("Currently only have HImf data for z=0.")
         else:
             plot_obs = True
 
@@ -798,7 +799,7 @@ class MeraxesOutput:
             The matplotlib axis
         """
 
-        logger.info(f"Plotting SFR evo")
+        logger.info("Plotting SFR evo")
 
         if sfr_evo is None:
             sfr_evo = np.zeros(self.snaplist.size)
@@ -827,7 +828,7 @@ class MeraxesOutput:
         if self.save:
             self.plot_dir.mkdir(exist_ok=True)
             sns.despine(ax=ax)
-            fname = self.plot_dir / f"sfr_evo.pdf"
+            fname = self.plot_dir / "sfr_evo.pdf"
             plt.savefig(fname)
 
         return fig, ax
@@ -911,8 +912,8 @@ def allplots(
     default=1.0,
 )
 def main(meraxes_fname, output_dir="plots", uvindex=None, imfscaling=1.0):
-    import warnings
     import os
+    import warnings
 
     logging.basicConfig(
         level=os.getenv("LOG_LEVEL", "INFO"), handlers=logging.getLogger("dragons").handlers,
