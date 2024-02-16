@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>munge &mdash; DRAGONS Tools 0.5.1.dev4+g4682294 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/documentation_options.js?v=fb93ffc6"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="nbody" href="nbody.html" />
+    <link rel="prev" title="meraxes" href="meraxes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            DRAGONS Tools
+          </a>
+              <div class="version">
+                0.5.1.dev4+g4682294
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">DRAGONS Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="meraxes.html">meraxes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">munge</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dragons.munge.munge.describe"><code class="docutils literal notranslate"><span class="pre">describe()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dragons.munge.munge.edges_to_centers"><code class="docutils literal notranslate"><span class="pre">edges_to_centers()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dragons.munge.munge.mass_function"><code class="docutils literal notranslate"><span class="pre">mass_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dragons.munge.munge.ndarray_to_dataframe"><code class="docutils literal notranslate"><span class="pre">ndarray_to_dataframe()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dragons.munge.munge.power_spectrum"><code class="docutils literal notranslate"><span class="pre">power_spectrum()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dragons.munge.munge.pretty_print_dict"><code class="docutils literal notranslate"><span class="pre">pretty_print_dict()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dragons.munge.munge.smooth_grid"><code class="docutils literal notranslate"><span class="pre">smooth_grid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dragons.munge.regrid.regrid"><code class="docutils literal notranslate"><span class="pre">regrid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nbody.html">nbody</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="plotutils.html">plotutils</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DRAGONS Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">munge</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/munge.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="munge">
+<span id="id1"></span><h1>munge<a class="headerlink" href="#munge" title="Link to this heading">¶</a></h1>
+<p id="module-dragons.munge.munge">A collection of functions for doing common processing tasks.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.munge.munge.describe">
+<span class="sig-prename descclassname"><span class="pre">dragons.munge.munge.</span></span><span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/munge/munge.html#describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.munge.munge.describe" title="Link to this definition">¶</a></dt>
+<dd><p>Run scipy.stats.describe and produce legible output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arr</strong> (<em>ndarray</em>) – Numpy ndarray</p></li>
+<li><p><strong>**kwargs</strong> – passed to scipy.stats.describe</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>output of scipy.stats.describe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.munge.munge.edges_to_centers">
+<span class="sig-prename descclassname"><span class="pre">dragons.munge.munge.</span></span><span class="sig-name descname"><span class="pre">edges_to_centers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/munge/munge.html#edges_to_centers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.munge.munge.edges_to_centers" title="Link to this definition">¶</a></dt>
+<dd><p>Convert <strong>evenly spaced</strong> bin edges to centers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<em>ndarray</em>) – bin edges</p></li>
+<li><p><strong>width</strong> (<em>bool</em>) – also return the bin width</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>centers</strong> (<em>ndarray</em>) – bin centers (size = edges.size-1)</p></li>
+<li><p><strong>bin_width</strong> (<em>float</em>) – only returned if width = True</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.munge.munge.mass_function">
+<span class="sig-prename descclassname"><span class="pre">dragons.munge.munge.</span></span><span class="sig-name descname"><span class="pre">mass_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poisson_uncert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/munge/munge.html#mass_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.munge.munge.mass_function" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a mass function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mass</strong> (<em>ndarray</em>) – an array of ‘masses’</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – volume of simulation cube/subset</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em> or </em><em>list</em><em> or </em><em>str</em>) – passed to numpy.histogram</p></li>
+<li><p><strong>range</strong> (<em>len=2 list</em><em> or </em><em>array</em>) – range of data to be used for mass function</p></li>
+<li><p><strong>poisson_uncert</strong> (<em>bool</em>) – return poisson uncertainties in output array (default: False)</p></li>
+<li><p><strong>return_edges</strong> (<em>bool</em>) – return the bin_edges (default: False)</p></li>
+<li><p><strong>**kwargs</strong> – passed to numpy.histogram</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>[bin centers, mass function vals]
+If poisson_uncert=True then array has 3rd column with uncertainties.
+If return_edges=True then the bin edges are also returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.munge.munge.ndarray_to_dataframe">
+<span class="sig-prename descclassname"><span class="pre">dragons.munge.munge.</span></span><span class="sig-name descname"><span class="pre">ndarray_to_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/munge/munge.html#ndarray_to_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.munge.munge.ndarray_to_dataframe" title="Link to this definition">¶</a></dt>
+<dd><p>Convert numpy ndarray to a pandas DataFrame, dealing with N(&gt;1)
+dimensional datatypes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arr</strong> (<em>ndarray</em>) – Numpy ndarray</p></li>
+<li><p><strong>drop_vectors</strong> (<em>bool</em>) – only include single value datatypes in output DataFrame</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>df</strong> – Pandas DataFrame</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.munge.munge.power_spectrum">
+<span class="sig-prename descclassname"><span class="pre">dragons.munge.munge.</span></span><span class="sig-name descname"><span class="pre">power_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/munge/munge.html#power_spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.munge.munge.power_spectrum" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the dimensionless and dimensional power spectra of a grid (G):</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\Delta^2 (k) = \frac{k^3 V}{2\pi^2} &lt;|\hat G|^2&gt;_k\\P(k) = &lt;|\hat G|^2&gt; V\end{aligned}\end{align} \]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<em>ndarray</em>) – The grid from which to construct the power spectrum</p></li>
+<li><p><strong>side_length</strong> (<em>float</em>) – The side length of the grid (assumes all side lengths are equal)</p></li>
+<li><p><strong>n_bins</strong> (<em>int</em>) – The number of k bins to use</p></li>
+<li><p><strong>dimensional</strong> (<em>Boolean</em><em> (</em><em>optional</em><em>)</em>) – Switch for calculating dimensional power spectrum
+Default is False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>kmean</strong> (<em>ndarray</em>) – The mean wavenumber of each bin</p></li>
+<li><p><strong>power</strong> (<em>ndarray</em>) – The dimensionless power (<span class="math notranslate nohighlight">\(\Delta^2 (k)\)</span>)</p></li>
+<li><p><strong>uncert</strong> (<em>ndarray</em>) – The uncertainty of the dimensionless power within each k bin</p></li>
+<li><p><strong>power_dim</strong> (<em>ndarray</em>) – The dimensional power (returned iff dimensional = True) (<span class="math notranslate nohighlight">\(P(k)\)</span>)</p></li>
+<li><p><strong>uncert_dim</strong> (<em>ndarray</em>) – The uncertainty of the dimensional power within each k bin (returned iff dimensional = True)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.munge.munge.pretty_print_dict">
+<span class="sig-prename descclassname"><span class="pre">dragons.munge.munge.</span></span><span class="sig-name descname"><span class="pre">pretty_print_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmtlen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/munge/munge.html#pretty_print_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.munge.munge.pretty_print_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Pretty print a dictionary, dealing with recursion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>dict</em>) – the dictionary to print</p></li>
+<li><p><strong>fmtlen</strong> (<em>int</em>) – maximum length of dictionary key for print formatting</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.munge.munge.smooth_grid">
+<span class="sig-prename descclassname"><span class="pre">dragons.munge.munge.</span></span><span class="sig-name descname"><span class="pre">smooth_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tophat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/munge/munge.html#smooth_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.munge.munge.smooth_grid" title="Link to this definition">¶</a></dt>
+<dd><p>Smooth a grid by convolution with a filter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<em>ndarray</em>) – The grid to be smoothed</p></li>
+<li><p><strong>side_length</strong> (<em>float</em>) – The side length of the grid (assumes all side lengths are equal)</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – The radius of the smoothing filter</p></li>
+<li><p><strong>filt</strong> (<em>string</em><em>, </em><em>optional</em>) – The name of the filter.  Currently only “tophat” (real space) is
+implemented.  More filters will be added over time.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>smoothed_grid</strong> – The smoothed grid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function" id="module-dragons.munge.regrid">
+<dt class="sig sig-object py" id="dragons.munge.regrid.regrid">
+<span class="sig-prename descclassname"><span class="pre">dragons.munge.regrid.</span></span><span class="sig-name descname"><span class="pre">regrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cell</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dragons.munge.regrid.regrid" title="Link to this definition">¶</a></dt>
+<dd><p>Downgrade the resolution of a 3 dimensional grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>np.ndarray</strong><strong>[</strong><strong>float32</strong> (<em>old_grid</em>) – </p></li>
+<li><p><strong>ndim=3</strong><strong>]</strong><strong>)</strong> (<em>Grid to be resampled</em>) – </p></li>
+<li><p><strong>(</strong><strong>int</strong><strong>)</strong> (<em>n_cell</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>New, degraded resolution grid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="meraxes.html" class="btn btn-neutral float-left" title="meraxes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nbody.html" class="btn btn-neutral float-right" title="nbody" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013, Simon Mutch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dragons.meraxes.io &mdash; DRAGONS Tools 0.5.1.dev4+g4682294 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=fb93ffc6"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            DRAGONS Tools
+          </a>
+              <div class="version">
+                0.5.1.dev4+g4682294
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">DRAGONS Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../meraxes.html">meraxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../munge.html">munge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nbody.html">nbody</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotutils.html">plotutils</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DRAGONS Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dragons.meraxes.io</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dragons.meraxes.io</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Routines for reading Meraxes output files.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">..munge</span> <span class="kn">import</span> <span class="n">ndarray_to_dataframe</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">h5py</span> <span class="k">as</span> <span class="nn">h5</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">PurePath</span>
+
+
+<span class="n">__meraxes_h</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_check_pandas</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pd</span>
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;The pandas package must be available if&quot;</span> <span class="s2">&quot; pandas=True.&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="set_little_h">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.set_little_h">[docs]</a>
+<span class="k">def</span> <span class="nf">set_little_h</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Set the value of little h to be used by all future meraxes.io calls</span>
+<span class="sd">    where applicable.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    h : float or str</span>
+<span class="sd">        Little h value.  If a filename is passed as a string, then little h</span>
+<span class="sd">        will be set to the simulation value read from that file.</span>
+<span class="sd">        (default: None)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    h : float</span>
+<span class="sd">        Little h value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">PurePath</span><span class="p">):</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">read_input_params</span><span class="p">(</span><span class="n">h</span><span class="p">)[</span><span class="s2">&quot;Hubble_h&quot;</span><span class="p">]</span>
+
+    <span class="k">global</span> <span class="n">__meraxes_h</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting little h to </span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2"> for future io calls.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">h</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">__meraxes_h</span> <span class="o">=</span> <span class="n">h</span>
+
+    <span class="k">return</span> <span class="n">h</span></div>
+
+
+
+<div class="viewcode-block" id="read_gals">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_gals">[docs]</a>
+<span class="k">def</span> <span class="nf">read_gals</span><span class="p">(</span>
+    <span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sim_props</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read in a Meraxes hdf5 output file.</span>
+
+<span class="sd">    Reads in the default type of HDF5 file generated by the code.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file.</span>
+
+<span class="sd">    snapshot : int</span>
+<span class="sd">        The snapshot to read in.  (default: last present snapshot - usually</span>
+<span class="sd">        z=0)</span>
+
+<span class="sd">    props : list</span>
+<span class="sd">        A list of galaxy properties requested.  (default: All properties)</span>
+
+<span class="sd">    sim_props : bool</span>
+<span class="sd">        Output some simulation properties as well.  (default = False)</span>
+
+<span class="sd">    pandas : bool</span>
+<span class="sd">        Ouput a pandas DataFrame instead of an astropy table.  (default =</span>
+<span class="sd">        False)</span>
+
+<span class="sd">    table : bool</span>
+<span class="sd">        Output an astropy Table instead of a numpy ndarray.  (default =</span>
+<span class="sd">        False)</span>
+
+<span class="sd">    h : float</span>
+<span class="sd">        Hubble constant (/100) to scale the galaxy properties to.  If</span>
+<span class="sd">        `None` then no scaling is made unless `set_little_h` was previously</span>
+<span class="sd">        called.  (default = None)</span>
+
+<span class="sd">    indices : list or array</span>
+<span class="sd">        Indices of galaxies to be read.  If `None` then read all galaxies.</span>
+<span class="sd">        (default = None)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        An ndarray with the requested galaxies and properties.</span>
+
+<span class="sd">        If sim_props==True then output is a tuple of form (galaxies, sim_props)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">__meraxes_h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">__meraxes_h</span>
+
+    <span class="k">def</span> <span class="nf">__apply_offsets</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">dest_sel</span><span class="p">,</span> <span class="n">counter</span><span class="p">):</span>
+        <span class="c1"># Deal with any indices that need offsets applied</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">G</span><span class="p">[</span><span class="n">dest_sel</span><span class="p">][</span><span class="s2">&quot;CentralGal&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">counter</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="n">pandas</span><span class="p">:</span>
+        <span class="n">_check_pandas</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">pandas</span> <span class="ow">and</span> <span class="n">table</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Both `pandas` and `table` specified.  Please choose one&quot;</span> <span class="s2">&quot; or the other.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Grab the units and hubble conversions information</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="n">read_units</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+    <span class="c1"># Open the file for reading</span>
+    <span class="n">fin</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set the snapshot correctly</span>
+    <span class="k">if</span> <span class="n">snapshot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">snapshot</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">snapshot</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">present_snaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">p</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Snap&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">present_snaps</span><span class="p">])</span>
+        <span class="n">present_snaps</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">4</span><span class="p">:])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">present_snaps</span><span class="p">[</span><span class="n">selection</span><span class="p">]]</span>
+        <span class="n">snapshot</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">present_snaps</span><span class="p">)[</span><span class="n">snapshot</span><span class="p">]</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading snapshot </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">snapshot</span><span class="p">)</span>
+
+    <span class="c1"># Select the group for the requested snapshot.</span>
+    <span class="n">snap_group</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;Snap</span><span class="si">%03d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">snapshot</span><span class="p">)]</span>
+
+    <span class="c1"># How many cores have been used for this run?</span>
+    <span class="n">n_cores</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;NCores&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Grab the total number of galaxies in this snapshot</span>
+    <span class="n">ngals</span> <span class="o">=</span> <span class="n">snap_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;NGalaxies&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">ngals</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;There are no galaxies in snapshot </span><span class="si">{:d}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">))</span>
+
+    <span class="c1"># Reset ngals to be the number of requested galaxies if appropriate</span>
+    <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="s2">&quot;i&quot;</span><span class="p">)</span>
+        <span class="n">indices</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">ngals</span> <span class="o">=</span> <span class="n">indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Set the galaxy data type</span>
+    <span class="n">gal_dtype</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i_core</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cores</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">props</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gal_dtype</span> <span class="o">=</span> <span class="n">snap_group</span><span class="p">[</span><span class="s2">&quot;Core</span><span class="si">%d</span><span class="s2">/Galaxies&quot;</span> <span class="o">%</span> <span class="n">i_core</span><span class="p">][</span><span class="nb">tuple</span><span class="p">(</span><span class="n">props</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gal_dtype</span> <span class="o">=</span> <span class="n">snap_group</span><span class="p">[</span><span class="s2">&quot;Core</span><span class="si">%d</span><span class="s2">/Galaxies&quot;</span> <span class="o">%</span> <span class="n">i_core</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">gal_dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="c1"># Newer versions of numpy will return a dtype with no fields if we have</span>
+    <span class="c1"># only requested one property.  We need to reconstruct a named dtype for</span>
+    <span class="c1"># the direct read below.</span>
+    <span class="k">if</span> <span class="n">gal_dtype</span><span class="o">.</span><span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">props</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">gal_dtype</span> <span class="o">=</span> <span class="n">snap_group</span><span class="p">[</span><span class="s2">&quot;Core</span><span class="si">%d</span><span class="s2">/Galaxies&quot;</span> <span class="o">%</span> <span class="n">i_core</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">[</span><span class="n">props</span><span class="p">]</span>
+
+    <span class="c1"># Create a dataset large enough to hold all of the requested galaxies</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">ngals</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gal_dtype</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Allocated </span><span class="si">%.1f</span><span class="s2"> MB&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="n">ngals</span> <span class="o">/</span> <span class="mf">1024.0</span> <span class="o">/</span> <span class="mf">1024.0</span><span class="p">))</span>
+
+    <span class="c1"># Loop through each of the requested groups and read in the galaxies</span>
+    <span class="k">if</span> <span class="n">ngals</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">total_read</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i_core</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cores</span><span class="p">):</span>
+            <span class="n">galaxies</span> <span class="o">=</span> <span class="n">snap_group</span><span class="p">[</span><span class="s2">&quot;Core</span><span class="si">%d</span><span class="s2">/Galaxies&quot;</span> <span class="o">%</span> <span class="n">i_core</span><span class="p">]</span>
+            <span class="n">core_ngals</span> <span class="o">=</span> <span class="n">galaxies</span><span class="o">.</span><span class="n">size</span>
+
+            <span class="k">if</span> <span class="n">core_ngals</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">dest_sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">s_</span><span class="p">[</span><span class="n">counter</span> <span class="p">:</span> <span class="n">core_ngals</span> <span class="o">+</span> <span class="n">counter</span><span class="p">]</span>
+                    <span class="n">galaxies</span><span class="o">.</span><span class="n">read_direct</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">dest_sel</span><span class="o">=</span><span class="n">dest_sel</span><span class="p">)</span>
+
+                    <span class="n">__apply_offsets</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">dest_sel</span><span class="p">,</span> <span class="n">counter</span><span class="p">)</span>
+                    <span class="n">counter</span> <span class="o">+=</span> <span class="n">core_ngals</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">read_ind</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">compress</span><span class="p">((</span><span class="n">indices</span> <span class="o">&gt;=</span> <span class="n">total_read</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">indices</span> <span class="o">&lt;</span> <span class="n">total_read</span> <span class="o">+</span> <span class="n">core_ngals</span><span class="p">),</span> <span class="n">indices</span><span class="p">,)</span>
+                        <span class="o">-</span> <span class="n">total_read</span>
+                    <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">read_ind</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">dest_sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">s_</span><span class="p">[</span><span class="n">counter</span> <span class="p">:</span> <span class="n">read_ind</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">counter</span><span class="p">]</span>
+                        <span class="n">bool_sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">core_ngals</span><span class="p">,</span> <span class="s2">&quot;bool&quot;</span><span class="p">)</span>
+                        <span class="n">bool_sel</span><span class="p">[</span><span class="n">read_ind</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">G</span><span class="p">[</span><span class="n">dest_sel</span><span class="p">]</span> <span class="o">=</span> <span class="n">galaxies</span><span class="p">[</span><span class="n">G</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">][</span><span class="n">bool_sel</span><span class="p">]</span>
+
+                        <span class="n">__apply_offsets</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">dest_sel</span><span class="p">,</span> <span class="n">total_read</span><span class="p">)</span>
+                        <span class="n">counter</span> <span class="o">+=</span> <span class="n">read_ind</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="n">total_read</span> <span class="o">+=</span> <span class="n">core_ngals</span>
+
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">&gt;=</span> <span class="n">ngals</span><span class="p">:</span>
+                <span class="k">break</span>
+
+    <span class="c1"># Print some checking statistics</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Read in </span><span class="si">%d</span><span class="s2"> galaxies.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">G</span><span class="p">))</span>
+
+    <span class="c1"># Apply any Hubble scalings</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">h_conv</span> <span class="o">=</span> <span class="n">units</span><span class="p">[</span><span class="s2">&quot;HubbleConversions&quot;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Scaling galaxy properties to h = </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">h</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">gal_dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">conversion</span> <span class="o">=</span> <span class="n">h_conv</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unrecognised galaxy property </span><span class="si">%s</span><span class="s2"> - assuming no &quot;</span> <span class="s2">&quot;scaling with Hubble const!&quot;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">conversion</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">G</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">conversion</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="n">G</span><span class="p">[</span><span class="n">p</span><span class="p">],</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">log10</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">,</span> <span class="n">__builtins__</span><span class="o">=</span><span class="p">{}))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to parse conversion string `</span><span class="si">%s</span><span class="s2">` for unit&quot;</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">conversion</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+
+    <span class="c1"># If requested convert the numpy array into a pandas dataframe</span>
+    <span class="k">if</span> <span class="n">pandas</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converting to pandas DataFrame...&quot;</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">ndarray_to_dataframe</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;_\d*$&quot;</span><span class="p">)</span>
+        <span class="c1"># attach the units to each column</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">G</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">units</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unrecognised galaxy property </span><span class="si">%s</span><span class="s2"> - assuming &quot;</span> <span class="s2">&quot;dimensionless quantitiy!&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+    <span class="c1"># else convert to astropy table and attach units</span>
+    <span class="k">elif</span> <span class="n">table</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converting to astropy Table...&quot;</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">units</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unrecognised galaxy property </span><span class="si">%s</span><span class="s2"> - assuming &quot;</span> <span class="s2">&quot;dimensionless quantitiy!&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+
+    <span class="c1"># Set some run properties</span>
+    <span class="k">if</span> <span class="n">sim_props</span><span class="p">:</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="n">read_input_params</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;Redshift&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">snap_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;Redshift&quot;</span><span class="p">]</span>
+
+    <span class="n">fin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">sim_props</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">G</span><span class="p">,</span> <span class="n">properties</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="read_input_params">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_input_params">[docs]</a>
+<span class="k">def</span> <span class="nf">read_input_params</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read in the input parameters from a Meraxes hdf5 output file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file.</span>
+
+<span class="sd">    h : float</span>
+<span class="sd">        Hubble constant (/100) to scale the galaxy properties to.  If</span>
+<span class="sd">        `None` then no scaling is made unless `set_little_h` was previously</span>
+<span class="sd">        called.  (default = None)</span>
+
+<span class="sd">    raw : bool</span>
+<span class="sd">        Don&#39;t augment with extra useful quantities. (default = False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        All run properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">__meraxes_h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">__meraxes_h</span>
+
+    <span class="k">def</span> <span class="nf">arr_to_value</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">):</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">str_</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="k">def</span> <span class="nf">visitfunc</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
+            <span class="n">props_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="n">arr_to_value</span><span class="p">(</span><span class="n">props_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading input params...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Open the file for reading</span>
+    <span class="n">fin</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+    <span class="n">group</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;InputParams&quot;</span><span class="p">]</span>
+
+    <span class="n">props_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="n">arr_to_value</span><span class="p">(</span><span class="n">props_dict</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">visititems</span><span class="p">(</span><span class="n">visitfunc</span><span class="p">)</span>
+
+    <span class="c1"># Update some properties</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Scaling params to h = </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">h</span><span class="p">)</span>
+        <span class="n">props_dict</span><span class="p">[</span><span class="s2">&quot;BoxSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;BoxSize&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">h</span>
+        <span class="n">props_dict</span><span class="p">[</span><span class="s2">&quot;PartMass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;PartMass&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">h</span>
+
+    <span class="c1"># Add extra props</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="p">:</span>
+        <span class="n">props_dict</span><span class="p">[</span><span class="s2">&quot;Volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">props_dict</span><span class="p">[</span><span class="s2">&quot;BoxSize&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">props_dict</span><span class="p">[</span><span class="s2">&quot;VolumeFactor&quot;</span><span class="p">]</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="n">read_git_info</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="n">props_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;model_git_ref&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;model_git_diff&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="mi">1</span><span class="p">]})</span>
+
+    <span class="n">fin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">props_dict</span></div>
+
+
+
+<div class="viewcode-block" id="read_units">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_units">[docs]</a>
+<span class="k">def</span> <span class="nf">read_units</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read in the units and hubble conversion information from a Meraxes hdf5</span>
+<span class="sd">    output file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    units : dict</span>
+<span class="sd">        A dict containing all units (Hubble conversions are stored with key</span>
+<span class="sd">        `HubbleConversions`).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">arr_to_value</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">visitunits</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
+            <span class="n">units_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="n">arr_to_value</span><span class="p">(</span><span class="n">units_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">visitconv</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">h5</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
+            <span class="n">hubble_conv_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="n">arr_to_value</span><span class="p">(</span><span class="n">hubble_conv_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">sanitize_dict_strings</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;(\D\.\S*)|(__.*__)|(__)&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="n">sanitize_dict_strings</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading units...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Open the file for reading</span>
+    <span class="n">fin</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Read the units</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Units&quot;</span><span class="p">,</span> <span class="s2">&quot;HubbleConversions&quot;</span><span class="p">]:</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Units&quot;</span><span class="p">:</span>
+            <span class="n">units_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="n">arr_to_value</span><span class="p">(</span><span class="n">units_dict</span><span class="p">)</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">visititems</span><span class="p">(</span><span class="n">visitunits</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;HubbleConversions&quot;</span><span class="p">:</span>
+            <span class="n">hubble_conv_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="n">arr_to_value</span><span class="p">(</span><span class="n">hubble_conv_dict</span><span class="p">)</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">visititems</span><span class="p">(</span><span class="n">visitconv</span><span class="p">)</span>
+
+    <span class="c1"># Sanitize the hubble conversions</span>
+    <span class="n">sanitize_dict_strings</span><span class="p">(</span><span class="n">hubble_conv_dict</span><span class="p">)</span>
+
+    <span class="c1"># Put the hubble conversions information inside the units dict for ease</span>
+    <span class="n">units_dict</span><span class="p">[</span><span class="s2">&quot;HubbleConversions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hubble_conv_dict</span>
+
+    <span class="n">fin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">units_dict</span></div>
+
+
+
+<div class="viewcode-block" id="read_git_info">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_git_info">[docs]</a>
+<span class="k">def</span> <span class="nf">read_git_info</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the git diff and ref saved in the master file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ref : str</span>
+<span class="sd">        git ref of the model</span>
+
+<span class="sd">    diff : str</span>
+<span class="sd">        git diff of the model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="n">gitdiff</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;gitdiff&quot;</span><span class="p">][()]</span>
+        <span class="n">gitref</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;gitdiff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;gitref&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">gitref</span><span class="p">,</span> <span class="n">gitdiff</span></div>
+
+
+
+<div class="viewcode-block" id="read_snaplist">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_snaplist">[docs]</a>
+<span class="k">def</span> <span class="nf">read_snaplist</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read in the list of available snapshots from the Meraxes hdf5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file.</span>
+
+<span class="sd">    h : float</span>
+<span class="sd">        Hubble constant (/100) to scale the galaxy properties to.  If</span>
+<span class="sd">        `None` then no scaling is made unless `set_little_h` was previously</span>
+<span class="sd">        called.  (default = None)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    snaps : array</span>
+<span class="sd">        snapshots</span>
+
+<span class="sd">    redshifts : array</span>
+<span class="sd">        redshifts</span>
+
+<span class="sd">    lt_times : array</span>
+<span class="sd">        light travel times (Myr)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">__meraxes_h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">__meraxes_h</span>
+
+    <span class="n">zlist</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">snaplist</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">lt_times</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">snap</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">zlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fin</span><span class="p">[</span><span class="n">snap</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;Redshift&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">snaplist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">snap</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]))</span>
+                <span class="n">lt_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fin</span><span class="p">[</span><span class="n">snap</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;LTTime&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+    <span class="n">lt_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lt_times</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Scaling lt_times to h = </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">h</span><span class="p">)</span>
+        <span class="n">lt_times</span> <span class="o">/=</span> <span class="n">h</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">snaplist</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">zlist</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">lt_times</span></div>
+
+
+
+<div class="viewcode-block" id="check_for_redshift">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.check_for_redshift">[docs]</a>
+<span class="k">def</span> <span class="nf">check_for_redshift</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">redshift</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check a Meraxes output file for the presence of a particular</span>
+<span class="sd">    redshift.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    redshift : float</span>
+<span class="sd">        Redshift value</span>
+
+<span class="sd">    tol : float</span>
+<span class="sd">        +- tolerance on redshift value present.  An error will be thrown of</span>
+<span class="sd">        no redshift within this tollerance is found.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Closest snapshot</span>
+
+<span class="sd">    redshift : float</span>
+<span class="sd">        Closest corresponding redshift</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">snaps</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">lt_times</span> <span class="o">=</span> <span class="n">read_snaplist</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="n">zs</span> <span class="o">=</span> <span class="n">z</span> <span class="o">-</span> <span class="n">redshift</span>
+
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">zs</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">zs</span><span class="p">[</span><span class="n">w</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No redshifts within tolerance found.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">snaps</span><span class="p">[</span><span class="n">w</span><span class="p">]),</span> <span class="n">z</span><span class="p">[</span><span class="n">w</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="check_for_global_xH">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.check_for_global_xH">[docs]</a>
+<span class="k">def</span> <span class="nf">check_for_global_xH</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">xH</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check a Meraxes output file for the presence of a particular</span>
+<span class="sd">    global neutral fraction.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    xH : float</span>
+<span class="sd">        Neutral fraction value</span>
+
+<span class="sd">    tol : float</span>
+<span class="sd">        +- tolerance on neutral fraction value present.  An error will be</span>
+<span class="sd">        thrown of no redshift within this tollerance is found.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Closest snapshot</span>
+
+<span class="sd">    redshift : float</span>
+<span class="sd">        Closest corresponding redshift</span>
+
+<span class="sd">    xH : float</span>
+<span class="sd">        Closest corresponding redshift</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">snaps</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">lt_times</span> <span class="o">=</span> <span class="n">read_snaplist</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="n">xH_list</span> <span class="o">=</span> <span class="n">read_global_xH</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">snaps</span><span class="p">)</span>
+    <span class="n">xH_list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">xH_list</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>
+    <span class="n">delta_xH</span> <span class="o">=</span> <span class="n">xH</span> <span class="o">-</span> <span class="n">xH_list</span>
+
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta_xH</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta_xH</span><span class="p">[</span><span class="n">w</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No neutral fractions found within tolerance.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">snaps</span><span class="p">[</span><span class="n">w</span><span class="p">]),</span> <span class="n">z</span><span class="p">[</span><span class="n">w</span><span class="p">],</span> <span class="n">xH_list</span><span class="p">[</span><span class="n">w</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="grab_redshift">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.grab_redshift">[docs]</a>
+<span class="k">def</span> <span class="nf">grab_redshift</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Quickly grab the redshift value of a single snapshot from a Meraxes</span>
+<span class="sd">    HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Snapshot for which the redshift is to grabbed</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    redshift : float</span>
+<span class="sd">        Corresponding redshift value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">snapshot</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">present_snaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="n">selection</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">p</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Snap&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">present_snaps</span><span class="p">])</span>
+            <span class="n">present_snaps</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">4</span><span class="p">:])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">present_snaps</span><span class="p">[</span><span class="n">selection</span><span class="p">]]</span>
+            <span class="n">snapshot</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">present_snaps</span><span class="p">)[</span><span class="n">snapshot</span><span class="p">]</span>
+        <span class="n">redshift</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;Redshift&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">redshift</span></div>
+
+
+
+<div class="viewcode-block" id="grab_unsampled_snapshot">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.grab_unsampled_snapshot">[docs]</a>
+<span class="k">def</span> <span class="nf">grab_unsampled_snapshot</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Quickly grab the unsampled snapshot value of a single snapshot from a</span>
+<span class="sd">    Meraxes HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Snapshot for which the unsampled value is to be grabbed</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    redshift : float</span>
+<span class="sd">        Corresponding unsampled snapshot value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="n">redshift</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;UnsampledSnapshot&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">redshift</span></div>
+
+
+
+<div class="viewcode-block" id="read_firstprogenitor_indices">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_firstprogenitor_indices">[docs]</a>
+<span class="k">def</span> <span class="nf">read_firstprogenitor_indices</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read the FirstProgenitor indices from the Meraxes HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Snapshot from which the progenitors dataset is to be read from.</span>
+
+<span class="sd">    pandas : bool</span>
+<span class="sd">        Return a pandas series instead of a numpy array.  (default = False)</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fp_ind : array or series</span>
+<span class="sd">        FirstProgenitor indices</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">pandas</span><span class="p">:</span>
+        <span class="n">_check_pandas</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+
+        <span class="c1"># number of cores used for this run</span>
+        <span class="n">n_cores</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;NCores&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># group in the master file for this snapshot</span>
+        <span class="n">snap_group</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)]</span>
+
+        <span class="c1"># group for the previous snapshot</span>
+        <span class="n">prev_snap_group</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="c1"># number of galaxies in this snapshot</span>
+        <span class="n">n_gals</span> <span class="o">=</span> <span class="n">snap_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;NGalaxies&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># malloc the fp_ind array and an array that will hold offsets for</span>
+        <span class="c1"># each core</span>
+        <span class="n">fp_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_gals</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">)</span>
+        <span class="n">prev_core_counter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_cores</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">)</span>
+
+        <span class="c1"># calculate the offsets for each core</span>
+        <span class="n">prev_core_counter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i_core</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cores</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">prev_core_counter</span><span class="p">[</span><span class="n">i_core</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_snap_group</span><span class="p">[</span><span class="s2">&quot;Core</span><span class="si">{:d}</span><span class="s2">/Galaxies&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_core</span><span class="p">)]</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">prev_core_counter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">prev_core_counter</span><span class="p">)</span>
+
+        <span class="c1"># loop through and read in the FirstProgenitorIndices for each core. Be</span>
+        <span class="c1"># sure to update the value to reflect that we are making one big array</span>
+        <span class="c1"># from the output of all cores. Also be sure *not* to update fp indices</span>
+        <span class="c1"># that = -1.  This has special meaning!</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i_core</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cores</span><span class="p">):</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">snap_group</span><span class="p">[</span><span class="s2">&quot;Core</span><span class="si">{:d}</span><span class="s2">/FirstProgenitorIndices&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_core</span><span class="p">)]</span>
+            <span class="n">core_nvals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">size</span>
+            <span class="k">if</span> <span class="n">core_nvals</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dest_sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">s_</span><span class="p">[</span><span class="n">counter</span> <span class="p">:</span> <span class="n">core_nvals</span> <span class="o">+</span> <span class="n">counter</span><span class="p">]</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">read_direct</span><span class="p">(</span><span class="n">fp_ind</span><span class="p">,</span> <span class="n">dest_sel</span><span class="o">=</span><span class="n">dest_sel</span><span class="p">)</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="n">core_nvals</span>
+                <span class="n">fp_ind</span><span class="p">[</span><span class="n">dest_sel</span><span class="p">][</span><span class="n">fp_ind</span><span class="p">[</span><span class="n">dest_sel</span><span class="p">]</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">prev_core_counter</span><span class="p">[</span><span class="n">i_core</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">pandas</span><span class="p">:</span>
+        <span class="n">fp_ind</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">fp_ind</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fp_ind</span></div>
+
+
+
+<div class="viewcode-block" id="read_nextprogenitor_indices">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_nextprogenitor_indices">[docs]</a>
+<span class="k">def</span> <span class="nf">read_nextprogenitor_indices</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read the NextProgenitor indices from the Meraxes HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Snapshot from which the progenitors dataset is to be read from.</span>
+
+<span class="sd">    pandas : bool</span>
+<span class="sd">        Return a pandas series instead of a numpy array.  (default = False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np_ind : array</span>
+<span class="sd">        NextProgenitor indices</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">pandas</span><span class="p">:</span>
+        <span class="n">_check_pandas</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+
+        <span class="c1"># number of cores used for this run</span>
+        <span class="n">n_cores</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;NCores&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># group in the master file for this snapshot</span>
+        <span class="n">snap_group</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)]</span>
+
+        <span class="c1"># number of galaxies in this snapshot</span>
+        <span class="n">n_gals</span> <span class="o">=</span> <span class="n">snap_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;NGalaxies&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># malloc the np_ind array</span>
+        <span class="n">np_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_gals</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">)</span>
+
+        <span class="c1"># loop through and read in the NextProgenitorIndices for each core. Be</span>
+        <span class="c1"># sure to update the value to reflect that we are making one big array</span>
+        <span class="c1"># from the output of all cores. Also be sure *not* to update np indices</span>
+        <span class="c1"># that = -1.  This has special meaning!</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i_core</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cores</span><span class="p">):</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">snap_group</span><span class="p">[</span><span class="s2">&quot;Core</span><span class="si">{:d}</span><span class="s2">/NextProgenitorIndices&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_core</span><span class="p">)]</span>
+            <span class="n">core_nvals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">size</span>
+            <span class="k">if</span> <span class="n">core_nvals</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dest_sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">s_</span><span class="p">[</span><span class="n">counter</span> <span class="p">:</span> <span class="n">core_nvals</span> <span class="o">+</span> <span class="n">counter</span><span class="p">]</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">read_direct</span><span class="p">(</span><span class="n">np_ind</span><span class="p">,</span> <span class="n">dest_sel</span><span class="o">=</span><span class="n">dest_sel</span><span class="p">)</span>
+                <span class="n">np_ind</span><span class="p">[</span><span class="n">dest_sel</span><span class="p">][</span><span class="n">np_ind</span><span class="p">[</span><span class="n">dest_sel</span><span class="p">]</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">counter</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="n">core_nvals</span>
+
+    <span class="k">if</span> <span class="n">pandas</span><span class="p">:</span>
+        <span class="n">np_ind</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np_ind</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np_ind</span></div>
+
+
+
+<div class="viewcode-block" id="read_descendant_indices">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_descendant_indices">[docs]</a>
+<span class="k">def</span> <span class="nf">read_descendant_indices</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read the Descendant indices from the Meraxes HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Snapshot from which the descendant dataset is to be read from.</span>
+
+<span class="sd">    pandas : bool</span>
+<span class="sd">        Return a pandas series instead of a numpy array.  (default = False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    desc_ind : array</span>
+<span class="sd">        NextProgenitor indices</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">pandas</span><span class="p">:</span>
+        <span class="n">_check_pandas</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+
+        <span class="c1"># number of cores used for this run</span>
+        <span class="n">n_cores</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;NCores&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># group in the master file for this snapshot</span>
+        <span class="n">snap_group</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)]</span>
+
+        <span class="c1"># group for the next snapshot</span>
+        <span class="n">next_snap_group</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="c1"># number of galaxies in this snapshot</span>
+        <span class="n">n_gals</span> <span class="o">=</span> <span class="n">snap_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;NGalaxies&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># malloc the desc_ind array and an array that will hold offsets for</span>
+        <span class="c1"># each core</span>
+        <span class="n">desc_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_gals</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">)</span>
+        <span class="n">prev_core_counter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_cores</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">)</span>
+
+        <span class="c1"># calculate the offsets for each core</span>
+        <span class="n">prev_core_counter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i_core</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cores</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">prev_core_counter</span><span class="p">[</span><span class="n">i_core</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">next_snap_group</span><span class="p">[</span><span class="s2">&quot;Core</span><span class="si">{:d}</span><span class="s2">/Galaxies&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_core</span><span class="p">)]</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">prev_core_counter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">prev_core_counter</span><span class="p">)</span>
+
+        <span class="c1"># loop through and read in the DescendantIndices for each core. Be sure</span>
+        <span class="c1"># to update the value to reflect that we are making one big array from</span>
+        <span class="c1"># the output of all cores. Also be sure *not* to update desc indices</span>
+        <span class="c1"># that = -1.  This has special meaning!</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i_core</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cores</span><span class="p">):</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">snap_group</span><span class="p">[</span><span class="s2">&quot;Core</span><span class="si">{:d}</span><span class="s2">/DescendantIndices&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_core</span><span class="p">)]</span>
+            <span class="n">core_nvals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">size</span>
+            <span class="k">if</span> <span class="n">core_nvals</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dest_sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">s_</span><span class="p">[</span><span class="n">counter</span> <span class="p">:</span> <span class="n">core_nvals</span> <span class="o">+</span> <span class="n">counter</span><span class="p">]</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">read_direct</span><span class="p">(</span><span class="n">desc_ind</span><span class="p">,</span> <span class="n">dest_sel</span><span class="o">=</span><span class="n">dest_sel</span><span class="p">)</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="n">core_nvals</span>
+                <span class="n">desc_ind</span><span class="p">[</span><span class="n">dest_sel</span><span class="p">][</span><span class="n">desc_ind</span><span class="p">[</span><span class="n">dest_sel</span><span class="p">]</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">prev_core_counter</span><span class="p">[</span><span class="n">i_core</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">pandas</span><span class="p">:</span>
+        <span class="n">desc_ind</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">desc_ind</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">desc_ind</span></div>
+
+
+
+<div class="viewcode-block" id="read_grid">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_grid">[docs]</a>
+<span class="k">def</span> <span class="nf">read_grid</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h_scaling</span><span class="o">=</span><span class="p">{}):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read a grid from the Meraxes HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : int</span>
+<span class="sd">        Specify the grid you want to read.</span>
+<span class="sd">        0 -&gt; Reionization grid</span>
+<span class="sd">        1 -&gt; Metal grid</span>
+<span class="sd">    </span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Snapshot from which the grid is to be read from.</span>
+
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the requested grid</span>
+
+<span class="sd">    h : float</span>
+<span class="sd">        Hubble constant (/100) to scale the galaxy properties to.  If</span>
+<span class="sd">        `None` then no scaling is made unless `set_little_h` was previously</span>
+<span class="sd">        called.  (default = None)</span>
+
+<span class="sd">    h_scaling : dict</span>
+<span class="sd">        Dictionary of grid names (keys) and associated Hubble</span>
+<span class="sd">        constant scalings (values) as lambda functions. e.g.</span>
+<span class="sd">        | h_scaling = {&quot;MassLikeGrid&quot; : lambda x, h: x/h,}</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            The requested grid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">__meraxes_h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">__meraxes_h</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">spec</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">spec</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;spec should be either 0 (reio) or 1 (metal)&quot;</span><span class="p">)</span>    
+        
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">grid_dim</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;InputParams&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;ReionGridDim&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">grid_dim</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;InputParams&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;TOCF_HII_dim&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ds_name</span> <span class="o">=</span> <span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">/Grids/</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">spec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">grid_dim</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="s2">&quot;InputParams&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;MetalGridDim&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ds_name</span> <span class="o">=</span> <span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">/MetalGrids/</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">grid</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="n">ds_name</span><span class="p">][:]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No grid called </span><span class="si">%s</span><span class="s2"> found in file </span><span class="si">%s</span><span class="s2"> .&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+
+    <span class="c1"># Apply any Hubble scalings</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">read_units</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="n">h_conv</span> <span class="o">=</span> <span class="n">units</span><span class="p">[</span><span class="s2">&quot;HubbleConversions&quot;</span><span class="p">][</span><span class="s2">&quot;Grids&quot;</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Scaling grid to h = </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">h</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">conversion</span> <span class="o">=</span> <span class="n">h_conv</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unknown scaling for grid </span><span class="si">%s</span><span class="s2"> - assuming no &quot;</span> <span class="s2">&quot;scaling with Hubble const!&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+            <span class="n">conversion</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+
+        <span class="k">if</span> <span class="n">conversion</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">grid</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">conversion</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">log10</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">,</span> <span class="n">__builtins__</span><span class="o">=</span><span class="p">{}))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to parse conversion string `</span><span class="si">%s</span><span class="s2">` for unit&quot;</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">conversion</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+    <span class="n">grid</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">grid_dim</span><span class="p">,]</span> <span class="o">*</span> <span class="mi">3</span>
+
+    <span class="k">return</span> <span class="n">grid</span></div>
+
+
+
+<div class="viewcode-block" id="list_grids">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.list_grids">[docs]</a>
+<span class="k">def</span> <span class="nf">list_grids</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; List the available grids from a Meraxes HDF5 output file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : int</span>
+<span class="sd">        Specify the grid you want to read.</span>
+<span class="sd">        0 -&gt; Reionization grid</span>
+<span class="sd">        1 -&gt; Metal grid</span>
+<span class="sd">    </span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Snapshot for which the grids are to be listed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grids : list</span>
+<span class="sd">        A list of the available grids</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">spec</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">spec</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;spec should be either 0 (reio) or 1 (metal)&quot;</span><span class="p">)</span> 
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">group_name</span> <span class="o">=</span> <span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">/Grids&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">spec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">group_name</span> <span class="o">=</span> <span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">/MetalGrids&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">grids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No grids found for snapshot </span><span class="si">%d</span><span class="s2"> in file </span><span class="si">%s</span><span class="s2"> .&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">grids</span></div>
+
+
+
+<div class="viewcode-block" id="read_ps">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_ps">[docs]</a>
+<span class="k">def</span> <span class="nf">read_ps</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read 21cm power spectrum from the Meraxes HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int</span>
+<span class="sd">        Snapshot from which the power spectrum is to be read from.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    kval : array</span>
+<span class="sd">        k value (Mpc^-1)</span>
+
+<span class="sd">    ps : array</span>
+<span class="sd">        power value (should be dimensionless but actually might be power</span>
+<span class="sd">        density i.e. with units [Mpc^-3])</span>
+
+<span class="sd">    pserr : array</span>
+<span class="sd">        error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">ps</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Snap</span><span class="si">{</span><span class="n">snapshot</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">/Grids/PS_data&quot;</span><span class="p">][:]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Snap</span><span class="si">{</span><span class="n">snapshot</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">/Grids/k_bins&quot;</span><span class="p">][:]</span>
+        <span class="n">pserr</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Snap</span><span class="si">{</span><span class="n">snapshot</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">/Grids/PS_error&quot;</span><span class="p">][:]</span>
+
+    <span class="k">return</span> <span class="n">k</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">pserr</span></div>
+
+
+<div class="viewcode-block" id="read_global_xH">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_global_xH">[docs]</a>
+<span class="k">def</span> <span class="nf">read_global_xH</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s2">&quot;volume&quot;</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read global xH from the Meraxes HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int or list</span>
+<span class="sd">        Snapshot(s) from which the global xH is to be read</span>
+<span class="sd">        from.</span>
+
+<span class="sd">    weight : str</span>
+<span class="sd">        &#39;volume&#39; -&gt; volume weighted</span>
+<span class="sd">        &#39;mass&#39; -&gt; mass weighted</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    global_xH : float or ndarray</span>
+<span class="sd">        Global xH value(s)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="s2">&quot;__len__&quot;</span><span class="p">):</span>
+        <span class="n">snapshot</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">snapshot</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">weight</span> <span class="o">==</span> <span class="s2">&quot;volume&quot;</span><span class="p">:</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="s2">&quot;volume_weighted_global_xH&quot;</span>
+    <span class="k">elif</span> <span class="n">weight</span> <span class="o">==</span> <span class="s2">&quot;mass&quot;</span><span class="p">:</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="s2">&quot;mass_weighted_global_xH&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized weighting scheme: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">weight</span><span class="p">)</span>
+
+    <span class="n">snapshot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+    <span class="n">global_xH</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">snap</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">snapshot</span><span class="p">):</span>
+            <span class="n">ds_name</span> <span class="o">=</span> <span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">/Grids/xH&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snap</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">global_xH</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="n">ds_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">prop</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">weight</span> <span class="o">==</span> <span class="s2">&quot;volume&quot;</span><span class="p">:</span>
+                    <span class="c1"># This case deals with old style Meraxes file outputs</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">global_xH</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="n">ds_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;global_xH&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                <span class="n">global_xH</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No global_xH found for snapshot </span><span class="si">%d</span><span class="s2"> in file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">global_xH</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">global_xH</span></div>
+
+
+
+<div class="viewcode-block" id="read_global_J_21">
+<a class="viewcode-back" href="../../../meraxes.html#dragons.meraxes.io.read_global_J_21">[docs]</a>
+<span class="k">def</span> <span class="nf">read_global_J_21</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Read the volume weighted global J_21 from the Meraxes output.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Full path to input hdf5 master file</span>
+
+<span class="sd">    snapshot : int or list</span>
+<span class="sd">        Snapshot(s) from which the global J_21 is to be read</span>
+<span class="sd">        from.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    global_J_21 : float or ndarray</span>
+<span class="sd">        Global J_21 value(s)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="s2">&quot;__len__&quot;</span><span class="p">):</span>
+        <span class="n">snapshot</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">snapshot</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="n">snapshot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+    <span class="n">global_J_21</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="c1"># Older versions of the Meraxes output won&#39;t have the global J_21 attribute, so we will need to calculate it</span>
+    <span class="c1"># ourselves in that case...</span>
+    <span class="n">global_val_exists</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fin</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Snap&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="s2">&quot;Grids&quot;</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="ow">and</span> <span class="s2">&quot;J_21&quot;</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;Grids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="ow">and</span> <span class="s2">&quot;volume_weighted_global_J_21&quot;</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;Grids/J_21&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="p">):</span>
+                <span class="n">global_val_exists</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">global_val_exists</span><span class="p">:</span>
+        <span class="c1"># The global value has been precalculated. Thanks goodness!</span>
+        <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">snap</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">snapshot</span><span class="p">):</span>
+                <span class="n">ds_name</span> <span class="o">=</span> <span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">/Grids/J_21&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snap</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">global_J_21</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">fin</span><span class="p">[</span><span class="n">ds_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;volume_weighted_global_J_21&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">global_J_21</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No global_J_21 found for snapshot </span><span class="si">%d</span><span class="s2"> in file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># The global value hasn&#39;t been precalculated. We&#39;ll need to calculate it ourselves from the grid. Since the grid</span>
+        <span class="c1"># may be large we will need to sort the values before summing to try and beat down as much floating point error</span>
+        <span class="c1"># as possible. This will be slow for large grids!</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;No volume_weighted_global_J_21 values found in Meraxes file. Calculating manually (this may &quot;</span>
+            <span class="s2">&quot;be slower than expected)...&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">h5</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">snap</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">snapshot</span><span class="p">):</span>
+                <span class="n">ds_name</span> <span class="o">=</span> <span class="s2">&quot;Snap</span><span class="si">{:03d}</span><span class="s2">/Grids/J_21&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">snap</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">global_J_21</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">fin</span><span class="p">[</span><span class="n">ds_name</span><span class="p">][:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">fin</span><span class="p">[</span><span class="n">ds_name</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">global_J_21</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No J_21 grid found for snapshot </span><span class="si">%d</span><span class="s2"> in file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">snap</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">global_J_21</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">global_J_21</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013, Simon Mutch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

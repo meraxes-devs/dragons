@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plotutils &mdash; DRAGONS Tools 0.5.1.dev4+g4682294 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/documentation_options.js?v=fb93ffc6"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="nbody" href="nbody.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            DRAGONS Tools
+          </a>
+              <div class="version">
+                0.5.1.dev4+g4682294
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">DRAGONS Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="meraxes.html">meraxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="munge.html">munge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nbody.html">nbody</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">plotutils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dragons.plotutils.density_contour"><code class="docutils literal notranslate"><span class="pre">density_contour()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DRAGONS Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">plotutils</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/plotutils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="plotutils">
+<span id="id1"></span><h1>plotutils<a class="headerlink" href="#plotutils" title="Link to this heading">¶</a></h1>
+<dl class="py function" id="module-dragons.plotutils">
+<dt class="sig sig-object py" id="dragons.plotutils.density_contour">
+<span class="sig-prename descclassname"><span class="pre">dragons.plotutils.</span></span><span class="sig-name descname"><span class="pre">density_contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ydata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clabel_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">contour_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/plotutils.html#density_contour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.plotutils.density_contour" title="Link to this definition">¶</a></dt>
+<dd><p>Create a density contour plot.</p>
+<p>Code modified from:
+<a class="reference external" href="https://gist.github.com/adrn/3993992#file-density_contour-py">https://gist.github.com/adrn/3993992#file-density_contour-py</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xdata</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>ydata</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>bins</strong> (<em>int</em><em> or </em><em>list</em>) – Number of bins [nbins_x, nbins_y]. If int then
+nbins_x=nbins_y=nbins.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.AxesSubplot</em>) – Axis to draw contours on</p></li>
+<li><p><strong>label</strong> (<em>bool</em>) – Draw labels on the contours? (default: True)</p></li>
+<li><p><strong>smooth</strong> (<em>float</em>) – Smooth the contours by a gaussian filter with given standard deviation (default: 0.0)</p></li>
+<li><p><strong>clabel_kwargs</strong> (<em>dict</em>) – kwargs to be passed to pyplot.clabel() (default: {})</p></li>
+<li><p><strong>**contour_kwargs</strong> (<em>dict</em>) – kwargs to be passed to pyplot.contour()</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>contour</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.contour.QuadContourSet</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="nbody.html" class="btn btn-neutral float-left" title="nbody" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013, Simon Mutch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

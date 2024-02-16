@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>meraxes &mdash; DRAGONS Tools 0.5.1.dev4+g4682294 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/documentation_options.js?v=fb93ffc6"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="munge" href="munge.html" />
+    <link rel="prev" title="Credits" href="authors.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            DRAGONS Tools
+          </a>
+              <div class="version">
+                0.5.1.dev4+g4682294
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">DRAGONS Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">meraxes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-dragons.meraxes.galaxy_history">meraxes.galaxy_history</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.galaxy_history.galaxy_history"><code class="docutils literal notranslate"><span class="pre">galaxy_history()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-dragons.meraxes.io">meraxes.io</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.check_for_global_xH"><code class="docutils literal notranslate"><span class="pre">check_for_global_xH()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.check_for_redshift"><code class="docutils literal notranslate"><span class="pre">check_for_redshift()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.grab_redshift"><code class="docutils literal notranslate"><span class="pre">grab_redshift()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.grab_unsampled_snapshot"><code class="docutils literal notranslate"><span class="pre">grab_unsampled_snapshot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.list_grids"><code class="docutils literal notranslate"><span class="pre">list_grids()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_descendant_indices"><code class="docutils literal notranslate"><span class="pre">read_descendant_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_firstprogenitor_indices"><code class="docutils literal notranslate"><span class="pre">read_firstprogenitor_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_gals"><code class="docutils literal notranslate"><span class="pre">read_gals()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_git_info"><code class="docutils literal notranslate"><span class="pre">read_git_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_global_J_21"><code class="docutils literal notranslate"><span class="pre">read_global_J_21()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_global_xH"><code class="docutils literal notranslate"><span class="pre">read_global_xH()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_grid"><code class="docutils literal notranslate"><span class="pre">read_grid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_input_params"><code class="docutils literal notranslate"><span class="pre">read_input_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_nextprogenitor_indices"><code class="docutils literal notranslate"><span class="pre">read_nextprogenitor_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_ps"><code class="docutils literal notranslate"><span class="pre">read_ps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_snaplist"><code class="docutils literal notranslate"><span class="pre">read_snaplist()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.read_units"><code class="docutils literal notranslate"><span class="pre">read_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.io.set_little_h"><code class="docutils literal notranslate"><span class="pre">set_little_h()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-dragons.meraxes.reion">meraxes.reion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.meraxes.reion.electron_optical_depth"><code class="docutils literal notranslate"><span class="pre">electron_optical_depth()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#meraxes-plots">meraxes.plots</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="munge.html">munge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nbody.html">nbody</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="plotutils.html">plotutils</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DRAGONS Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">meraxes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/meraxes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="meraxes">
+<span id="id1"></span><h1>meraxes<a class="headerlink" href="#meraxes" title="Link to this heading">¶</a></h1>
+<section id="module-dragons.meraxes.galaxy_history">
+<span id="meraxes-galaxy-history"></span><h2>meraxes.galaxy_history<a class="headerlink" href="#module-dragons.meraxes.galaxy_history" title="Link to this heading">¶</a></h2>
+<p>Generate the full (first progenitor line) history of a galaxy.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.galaxy_history.galaxy_history">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.galaxy_history.</span></span><span class="sig-name descname"><span class="pre">galaxy_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gal_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">future_snapshot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pandas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">props</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/galaxy_history.html#galaxy_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.galaxy_history.galaxy_history" title="Link to this definition">¶</a></dt>
+<dd><p>Read in the full first progenitor history of a galaxy at a given final
+snapshot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file.</p></li>
+<li><p><strong>gal_id</strong> (<em>int</em>) – Unique ID of the target galaxy.</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – Snapshot at which the history is to be traced from.</p></li>
+<li><p><strong>props</strong> (<em>list</em>) – A list of galaxy properties requested.  (default: All properties)</p></li>
+<li><p><strong>future_snapshot</strong> (<em>int</em>) – Also read in the future of the galaxy object up to this snapshot.
+(default: -1 [don’t read in future])</p></li>
+<li><p><strong>pandas</strong> (<em>bool</em>) – Return panads dataframe.  (default = False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>history</strong> (<em>ndarray or DataFrame</em>) – The requested first progenitor history.  If future=True then the
+ndarray includes the future of this object.</p></li>
+<li><p><strong>merged_snapshot</strong> (<em>int</em>) – If <cite>future_snapshot != -1</cite> then the snapshot at which the galaxy
+merged into another is also returned.  If <cite>merged_snapshot = -1</cite>
+then the galaxy remains until <cite>future_snapshot.</cite></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-dragons.meraxes.io">
+<span id="meraxes-io"></span><h2>meraxes.io<a class="headerlink" href="#module-dragons.meraxes.io" title="Link to this heading">¶</a></h2>
+<p>Routines for reading Meraxes output files.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.check_for_global_xH">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">check_for_global_xH</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xH</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#check_for_global_xH"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.check_for_global_xH" title="Link to this definition">¶</a></dt>
+<dd><p>Check a Meraxes output file for the presence of a particular
+global neutral fraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>xH</strong> (<em>float</em>) – Neutral fraction value</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – +- tolerance on neutral fraction value present.  An error will be
+thrown of no redshift within this tollerance is found.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>snapshot</strong> (<em>int</em>) – Closest snapshot</p></li>
+<li><p><strong>redshift</strong> (<em>float</em>) – Closest corresponding redshift</p></li>
+<li><p><strong>xH</strong> (<em>float</em>) – Closest corresponding redshift</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.check_for_redshift">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">check_for_redshift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redshift</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#check_for_redshift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.check_for_redshift" title="Link to this definition">¶</a></dt>
+<dd><p>Check a Meraxes output file for the presence of a particular
+redshift.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>redshift</strong> (<em>float</em>) – Redshift value</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – +- tolerance on redshift value present.  An error will be thrown of
+no redshift within this tollerance is found.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>snapshot</strong> (<em>int</em>) – Closest snapshot</p></li>
+<li><p><strong>redshift</strong> (<em>float</em>) – Closest corresponding redshift</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.grab_redshift">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">grab_redshift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#grab_redshift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.grab_redshift" title="Link to this definition">¶</a></dt>
+<dd><p>Quickly grab the redshift value of a single snapshot from a Meraxes
+HDF5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – Snapshot for which the redshift is to grabbed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>redshift</strong> – Corresponding redshift value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.grab_unsampled_snapshot">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">grab_unsampled_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#grab_unsampled_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.grab_unsampled_snapshot" title="Link to this definition">¶</a></dt>
+<dd><p>Quickly grab the unsampled snapshot value of a single snapshot from a
+Meraxes HDF5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – Snapshot for which the unsampled value is to be grabbed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>redshift</strong> – Corresponding unsampled snapshot value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.list_grids">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">list_grids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#list_grids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.list_grids" title="Link to this definition">¶</a></dt>
+<dd><p>List the available grids from a Meraxes HDF5 output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spec</strong> (<em>int</em>) – Specify the grid you want to read.
+0 -&gt; Reionization grid
+1 -&gt; Metal grid</p></li>
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – Snapshot for which the grids are to be listed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>grids</strong> – A list of the available grids</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_descendant_indices">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_descendant_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pandas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_descendant_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_descendant_indices" title="Link to this definition">¶</a></dt>
+<dd><p>Read the Descendant indices from the Meraxes HDF5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – Snapshot from which the descendant dataset is to be read from.</p></li>
+<li><p><strong>pandas</strong> (<em>bool</em>) – Return a pandas series instead of a numpy array.  (default = False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>desc_ind</strong> – NextProgenitor indices</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_firstprogenitor_indices">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_firstprogenitor_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pandas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_firstprogenitor_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_firstprogenitor_indices" title="Link to this definition">¶</a></dt>
+<dd><p>Read the FirstProgenitor indices from the Meraxes HDF5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – Snapshot from which the progenitors dataset is to be read from.</p></li>
+<li><p><strong>pandas</strong> (<em>bool</em>) – Return a pandas series instead of a numpy array.  (default = False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fp_ind</strong> – FirstProgenitor indices</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array or series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_gals">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_gals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">props</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_props</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pandas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_gals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_gals" title="Link to this definition">¶</a></dt>
+<dd><p>Read in a Meraxes hdf5 output file.</p>
+<p>Reads in the default type of HDF5 file generated by the code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file.</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – The snapshot to read in.  (default: last present snapshot - usually
+z=0)</p></li>
+<li><p><strong>props</strong> (<em>list</em>) – A list of galaxy properties requested.  (default: All properties)</p></li>
+<li><p><strong>sim_props</strong> (<em>bool</em>) – Output some simulation properties as well.  (default = False)</p></li>
+<li><p><strong>pandas</strong> (<em>bool</em>) – Ouput a pandas DataFrame instead of an astropy table.  (default =
+False)</p></li>
+<li><p><strong>table</strong> (<em>bool</em>) – Output an astropy Table instead of a numpy ndarray.  (default =
+False)</p></li>
+<li><p><strong>h</strong> (<em>float</em>) – Hubble constant (/100) to scale the galaxy properties to.  If
+<cite>None</cite> then no scaling is made unless <cite>set_little_h</cite> was previously
+called.  (default = None)</p></li>
+<li><p><strong>indices</strong> (<em>list</em><em> or </em><em>array</em>) – Indices of galaxies to be read.  If <cite>None</cite> then read all galaxies.
+(default = None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>An ndarray with the requested galaxies and properties.</em></p></li>
+<li><p><em>If sim_props==True then output is a tuple of form (galaxies, sim_props)</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_git_info">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_git_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_git_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_git_info" title="Link to this definition">¶</a></dt>
+<dd><p>Read the git diff and ref saved in the master file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ref</strong> (<em>str</em>) – git ref of the model</p></li>
+<li><p><strong>diff</strong> (<em>str</em>) – git diff of the model</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_global_J_21">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_global_J_21</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_global_J_21"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_global_J_21" title="Link to this definition">¶</a></dt>
+<dd><p>Read the volume weighted global J_21 from the Meraxes output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em><em> or </em><em>list</em>) – Snapshot(s) from which the global J_21 is to be read
+from.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>global_J_21</strong> – Global J_21 value(s)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float or ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_global_xH">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_global_xH</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'volume'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_global_xH"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_global_xH" title="Link to this definition">¶</a></dt>
+<dd><p>Read global xH from the Meraxes HDF5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em><em> or </em><em>list</em>) – Snapshot(s) from which the global xH is to be read
+from.</p></li>
+<li><p><strong>weight</strong> (<em>str</em>) – ‘volume’ -&gt; volume weighted
+‘mass’ -&gt; mass weighted</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>global_xH</strong> – Global xH value(s)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float or ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_grid">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_grid" title="Link to this definition">¶</a></dt>
+<dd><p>Read a grid from the Meraxes HDF5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spec</strong> (<em>int</em>) – Specify the grid you want to read.
+0 -&gt; Reionization grid
+1 -&gt; Metal grid</p></li>
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – Snapshot from which the grid is to be read from.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the requested grid</p></li>
+<li><p><strong>h</strong> (<em>float</em>) – Hubble constant (/100) to scale the galaxy properties to.  If
+<cite>None</cite> then no scaling is made unless <cite>set_little_h</cite> was previously
+called.  (default = None)</p></li>
+<li><p><strong>h_scaling</strong> (<em>dict</em>) – Dictionary of grid names (keys) and associated Hubble
+constant scalings (values) as lambda functions. e.g.
+| h_scaling = {“MassLikeGrid” : lambda x, h: x/h,}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested grid</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_input_params">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_input_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_input_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_input_params" title="Link to this definition">¶</a></dt>
+<dd><p>Read in the input parameters from a Meraxes hdf5 output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file.</p></li>
+<li><p><strong>h</strong> (<em>float</em>) – Hubble constant (/100) to scale the galaxy properties to.  If
+<cite>None</cite> then no scaling is made unless <cite>set_little_h</cite> was previously
+called.  (default = None)</p></li>
+<li><p><strong>raw</strong> (<em>bool</em>) – Don’t augment with extra useful quantities. (default = False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>All run properties.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_nextprogenitor_indices">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_nextprogenitor_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pandas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_nextprogenitor_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_nextprogenitor_indices" title="Link to this definition">¶</a></dt>
+<dd><p>Read the NextProgenitor indices from the Meraxes HDF5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – Snapshot from which the progenitors dataset is to be read from.</p></li>
+<li><p><strong>pandas</strong> (<em>bool</em>) – Return a pandas series instead of a numpy array.  (default = False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>np_ind</strong> – NextProgenitor indices</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_ps">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_ps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_ps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_ps" title="Link to this definition">¶</a></dt>
+<dd><p>Read 21cm power spectrum from the Meraxes HDF5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>snapshot</strong> (<em>int</em>) – Snapshot from which the power spectrum is to be read from.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>kval</strong> (<em>array</em>) – k value (Mpc^-1)</p></li>
+<li><p><strong>ps</strong> (<em>array</em>) – power value (should be dimensionless but actually might be power
+density i.e. with units [Mpc^-3])</p></li>
+<li><p><strong>pserr</strong> (<em>array</em>) – error</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_snaplist">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_snaplist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_snaplist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_snaplist" title="Link to this definition">¶</a></dt>
+<dd><p>Read in the list of available snapshots from the Meraxes hdf5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file.</p></li>
+<li><p><strong>h</strong> (<em>float</em>) – Hubble constant (/100) to scale the galaxy properties to.  If
+<cite>None</cite> then no scaling is made unless <cite>set_little_h</cite> was previously
+called.  (default = None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>snaps</strong> (<em>array</em>) – snapshots</p></li>
+<li><p><strong>redshifts</strong> (<em>array</em>) – redshifts</p></li>
+<li><p><strong>lt_times</strong> (<em>array</em>) – light travel times (Myr)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.read_units">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">read_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#read_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.read_units" title="Link to this definition">¶</a></dt>
+<dd><p>Read in the units and hubble conversion information from a Meraxes hdf5
+output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>units</strong> – A dict containing all units (Hubble conversions are stored with key
+<cite>HubbleConversions</cite>).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.io.set_little_h">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.io.</span></span><span class="sig-name descname"><span class="pre">set_little_h</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/io.html#set_little_h"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.io.set_little_h" title="Link to this definition">¶</a></dt>
+<dd><p>Set the value of little h to be used by all future meraxes.io calls
+where applicable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>h</strong> (<em>float</em><em> or </em><em>str</em>) – Little h value.  If a filename is passed as a string, then little h
+will be set to the simulation value read from that file.
+(default: None)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>h</strong> – Little h value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-dragons.meraxes.reion">
+<span id="meraxes-reion"></span><h2>meraxes.reion<a class="headerlink" href="#module-dragons.meraxes.reion" title="Link to this heading">¶</a></h2>
+<p>Routines for reionisation related calculations.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.meraxes.reion.electron_optical_depth">
+<span class="sig-prename descclassname"><span class="pre">dragons.meraxes.reion.</span></span><span class="sig-name descname"><span class="pre">electron_optical_depth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_weighted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/meraxes/reion.html#electron_optical_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.meraxes.reion.electron_optical_depth" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the electron Thomson scattering optical depth from a Meraxes +
+21cmFAST run.  Note that this implementation assumes that the simulation
+volume is fully ionised before the final snapshot stored in the input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>str</em>) – Full path to input hdf5 master file</p></li>
+<li><p><strong>volume_weighted</strong> (<em>bool</em>) – This option is just for testing purposes as it can take a long time
+to mass weight the neutral fraction depending on the grid size.
+The optical depth obtained is often very similar to the correctly
+mass weighted value, however, this should not be used to final
+results.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>z_list</strong> (<em>ndarray</em>) – Redshifts of each snapshot read in the input simulation.</p></li>
+<li><p><strong>scattering_depth</strong> (<em>ndarray</em>) – Thomson scattering depth integrated between z=0 and each snapshot
+of the input simulation.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="meraxes-plots">
+<h2>meraxes.plots<a class="headerlink" href="#meraxes-plots" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="authors.html" class="btn btn-neutral float-left" title="Credits" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="munge.html" class="btn btn-neutral float-right" title="munge" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013, Simon Mutch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

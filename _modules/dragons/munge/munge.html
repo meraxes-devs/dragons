@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dragons.munge.munge &mdash; DRAGONS Tools 0.5.1.dev4+g4682294 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=fb93ffc6"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            DRAGONS Tools
+          </a>
+              <div class="version">
+                0.5.1.dev4+g4682294
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">DRAGONS Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../meraxes.html">meraxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../munge.html">munge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nbody.html">nbody</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotutils.html">plotutils</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DRAGONS Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dragons.munge.munge</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dragons.munge.munge</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;A collection of functions for doing common processing tasks.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">describe</span> <span class="k">as</span> <span class="n">sp_describe</span>
+<span class="kn">from</span> <span class="nn">.tophat_filter</span> <span class="kn">import</span> <span class="n">tophat_filter</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="pretty_print_dict">
+<a class="viewcode-back" href="../../../munge.html#dragons.munge.munge.pretty_print_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">pretty_print_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">fmtlen</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pretty print a dictionary, dealing with recursion.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    d : dict</span>
+<span class="sd">        the dictionary to print</span>
+
+<span class="sd">    fmtlen : int</span>
+<span class="sd">        maximum length of dictionary key for print formatting</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fmtstr</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%%%d</span><span class="s2">s :&quot;</span> <span class="o">%</span> <span class="n">fmtlen</span>
+    <span class="n">fmtstr_title</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%%%d</span><span class="s2">s</span><span class="se">\n</span><span class="si">%%%d</span><span class="s2">s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fmtlen</span><span class="p">,</span> <span class="n">fmtlen</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">fmtstr_title</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;\S&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">)))</span>
+            <span class="n">pretty_print_dict</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">fmtstr</span> <span class="o">%</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ndarray_to_dataframe">
+<a class="viewcode-back" href="../../../munge.html#dragons.munge.munge.ndarray_to_dataframe">[docs]</a>
+<span class="k">def</span> <span class="nf">ndarray_to_dataframe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">drop_vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert numpy ndarray to a pandas DataFrame, dealing with N(&gt;1)</span>
+<span class="sd">    dimensional datatypes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arr : ndarray</span>
+<span class="sd">        Numpy ndarray</span>
+
+<span class="sd">    drop_vectors : bool</span>
+<span class="sd">        only include single value datatypes in output DataFrame</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : DataFrame</span>
+<span class="sd">        Pandas DataFrame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Get a list of all of the columns which are 1D</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="c1"># Create a new dataframe with these columns</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">names</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">drop_vectors</span><span class="p">:</span>
+        <span class="c1"># Loop through each N(&gt;1)D property and append each dimension as</span>
+        <span class="c1"># its own column in the dataframe</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="s2">&quot;_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">i</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="mass_function">
+<a class="viewcode-back" href="../../../munge.html#dragons.munge.munge.mass_function">[docs]</a>
+<span class="k">def</span> <span class="nf">mass_function</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">poisson_uncert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a mass function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mass : ndarray</span>
+<span class="sd">        an array of &#39;masses&#39;</span>
+
+<span class="sd">    volume : float</span>
+<span class="sd">        volume of simulation cube/subset</span>
+
+<span class="sd">    bins : int or list or str</span>
+<span class="sd">        passed to numpy.histogram</span>
+
+<span class="sd">    range : len=2 list or array</span>
+<span class="sd">        range of data to be used for mass function</span>
+
+<span class="sd">    poisson_uncert : bool</span>
+<span class="sd">        return poisson uncertainties in output array (default: False)</span>
+
+<span class="sd">    return_edges : bool</span>
+<span class="sd">        return the bin_edges (default: False)</span>
+
+<span class="sd">    \*\*kwargs</span>
+<span class="sd">        passed to numpy.histogram</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array</span>
+<span class="sd">        [bin centers, mass function vals]</span>
+<span class="sd">        If poisson_uncert=True then array has 3rd column with uncertainties.</span>
+<span class="sd">        If return_edges=True then the bin edges are also returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;normed&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;normed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Turned off normed kwarg in mass_function()&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">mass</span> <span class="o">=</span> <span class="n">mass</span><span class="p">[(</span><span class="n">mass</span> <span class="o">&gt;=</span> <span class="nb">range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">mass</span> <span class="o">&lt;=</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+
+    <span class="n">vals</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">centers</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">radius</span>
+    <span class="k">if</span> <span class="n">poisson_uncert</span><span class="p">:</span>
+        <span class="n">uncert</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">volume</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">poisson_uncert</span><span class="p">:</span>
+        <span class="n">mf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">centers</span><span class="p">,</span> <span class="n">vals</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">uncert</span> <span class="o">/=</span> <span class="n">volume</span> <span class="o">*</span> <span class="n">width</span>
+        <span class="n">mf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">centers</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">uncert</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">return_edges</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mf</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mf</span><span class="p">,</span> <span class="n">edges</span></div>
+
+
+
+<div class="viewcode-block" id="edges_to_centers">
+<a class="viewcode-back" href="../../../munge.html#dragons.munge.munge.edges_to_centers">[docs]</a>
+<span class="k">def</span> <span class="nf">edges_to_centers</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert **evenly spaced** bin edges to centers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    edges : ndarray</span>
+<span class="sd">        bin edges</span>
+
+<span class="sd">    width : bool</span>
+<span class="sd">        also return the bin width</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    centers : ndarray</span>
+<span class="sd">        bin centers (size = edges.size-1)</span>
+
+<span class="sd">    bin_width : float</span>
+<span class="sd">        only returned if width = True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">bin_width</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">bin_width</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">centers</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">radius</span>
+
+    <span class="k">if</span> <span class="n">width</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">centers</span><span class="p">,</span> <span class="n">bin_width</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">centers</span></div>
+
+
+
+<div class="viewcode-block" id="describe">
+<a class="viewcode-back" href="../../../munge.html#dragons.munge.munge.describe">[docs]</a>
+<span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run scipy.stats.describe and produce legible output.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arr : ndarray</span>
+<span class="sd">        Numpy ndarray</span>
+
+<span class="sd">    \*\*kwargs</span>
+<span class="sd">        passed to scipy.stats.describe</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        output of scipy.stats.describe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">stats</span> <span class="o">=</span> <span class="n">sp_describe</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;</span><span class="si">{:15s}</span><span class="s2"> : </span><span class="si">{:g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;</span><span class="si">{:15s}</span><span class="s2"> : </span><span class="si">{:g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])))</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;</span><span class="si">{:15s}</span><span class="s2"> : </span><span class="si">{:g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])))</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;</span><span class="si">{:15s}</span><span class="s2"> : </span><span class="si">{:g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="mi">2</span><span class="p">])))</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;</span><span class="si">{:15s}</span><span class="s2"> : </span><span class="si">{:g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;unbiased var&quot;</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="mi">3</span><span class="p">])))</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;</span><span class="si">{:15s}</span><span class="s2"> : </span><span class="si">{:g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;biased skew&quot;</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="mi">4</span><span class="p">])))</span>
+    <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;</span><span class="si">{:15s}</span><span class="s2"> : </span><span class="si">{:g}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;biased kurt&quot;</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="mi">5</span><span class="p">])))</span>
+
+    <span class="k">return</span> <span class="n">stats</span></div>
+
+
+
+<div class="viewcode-block" id="smooth_grid">
+<a class="viewcode-back" href="../../../munge.html#dragons.munge.munge.smooth_grid">[docs]</a>
+<span class="k">def</span> <span class="nf">smooth_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">side_length</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">filt</span><span class="o">=</span><span class="s2">&quot;tophat&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Smooth a grid by convolution with a filter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : ndarray</span>
+<span class="sd">        The grid to be smoothed</span>
+<span class="sd">    side_length : float</span>
+<span class="sd">        The side length of the grid (assumes all side lengths are equal)</span>
+<span class="sd">    radius : float</span>
+<span class="sd">        The radius of the smoothing filter</span>
+<span class="sd">    filt : string, optional</span>
+<span class="sd">        The name of the filter.  Currently only &quot;tophat&quot; (real space) is</span>
+<span class="sd">        implemented.  More filters will be added over time.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    smoothed_grid : ndarray</span>
+<span class="sd">        The smoothed grid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># The tuple of implemented filters</span>
+    <span class="n">IMPLEMENTED_FILTERS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;tophat&quot;</span><span class="p">,)</span>
+
+    <span class="c1"># Check to see if this filter is implemented</span>
+    <span class="k">if</span> <span class="n">filt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">IMPLEMENTED_FILTERS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Filter not implemented.&quot;</span><span class="p">)</span>
+
+    <span class="n">side_length</span><span class="p">,</span> <span class="n">radius</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">side_length</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+
+    <span class="c1"># Do the forward fft</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftn</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+
+    <span class="c1">#  # Construct a grid of k*radius values</span>
+    <span class="c1">#  k = 2.0 * np.pi * np.fft.fftfreq(grid.shape[0],</span>
+    <span class="c1">#                                   1/float(grid.shape[0])) / side_length</span>
+    <span class="c1">#  k_r = 2.0 * np.pi * np.fft.rfftfreq(grid.shape[0],</span>
+    <span class="c1">#                                      1/float(grid.shape[0])) / side_length</span>
+    <span class="c1">#  k = np.meshgrid(k, k, k_r, sparse=True, indexing=&#39;ij&#39;)</span>
+    <span class="c1">#  kR = np.sqrt(k[0]**2 + k[1]**2 + k[2]**2)*radius</span>
+
+    <span class="c1"># Evaluate the convolution</span>
+    <span class="k">if</span> <span class="n">filt</span> <span class="o">==</span> <span class="s2">&quot;tophat&quot;</span><span class="p">:</span>
+        <span class="n">tophat_filter</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">side_length</span><span class="p">,</span> <span class="n">radius</span><span class="p">)</span>
+        <span class="c1">#  fgrid = grid * 3.0 * (np.sin(kR)/kR**3 - np.cos(kR)/kR**2)</span>
+    <span class="c1">#  fgrid[kR == 0] = grid[kR == 0]</span>
+
+    <span class="c1"># Inverse transform back to real space</span>
+    <span class="c1">#  grid = np.fft.irfftn(fgrid).real</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfftn</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+
+    <span class="c1"># Make sure fgrid is marked available for garbage collection</span>
+    <span class="c1">#  del(fgrid)</span>
+    <span class="c1">#  del(k)</span>
+    <span class="c1">#  del(kR)</span>
+
+    <span class="k">return</span> <span class="n">grid</span></div>
+
+
+
+<div class="viewcode-block" id="power_spectrum">
+<a class="viewcode-back" href="../../../munge.html#dragons.munge.munge.power_spectrum">[docs]</a>
+<span class="k">def</span> <span class="nf">power_spectrum</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">side_length</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">,</span> <span class="n">dimensional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculate the dimensionless and dimensional power spectra of a grid (G):</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       \Delta^2 (k) = \frac{k^3 V}{2\pi^2} &lt;|\hat G|^2&gt;_k</span>
+
+<span class="sd">       P(k) = &lt;|\hat G|^2&gt; V</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : ndarray</span>
+<span class="sd">        The grid from which to construct the power spectrum</span>
+
+<span class="sd">    side_length : float</span>
+<span class="sd">        The side length of the grid (assumes all side lengths are equal)</span>
+
+<span class="sd">    n_bins : int</span>
+<span class="sd">        The number of k bins to use</span>
+
+<span class="sd">    dimensional : Boolean (optional)</span>
+<span class="sd">        Switch for calculating dimensional power spectrum</span>
+<span class="sd">        Default is False</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    kmean : ndarray</span>
+<span class="sd">        The mean wavenumber of each bin</span>
+
+<span class="sd">    power : ndarray</span>
+<span class="sd">        The dimensionless power (:math:`\Delta^2 (k)`)</span>
+
+<span class="sd">    uncert : ndarray</span>
+<span class="sd">        The uncertainty of the dimensionless power within each k bin</span>
+
+<span class="sd">    power_dim : ndarray</span>
+<span class="sd">        The dimensional power (returned iff dimensional = True) (:math:`P(k)`)</span>
+
+<span class="sd">    uncert_dim : ndarray</span>
+<span class="sd">        The uncertainty of the dimensional power within each k bin (returned iff dimensional = True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">volume</span> <span class="o">=</span> <span class="n">side_length</span> <span class="o">**</span> <span class="mi">3</span>
+
+    <span class="c1"># do the FFT (note the normalising 1.0/N_cells factor)</span>
+    <span class="n">ft_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftn</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="c1"># generate a grid of k magnitudes</span>
+    <span class="n">k1d</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">/</span> <span class="n">side_length</span>
+    <span class="n">k1d_r</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">/</span> <span class="n">side_length</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">k1d</span><span class="p">,</span> <span class="n">k1d</span><span class="p">,</span> <span class="n">k1d_r</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">k</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># bin up the k magnitudes</span>
+    <span class="n">k_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">k1d_r</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">k1d_r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">k_bin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">flat</span><span class="p">,</span> <span class="n">k_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">k_bin</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k_bin</span><span class="p">)</span>
+    <span class="n">k_bin</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># loop through each k magnitude bin and calculate the mean power, k and</span>
+    <span class="c1"># uncert</span>
+    <span class="n">kmean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_bins</span><span class="p">)</span>
+    <span class="n">power_dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_bins</span><span class="p">)</span>
+    <span class="n">uncert_dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_bins</span><span class="p">)</span>
+    <span class="n">power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_bins</span><span class="p">)</span>
+    <span class="n">uncert</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_bins</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bins</span><span class="p">):</span>
+
+        <span class="n">sel</span> <span class="o">=</span> <span class="n">k_bin</span> <span class="o">==</span> <span class="n">ii</span>
+        <span class="n">val_dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ft_grid</span><span class="p">[</span><span class="n">sel</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">volume</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="n">sel</span><span class="p">]</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ft_grid</span><span class="p">[</span><span class="n">sel</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">volume</span>
+
+        <span class="n">kmean</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="n">sel</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">power_dim</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">val_dim</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">uncert_dim</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">power_dim</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="n">sel</span><span class="p">]))</span>
+
+        <span class="n">power</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">uncert</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">power</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="n">sel</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">dimensional</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">kmean</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">uncert</span><span class="p">,</span> <span class="n">power_dim</span><span class="p">,</span> <span class="n">uncert_dim</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">kmean</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">uncert</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013, Simon Mutch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

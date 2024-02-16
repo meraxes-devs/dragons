@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nbody &mdash; DRAGONS Tools 0.5.1.dev4+g4682294 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/documentation_options.js?v=fb93ffc6"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="plotutils" href="plotutils.html" />
+    <link rel="prev" title="munge" href="munge.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            DRAGONS Tools
+          </a>
+              <div class="version">
+                0.5.1.dev4+g4682294
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">DRAGONS Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="meraxes.html">meraxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="munge.html">munge</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">nbody</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-dragons.nbody.io">nbody.io</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.nbody.io.read_density_grid"><code class="docutils literal notranslate"><span class="pre">read_density_grid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.nbody.io.read_grid"><code class="docutils literal notranslate"><span class="pre">read_grid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dragons.nbody.io.read_halo_catalog"><code class="docutils literal notranslate"><span class="pre">read_halo_catalog()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="plotutils.html">plotutils</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DRAGONS Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">nbody</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/nbody.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="nbody">
+<span id="id1"></span><h1>nbody<a class="headerlink" href="#nbody" title="Link to this heading">¶</a></h1>
+<section id="module-dragons.nbody.io">
+<span id="nbody-io"></span><h2>nbody.io<a class="headerlink" href="#module-dragons.nbody.io" title="Link to this heading">¶</a></h2>
+<p>Routines for reading nbody (gbpHalos, gbpTrees etc.) output files.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.nbody.io.read_density_grid">
+<span class="sig-prename descclassname"><span class="pre">dragons.nbody.io.</span></span><span class="sig-name descname"><span class="pre">read_density_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/nbody/io.html#read_density_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.nbody.io.read_density_grid" title="Link to this definition">¶</a></dt>
+<dd><div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.2.1: </span>The read_density_grid function is deprecated and may be removed in a future version.
+    Use dragons.nbody.io.read_grid instead.</p>
+</div>
+<p>Read in a density grid produced by gbpCode.</p>
+<blockquote>
+<div><dl class="simple">
+<dt><em>Args</em>:</dt><dd><dl class="simple">
+<dt>fname<span class="classifier">str</span></dt><dd><p>Full path to input grid file.</p>
+</dd>
+</dl>
+</dd>
+<dt><em>Returns</em>:</dt><dd><dl class="simple">
+<dt>grid<span class="classifier">array</span></dt><dd><p>The density grid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.nbody.io.read_grid">
+<span class="sig-prename descclassname"><span class="pre">dragons.nbody.io.</span></span><span class="sig-name descname"><span class="pre">read_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/nbody/io.html#read_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.nbody.io.read_grid" title="Link to this definition">¶</a></dt>
+<dd><p>Read in a real space grid produced by gbpCode.</p>
+<dl class="simple">
+<dt><em>Args</em>:</dt><dd><dl class="simple">
+<dt>fname<span class="classifier">str</span></dt><dd><p>Full path to input grid file.</p>
+</dd>
+<dt>grid_name<span class="classifier">str</span></dt><dd><p>The name of the grid. Must be either <cite>density</cite>, <cite>vx</cite>, <cite>vy</cite>, or
+<cite>vz</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt><em>Returns</em>:</dt><dd><dl class="simple">
+<dt>grid<span class="classifier">ndarray</span></dt><dd><p>The requested grid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dragons.nbody.io.read_halo_catalog">
+<span class="sig-prename descclassname"><span class="pre">dragons.nbody.io.</span></span><span class="sig-name descname"><span class="pre">read_halo_catalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog_loc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dragons/nbody/io.html#read_halo_catalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dragons.nbody.io.read_halo_catalog" title="Link to this definition">¶</a></dt>
+<dd><p>Read in a halo catalog produced by gbpCode.</p>
+<dl class="simple">
+<dt><em>Args</em>:</dt><dd><dl class="simple">
+<dt>catalog_loc<span class="classifier">str</span></dt><dd><p>Full path to input catalog file or directory</p>
+</dd>
+</dl>
+</dd>
+<dt><em>Returns</em>:</dt><dd><dl class="simple">
+<dt>halo<span class="classifier">array</span></dt><dd><p>The catalog of halos</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="munge.html" class="btn btn-neutral float-left" title="munge" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plotutils.html" class="btn btn-neutral float-right" title="plotutils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013, Simon Mutch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
