@@ -850,7 +850,7 @@ def read_grid(spec, fname, snapshot, name, h=None, h_scaling={}):
         h = __meraxes_h
     
     if (spec != 0) and (spec != 1):
-        raise Exception(f"spec should be either 0 (reio) or 1 (metal)")    
+        raise ValueError("spec should be either 0 (reio) or 1 (metal)")    
         
     with h5.File(fname, "r") as fin:
         if spec == 0:
@@ -861,7 +861,7 @@ def read_grid(spec, fname, snapshot, name, h=None, h_scaling={}):
             ds_name = "Snap{:03d}/Grids/{:s}".format(snapshot, name)
         elif spec == 1:
             grid_dim = fin["InputParams"].attrs["MetalGridDim"][0]
-            ds_name = "Snap{:03d}/MetalGrids/{:s}".format(snapshot, prop_name)
+            ds_name = "Snap{:03d}/MetalGrids/{:s}".format(snapshot, name)
         try:
             grid = fin[ds_name][:]
         except KeyError:
@@ -914,7 +914,7 @@ def list_grids(spec, fname, snapshot):
         A list of the available grids
     """
     if (spec != 0) and (spec != 1):
-        raise Exception(f"spec should be either 0 (reio) or 1 (metal)") 
+        raise Exception("spec should be either 0 (reio) or 1 (metal)") 
 
     with h5.File(fname, "r") as fin:
         if spec == 0:
