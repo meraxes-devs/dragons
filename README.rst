@@ -2,15 +2,6 @@
 DRAGONS Tools
 ===============================
 
-.. .. image:: https://badge.fury.io/py/dragons.png
-    :target: http://badge.fury.io/py/dragons
-
-.. .. image:: https://travis-ci.org/dragons-astro/dragons.png?branch=master
-        :target: https://travis-ci.org/dragons-astro/dragons
-
-.. .. image:: https://pypip.in/d/dragons/badge.png
-        :target: https://crate.io/packages/dragons?version=latest
-
 .. image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit
@@ -21,7 +12,7 @@ post-processing.
 
 * Free software: GNU General Public License v3 (GPLv3)
 
-* Documentation: http://www.ph.unimelb.edu.au/~smutch/docs/dragons .
+* Documentation: https://meraxes-devs.github.io/dragons/
 
 * Lead author: Simon Mutch (The University of Melbourne)
 
@@ -33,10 +24,14 @@ Features
 * Common processing tasks for analysing simulation/model data (:ref:`munge`)
 * Tools for common plotting tasks (:ref:`plotutils`)
 
-Tests
+Notes
 -----
 
-Whilst all of the code in this package has been heavily tested in the field by
+This package was born many, many years ago. Python packaging and infrastructure
+has moved on a lot since then. Whilst we have made some effort to modernise the
+package, there is still a lot of work to do. We are very open to contributions.
+
+Whilst all of the code has been heavily tested in the field by
 a number of people, it is sorely lacking unit tests.  This is a high priority
 for this package.  Anyone who is interested or willing to help is encouraged to
 contact the authors.
