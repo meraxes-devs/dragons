@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from distutils.core import Extension
-
 import numpy
-from setuptools import setup
+from setuptools import setup, Extension
+from Cython.Build import cythonize
+
 
 setup(
-    include_dirs=[numpy.get_include()],
-    ext_modules=[
-        Extension("dragons.munge.regrid", ["dragons/munge/regrid.c"]),
-        Extension("dragons.munge.tophat_filter", ["dragons/munge/tophat_filter.c"]),
-    ],
+    ext_modules=cythonize(
+        [
+            Extension("dragons.munge.regrid", sources=["dragons/munge/regrid.pyx"], include_dirs=[numpy.get_include()]),
+            Extension(
+                "dragons.munge.tophat_filter",
+                sources=["dragons/munge/tophat_filter.pyx"],
+                include_dirs=[numpy.get_include()],
+            ),
+        ]
+    ),
 )
